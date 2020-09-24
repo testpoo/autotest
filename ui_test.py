@@ -28,7 +28,7 @@ class RunUiTests(object):
         self.username = username
 
         LogUtility.CreateLoggerFile(
-            path_log+"_"+time.strftime("%Y_%m_%d_%H_%M_%S"))
+            path_log+"/uilog_"+time.strftime("%Y_%m_%d_%H_%M_%S"))
             
     # 获取测试案例
     def getTestCases(self):
@@ -43,24 +43,24 @@ class RunUiTests(object):
 
             TestCase = Extend.Extend()
 
+            result = {'case_name':case_name,'status':'','starttime':starttime,'spenttime':'','error':'',}
+
             for step in steps:
                 action = cover(step)
                 eval('TestCase.'+action)
 
             TestCase.quit()
-            err=''
-            status = '成功'
+
+            result['status'] = '成功'
         except Exception as err:
             LogUtility.logger.debug(
                 "Failed running test siutes, error message: {}".format(str(err)))
-            status = '失败'
-            err = str(err)
-            print('失败了吗')
+            result['status'] = '失败'
         finally:
             endtime = Config.getCurrentTime()
             spenttime = Config.timeDiff(starttime,endtime)
-            print(case_name,status,starttime,spenttime,str(err))
-            return (case_name,status,starttime,spenttime,str(err))
+            result['spenttime'] = spenttime
+            return result
 
     # 获取测试集
     def getTestSiutes(self):
@@ -82,7 +82,7 @@ class RunUiTests(object):
             for ids in all_id:
                 self.id = str(ids)
                 res = self.getTestCases()
-                addUpdateDel('insert into report (case_name,type,status,spenttime,error,username,create_date) values (%s,%s,%s,%s,%s,%s,%s)',[res[0],'ui',res[1],res[3],res[4],self.username,time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+                addUpdateDel('insert into report (case_name,type,status,spenttime,error,username,create_date) values (%s,%s,%s,%s,%s,%s,%s)',[res['case_name'],'ui',res['status'],res['spenttime'],res['error'],self.username,time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
 
         except Exception as e:
             LogUtility.logger.debug(

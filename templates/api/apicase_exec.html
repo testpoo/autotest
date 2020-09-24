@@ -6,23 +6,28 @@
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
 <div class="form-group">
   <label for="name">名称</label>
-  <input type="text" class="form-control required" id="name" name="name" maxlength="20" placeholder="请输入用例名称" readonly
-      unselectable="on" value={{ res[0] }}>
+  <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称" readonly
+      unselectable="on" value={{ res['case_name'] }}>
 </div>
 <div class="form-group">
   <label for="status">状态</label>
-  <input type="text" class="form-control required" id="status" name="status" maxlength="20" placeholder="请输入用例名称" readonly
-      unselectable="on" value={{ res[2] }}>
+  <input type="text" class="form-control required" id="status" name="status" maxlength="200" placeholder="请输入用例名称" readonly
+      unselectable="on" value={{ res['status'] }}>
 </div>
 <div class="form-group">
   <label for="starttime">开始时间</label>
-  <input type="text" class="form-control required" id="starttime" name="starttime" maxlength="20" placeholder="请输入用例名称" readonly
-      unselectable="on" value={{ res[3] }}>
+  <input type="text" class="form-control required" id="starttime" name="starttime" maxlength="200" placeholder="请输入用例名称" readonly
+      unselectable="on" value={{ res['starttime'] }}>
 </div>
 <div class="form-group">
   <label for="spenttime">消耗时间</label>
-  <input type="text" class="form-control required" id="spenttime" name="spenttime" maxlength="20" placeholder="请输入用例名称" readonly
-      unselectable="on" value={{ res[4] }}>
+  <input type="text" class="form-control required" id="spenttime" name="spenttime" maxlength="200" placeholder="请输入用例名称" readonly
+      unselectable="on" value={{ res['spenttime'] }}>
+</div>
+<div class="form-group">
+  <label for="error">错误日志</label>
+  <input type="text" class="form-control required" id="error" name="error" maxlength="200" placeholder="请输入用例名称" readonly
+      unselectable="on" value={{ res['error'] }}>
 </div>
 <table>
   <thead>
@@ -36,13 +41,13 @@
     </tr>
   </thead>
   <tbody>
-    {% for r in res[1] %}
+    {% for r in res['results'] %}
     <tr>
       <td>{{ loop.index }}</td>
-      <td>{{ r[0] }}</td>
-      <td>{{ r[1] }}</td>
-      <td>{{ r[5] }}</td>
-      <td>{{ r[4] }}</td>
+      <td>{{ r['case_name'] }}</td>
+      <td>{{ r['name'] }}</td>
+      <td>{{ r['status'] }}</td>
+      <td>{{ r['error'] }}</td>
       <td><span class="opration">展开</span></td>
     </tr>
     {% endfor %}

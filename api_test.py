@@ -17,7 +17,7 @@ class RunTests(object):
         self.username = username
 
         LogUtility.CreateLoggerFile(
-            path_log+"_"+time.strftime("%Y_%m_%d_%H_%M_%S"))
+            path_log+"/apilog_"+time.strftime("%Y_%m_%d_%H_%M_%S"))
 
     # 获取接口
     def getApis(self):
@@ -55,6 +55,8 @@ class RunTests(object):
             product = cases[0]['product']
             list_apis = cases[0]['steps'] = cases[0]['steps'].split(';')
             results = []
+            status = '成功'
+            err = ''
             for i in range(len(list_apis)):
                 cases_cur = selectone('SELECT name, path, method, request, checks from apidates WHERE case_name=%s and name=%s', [case_name, list_apis[i]+'_'+str(i)])
                 cases_list = [dict(name=row[0], path=row[1], method=row[2], request=row[3],checks=row[4]) for row in cases_cur][0]
@@ -62,25 +64,31 @@ class RunTests(object):
                 url = cases_list['path']
                 method = cases_list['method']
                 data = cases_list['request']
-                headers = {}
-                r = eval('requests.'+method + '(url, headers=headers, data=data)')
+                headers = para_headers
 
-                if r.status_code == 200:
-                    status = "成功"
-                else:
-                    status = "失败"
-                err = ''
-                result=[case_name,name,url,method,err,status]
-                results.append(result)
+                result = {'case_name':case_name,'name':name,'url':url,'method':method,'error':'','status':'成功'}
+                
+                try:
+                    r = eval('requests.'+method + '(url, headers=headers, data=data, verify=False)')
+                
+                    if r.status_code == 200:
+                        result['status'] = "成功"
+                    else:
+                        result['status'] = "失败"
+                except Exception as api_err:
+                    result['status'] = "失败"
+                    result['error'] = api_err
+                    status = '失败'
+                finally:
+                    results.append(result)
         except Exception as err:
             LogUtility.logger.debug(
                 "Failed running test siutes, error message: {}".format(str(err)))
             status = "失败"
-            results[-1][4] = str(err)
         finally:
             endtime = Config.getCurrentTime()
             spenttime = Config.timeDiff(starttime,endtime)
-            return (case_name,results,status,starttime,spenttime,str(err))
+            return {'case_name':case_name,'results':results,'status':status,'starttime':starttime,'spenttime':spenttime,'error':str(err)}
 
     # 获取测试集
     def getTestSiutes(self):
@@ -90,7 +98,6 @@ class RunTests(object):
             cases = [dict(name=row[0], steps=row[1]) for row in cur]
             cases_name = cases[0]['name']
             cases_step = cases[0]['steps'].split(';')
-
             count = len(cases_step)
             all_id = []
             for step in cases_step:
@@ -101,13 +108,10 @@ class RunTests(object):
             for ids in all_id:
                 self.id = str(ids)
                 res = self.getTestCases()
-
-                addUpdateDel('insert into report (case_name,type,status,spenttime,error,username,create_date) values (%s,%s,%s,%s,%s,%s,%s)',[res[0],'api',res[2],res[4],res[5],self.username,time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
-
+                addUpdateDel('insert into report (case_name,type,status,spenttime,error,username,create_date) values (%s,%s,%s,%s,%s,%s,%s)',[res['case_name'],'api',res['status'],res['spenttime'],res['error'],self.username,time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
         except Exception as e:
             LogUtility.logger.debug(
                 "Failed running test siutes, error message: {}".format(str(e)))
-            print(str(e))
         finally:
             endtime = Config.getCurrentTime()
             spenttime = Config.timeDiff(starttime,endtime)

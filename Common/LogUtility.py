@@ -6,7 +6,7 @@ logger.setLevel(logging.DEBUG)
 
 def CreateLoggerFile(filename):
     try:
-        fulllogname = "TestResult\\"+filename+".log"
+        fulllogname = filename+".log"
         fh = logging.FileHandler(fulllogname)
         fh.setLevel(logging.DEBUG)
         formatter = logging.Formatter('%(asctime)s [line:%(lineno)d] %(message)s')

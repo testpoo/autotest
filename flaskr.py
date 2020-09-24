@@ -286,7 +286,7 @@ def ui_report_list():
         abort(401)
     else:
         for root,dirs,files in os.walk(path_ui):
-            report_lists = files
+            report_lists = files[::-1]
         return render_template('report_list.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '测试报告列表',report_lists=report_lists,path = path_ui)
 
 
@@ -352,6 +352,7 @@ def apisitue_exec(id):
         username = session['username']
         newrun = RunTests(id,username)
         res=newrun.getTestSiutes()
+        flash('执行成功...')
         return redirect(url_for('apisitues'))
 
 # NEW API SITUE
@@ -385,7 +386,7 @@ def api_report_list():
         abort(401)
     else:
         for root,dirs,files in os.walk(path_api):
-            report_lists = files
+            report_lists = files[::-1]
         return render_template('report_list.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '测试报告列表',report_lists=report_lists,path = path_api)
 
 # API CASE

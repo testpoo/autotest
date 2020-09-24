@@ -23,3 +23,5 @@ path_log = 'static/TestLog'
 path_api = 'static/TestReport/api'
 
 path_ui = 'static/TestReport/ui'
+
+para_headers = {}

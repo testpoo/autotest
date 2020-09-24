@@ -1,4 +1,4 @@
-
+﻿
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import StaleElementReferenceException
@@ -77,6 +77,13 @@ class Extend(object):
         用法：self.implicitlyWwait(time)
         '''
         self.driver.implicitly_wait(time)
+
+    def wait(self,time):
+        '''
+        描述：等待
+        用法：self.wait(time)
+        '''
+        time.sleep(time)
 
     def findSelect(self,type,value,text):
         '''
