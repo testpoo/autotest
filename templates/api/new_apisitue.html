@@ -1,0 +1,35 @@
+{% extends "base_index.html" %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+<form class="form-horizontal" id="new_apisitue" action="/new_apisitue" method="post">
+    <div class="form-group">
+        <label for="name">名称</label>
+        <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称">
+    </div>
+    <div class="form-group">
+        <label for="description">描述</label>
+        <input type="longtext" class="form-control" id="description" name="description" maxlength="50"
+            placeholder="请输入描述">
+    </div>
+    <div class="form-group">
+        <label for="choice">选择步骤</label>
+        <input list="choice"  class="form-control required" id="select" name="choice" maxlength="200" placeholder="请选择操作步骤" onchange="getElements()">
+        <datalist id="choice">
+          {% for apisitue in apisitues %}
+          <option value="{{ apisitue['name'] }}">
+            {% endfor %}
+        </datalist>
+      </div>
+      <div class="form-group">
+        <label for="steps">操作步骤</label>
+        <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30" rows="1"></textarea>
+        <div id="addElement"></div> 
+      </div>
+    <div class="form-group">
+        <input type=submit value="保存" class="button" name="save">
+    </div>
+</form>
+{% endblock %}

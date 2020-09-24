@@ -1,0 +1,34 @@
+{% extends "base_index.html" %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+<form class="form-horizontal" id="uisitue_edit" action="{{ url_for('uisitue_edit',id=id) }}" method="post">
+  <div class="form-group">
+    <label for="name">名称</label>
+    <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称" readonly
+      unselectable="on" value={{ case['name'] }}>
+  </div>
+  <div class="form-group">
+    <label for="description">描述</label>
+    <input type="longtext" class="form-control" id="description" name="description" maxlength="500" placeholder="请输入描述" value={{ case['description'] }}>
+  </div>
+  <div class="form-group">
+    <label for="select">选择步骤</label>
+    <input id="select" list="steps"  class="form-control required" id="select" name="select" maxlength="200" placeholder="请选择操作步骤">
+    <datalist id="steps">
+      <option value="BMW">
+      <option value="Ford">
+      <option value="Volvo">
+    </datalist>
+  </div>
+  <div class="form-group">
+    <label for="steps">操作步骤</label>
+    <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30" rows="5">{{ case['steps'] }}</textarea>
+  </div>
+  <div class="form-group">
+    <input type=submit value="更新" class="button">
+  </div>
+</form>
+{% endblock %}

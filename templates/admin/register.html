@@ -1,0 +1,32 @@
+{% extends "base_index.html" %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+<form action="{{ url_for('register') }}" method=post>
+  <div class="form-group">
+    <label for="register">用户名<span style="color:red">&#42;</span></label>
+    <input type=text class="form-control required" name=username id="username" maxlength="20" placeholder="请输入用户名">
+  </div>
+  <div class="form-group">
+    <label for="register">密码<span style="color:red">&#42;</span></label>
+    <input type=password class="form-control required" name=password_o id="password_o" maxlength="20" placeholder="请输入用密码">
+  </div>
+  <div class="form-group">
+    <label for="register">确认<span style="color:red">&#42;</span></label>
+    <input type=password class="form-control required" name=password_t id="password_t" maxlength="20" placeholder="请再次输入密码">
+  </div>
+  <div class="form-group">
+    <label for="register">全名<span style="color:red">&#42;</span></label>
+    <input type=text class="form-control required" name=fullname id="fullname" maxlength="20" placeholder="请输入用全名">
+  </div>
+  <div class="form-group">
+    <label for="register">邮件<span style="color:white">&#42;</span></label>
+    <input type=text class="form-control required" name=email id="email" maxlength="20" placeholder="请输入邮件">
+  </div>
+  <div class="form-group">
+    <input type=submit value='创建' class="button">
+  </div>
+</form>
+{% endblock %}

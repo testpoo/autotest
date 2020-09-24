@@ -1,0 +1,43 @@
+{% extends "base_index.html" %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>名称</th>
+      <th>步骤</th>
+      <th>描述</th>
+      <th>创建者</th>
+      <th>创建时间</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for apisitue in apisitues %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ apisitue['name'] }}</td>
+      <td>{{ apisitue['steps'] }}</td>
+      <td>{{ apisitue['description'] }}</td>
+      <td>{{ apisitue['username'] }}</td>
+      <td>{{ apisitue['create_date'] }}</td>
+      <td>
+        {% for opera,links in operation %}
+        <span class="opration"><a href="{{ SITEURL }}/apisitue_{{ links }}/{{ apisitue['id'] }}">{{ opera }}</a></span>
+        {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="new">
+  <ul>
+    <li>
+      <a href="{{ SITEURL }}/new_apisitue">新建</a>
+    </li>
+  </ul>
+</div>
+{% endblock %}

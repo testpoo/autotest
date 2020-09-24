@@ -1,0 +1,56 @@
+{% extends "base_index.html" %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+<form class="form-horizontal" id="new_apicase" name="new_apicase" action="/new_apicase" method="post">
+  <div class="form-group">
+    <label for="type">用例类型</label>
+    <input id="select" list="type" class="form-control required" name="type" maxlength="200" placeholder="请选择用例类型">
+    <datalist id="type">
+      <option value="普通用例">普通用例</option>
+      <option value="公共用例">公共用例</option>
+    </datalist>
+  </div>
+  <div class="form-group">
+    <label for="name">名称</label>
+    <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称">
+  </div>
+  <div class="form-group">
+    <label for="description">描述</label>
+    <input type="text" class="form-control required" id="description" name="description" maxlength="200"
+      placeholder="请输入用例描述">
+  </div>
+  <div class="form-group">
+    <label for="product">所属产品</label>
+    <input id="product" class="form-control required" name="product" maxlength="200" placeholder="请选择产品">
+  </div>
+  <div class="form-group">
+    <label for="model">模块</label>
+    <input id="select" list="model" class="form-control required" name="model" maxlength="200" placeholder="请选择模块">
+    <datalist id="model">
+      {% for model in model_sicap %}
+      <option value="{{ model }}">
+      {% endfor %}
+    </datalist>
+  </div>
+  <div class="form-group">
+    <label for="choice">选择接口</label>
+    <input id="select" list="choice" class="form-control required" name="choice" maxlength="200" placeholder="请选择操作步骤"
+      onchange="getElements()">
+    <datalist id="choice">
+      {% for apiset in apisets %}
+      <option value="{{ apiset['name'] }}">
+      {% endfor %}
+    </datalist>
+  </div>
+  <div class="form-group">
+    <label for="steps">操作步骤</label>
+    <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30" rows="1"></textarea>
+  </div>
+  <div class="form-group">
+    <input type=submit name="save" value="保存" class="button">
+  </div>
+</form>
+{% endblock %}

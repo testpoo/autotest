@@ -1,0 +1,21 @@
+{% extends "base_index.html" %}
+{% block content %}
+<table>
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>测试报告名称</th>
+			<th>操作</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for report_list in report_lists %}
+		<tr>
+			<td>{{ loop.index }}</td>
+			<td>{{ report_list }}</td>
+			<td><span class="opration"><a href="{{ SITEURL }}/{{ path }}/{{ report_list }}" target="_blank">查看</a></span></td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

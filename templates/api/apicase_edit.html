@@ -1,0 +1,44 @@
+{% extends "base_index.html" %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+<div class="form-group">
+    <label for="type">用例类型</label>
+    <input id="type" class="form-control required" name="type" maxlength="200" placeholder="请选择用例类型" readonly
+        unselectable="on" value={{ case['type'] }}>
+</div>
+<div class="form-group">
+    <label for="name">名称</label>
+    <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称"
+        readonly unselectable="on" value={{ case['name'] }}>
+</div>
+<div class="form-group">
+    <label for="description">描述</label>
+    <input type="text" class="form-control required" id="description" name="description" maxlength="200"
+        placeholder="请输入用例描述" readonly unselectable="on" value={{ case['description'] }}>
+</div>
+<div class="form-group">
+    <label for="product">所属产品</label>
+    <input type="text" class="form-control required" id="product" name="product" maxlength="200" placeholder="请输入用例所属产品"
+        readonly unselectable="on" value={{ case['product'] }}>
+</div>
+<div class="form-group">
+    <label for="model">模块</label>
+    <input type="text" class="form-control required" id="model" name="model" maxlength="200" placeholder="请输入用例模块"
+        readonly unselectable="on" value={{ case['model'] }}>
+</div>
+<div class="form-group">
+    <label for="steps">操作步骤</label>
+    <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30" rows="1" readonly
+        unselectable="on">{{ case['steps'] }}</textarea>
+</div>
+<div class="new">
+    <ul>
+      <li>
+        <a href="{{ SITEURL }}/apidate_edit_cases_query/{{ case['name'] }}">编辑数据</a>
+      </li>
+    </ul>
+  </div>
+{% endblock %}

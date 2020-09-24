@@ -1,0 +1,32 @@
+{% extends "base_index.html" %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+<form class="form-horizontal" id="reset_passwd" action="{{ url_for('reset_passwd') }}" method="post">
+  <div class="form-group">
+    <label class="pwcha">用户名<span style="color:red">*</span></label>
+    <input id="select" list="usernames" class="form-control required" id="username" name="username" maxlength="20"
+      placeholder="请选择用户">
+    <datalist id="usernames">
+      {% for username in usernames %}
+      <option value="{{ username['username'] }}">
+        {% endfor %}
+    </datalist>
+  </div>
+  <div class="form-group">
+    <label class="pwcha">新密码<span style="color:red">*</span></label>
+    <input type="password" class="form-control required" name="pw_new_o" id="pw_new_o" maxlength="20"
+      placeholder="请输入新密码">
+  </div>
+  <div class="form-group">
+    <label class="pwcha">确认密码<span style="color:red">*</span></label>
+    <input type="password" class="form-control required" name="pw_new_t" id="pw_new_t" maxlength="20"
+      placeholder="请再次输入密码">
+  </div>
+  <div class="form-group">
+    <input type="submit" value="更新" class="button">
+  </div>
+</form>
+{% endblock %}
