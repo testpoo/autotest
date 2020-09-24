@@ -309,3 +309,20 @@ a.addElement {
     right: 0;
     bottom: 0;
 }
+
+#pagination {
+    height: 42px;
+    line-height: 42px;
+    border-bottom: 1px solid #eee;
+    border-left: 1px solid #eee;
+    border-right: 1px solid #eee;
+}
+
+#pagination span {
+    display: inline-block;
+    width: 42px;
+}
+
+#pagination span a {
+    color: steelblue
+}

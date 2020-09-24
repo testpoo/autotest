@@ -9,9 +9,11 @@
     <tr>
       <th>ID</th>
       <th>名称</th>
-      <th>说明</th>
       <th>模板</th>
       <th>例子</th>
+      <th>说明</th>
+      <th>创建者</th>
+      <th>创建时间</th>
       <th>操作</th>
     </tr>
   </thead>
@@ -21,9 +23,11 @@
     <tr>
       <td>{{ loop.index }}</td>
       <td>{{ uiset['keyword'] }}</td>
-      <td>{{ uiset['description'] }}</td>
       <td>{{ uiset['template'] }}</td>
       <td>{{ uiset['example'] }}</td>
+      <td>{{ uiset['description'] }}</td>
+      <td>{{ uiset['username'] }}</td>
+      <td>{{ uiset['create_date'] }}</td>
       <td>
         {% for opera,links in operation %}
         {% if links != 'exec' %}
@@ -35,6 +39,11 @@
     {% endfor %}
   </tbody>
 </table>
+<div id='pagination'>
+  {% for page in range(all_Page) %}
+  <span><a href="{{ SITEURL }}/uiset/{{ page+1 }}">{{ page+1 }}</a></span>
+  {% endfor %}
+</div>
 <div class="new">
   <ul>
     <li>

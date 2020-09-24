@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import os
+import math
 import pymysql
 from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash
@@ -110,14 +111,16 @@ def index(current_user):
 ###############################
 
 # UI CASES
-@app.route('/uicases', methods=['GET', 'POST'])
-def uicases():
+@app.route('/uicases/<int:num>', methods=['GET', 'POST'])
+def uicases(num):
     if not session.get('logged_in'):
         abort(401)
     else:
-        cur = selectall('SELECT id,type, model, product, name, steps, description, username, create_date FROM uicases')
+        all_Count = selectall('SELECT count(1) FROM uicases')[0][0]
+        all_Page = math.ceil(all_Count/page_Count)
+        cur = selectone('SELECT a.id,a.type, a.model, a.product, a.name, a.steps, a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username LIMIT %s,%s',[num-1,page_Count])
         cases = [dict(id=row[0], type=row[1], model=row[2], product=row[3], name=row[4], steps=row[5], description=row[6], username=row[7], create_date=row[8]) for row in cur]
-        return render_template('ui/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试案例')
+        return render_template('ui/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试案例')
 
 # UI EDIT
 @app.route('/uicase_edit/<int:id>', methods=['GET', 'POST'])
@@ -137,7 +140,7 @@ def uicase_edit(id):
             else:
                 addUpdateDel('update uicases set steps=%s, description=%s where id=%s',[request.form['steps'], request.form['description'],id])
                 flash('编辑成功...')
-                #return redirect(url_for('uicases'))
+                return redirect(url_for('uicases'))
         return render_template('ui/uicase_edit.html',SITEURL=SITEURL, username=session['username'],list_steps=list_steps, case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试案例编辑',error=error,id=id)
 
 # UI QUERY
@@ -192,18 +195,20 @@ def new_uicase():
             addUpdateDel('insert into uicases (type, model, product, name, steps, description, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                          [request.form['type'], request.form['model'], request.form['product'], request.form['name'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
             flash('创建成功...')
-            #return redirect(url_for('uicases'))
+            return redirect(url_for('uicases'))
     return render_template('ui/new_uicase.html', list_steps=list_steps, SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增测试用例', product=product, model_oma=model_oma, error=error)
 
 # UI SITUES
-@app.route('/uisitues', methods=['GET', 'POST'])
-def uisitues():
+@app.route('/uisitues/<int:num>', methods=['GET', 'POST'])
+def uisitues(num):
     if not session.get('logged_in'):
         abort(401)
     else:
-        cur = selectall('SELECT id,name,steps,description,username,create_date FROM uisitues')
+        all_Count = selectall('SELECT count(1) FROM uisitues')[0][0]
+        all_Page = math.ceil(all_Count/page_Count)
+        cur = selectone('SELECT a.id,a.name,a.steps,a.description,b.zh_name,a.create_date FROM uisitues a inner join user b on a.username=b.username LIMIT %s,%s',[num-1,page_Count])
         uisitues = [dict(id=row[0], name=row[1], steps=row[2], description=row[3], username=row[4], create_date=row[5]) for row in cur]
-        return render_template('ui/uisitues.html', SITEURL=SITEURL, username=session['username'], uisitues=uisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集')
+        return render_template('ui/uisitues.html', SITEURL=SITEURL, username=session['username'], uisitues=uisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试集')
 
 # UI SITUES EDIT
 @app.route('/uisitue_edit/<int:id>', methods=['GET', 'POST'])
@@ -219,7 +224,7 @@ def uisitue_edit(id):
             else:
                 addUpdateDel('update uisitues set steps=%s, description=%s where id=%s',[request.form['steps'], request.form['description'],id])
                 flash('编辑成功...')
-                #return redirect(url_for('uisitues'))
+                return redirect(url_for('uisitues'))
         return render_template('ui/uisitue_edit.html',SITEURL=SITEURL, username=session['username'],  case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集编辑',id=id)
 
 # UI SITUES QUERY
@@ -276,17 +281,17 @@ def new_uisitue():
             addUpdateDel('insert into uisitues (name, steps, description, username, create_date) values (%s, %s, %s, %s, %s)',
                          [request.form['name'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
             flash('创建成功...')
-            #return redirect(url_for('uisitues'))
+            return redirect(url_for('uisitues'))
     return render_template('ui/new_uisitue.html',SITEURL=SITEURL, username=session['username'], uisitues=uisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增测试集',error=error)
 
 # UI SIUTE REPORT
-@app.route('/ui_report_list', methods=['GET', 'POST'])
+@app.route('/ui_report_list/1', methods=['GET', 'POST'])
 def ui_report_list():
     if not session.get('logged_in'):
         abort(401)
     else:
         for root,dirs,files in os.walk(path_ui):
-            report_lists = files[::-1]
+            report_lists = files[::-1][0:18]
         return render_template('report_list.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '测试报告列表',report_lists=report_lists,path = path_ui)
 
 
@@ -294,14 +299,16 @@ def ui_report_list():
 #             API
 ###############################
 # API SITUES
-@app.route('/apisitues', methods=['GET', 'POST'])
-def apisitues():
+@app.route('/apisitues/<int:num>', methods=['GET', 'POST'])
+def apisitues(num):
     if not session.get('logged_in'):
         abort(401)
     else:
-        cur = selectall('SELECT id,name,steps,description,username,create_date FROM apisitues')
+        all_Count = selectall('SELECT count(1) FROM apisitues')[0][0]
+        all_Page = math.ceil(all_Count/page_Count)
+        cur = selectone('SELECT a.id,a.name,a.steps,a.description,b.zh_name,a.create_date FROM apisitues a inner join user b on a.username=b.username LIMIT %s,%s',[num-1,page_Count])
         apisitues = [dict(id=row[0], name=row[1], steps=row[2], description=row[3], username=row[4], create_date=row[5]) for row in cur]
-        return render_template('api/apisitues.html', SITEURL=SITEURL, username=session['username'], apisitues=apisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集')
+        return render_template('api/apisitues.html', SITEURL=SITEURL, username=session['username'], apisitues=apisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试集')
 
 # API SITUES EDIT
 @app.route('/apisitue_edit/<int:id>', methods=['GET', 'POST'])
@@ -319,7 +326,7 @@ def apisitue_edit(id):
             else:
                 addUpdateDel('update apisitues set steps=%s, description=%s where id=%s',[request.form['steps'], request.form['description'],id])
                 flash('编辑成功...')
-                #return redirect(url_for('apisitues'))
+                return redirect(url_for('apisitues'))
         return render_template('api/apisitue_edit.html',SITEURL=SITEURL, username=session['username'], case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集编辑',id=id,apisitues=apisitues)
 
 # API SITUES QUERY
@@ -376,28 +383,30 @@ def new_apisitue():
             addUpdateDel('insert into apisitues (name, steps, description, username, create_date) values (%s, %s, %s, %s, %s)',
                          [request.form['name'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
             flash('创建成功...')
-            #return redirect(url_for('apisitues'))
+            return redirect(url_for('apisitues'))
     return render_template('api/new_apisitue.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增测试集',error=error,apisitues=apisitues)
 
 # API SIUTE REPORT
-@app.route('/api_report_list', methods=['GET', 'POST'])
+@app.route('/api_report_list/1', methods=['GET', 'POST'])
 def api_report_list():
     if not session.get('logged_in'):
         abort(401)
     else:
         for root,dirs,files in os.walk(path_api):
-            report_lists = files[::-1]
+            report_lists = files[::-1][0:18]
         return render_template('report_list.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '测试报告列表',report_lists=report_lists,path = path_api)
 
 # API CASE
-@app.route('/apicases', methods=['GET', 'POST'])
-def apicases():
+@app.route('/apicases/<int:num>', methods=['GET', 'POST'])
+def apicases(num):
     if not session.get('logged_in'):
         abort(401)
     else:
-        cur = selectall('SELECT id,type,product,model,name,description,username,create_date, steps FROM apicases')
+        all_Count = selectall('SELECT count(1) FROM apicases')[0][0]
+        all_Page = math.ceil(all_Count/page_Count)
+        cur = selectone('SELECT a.id,a.type,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, steps FROM apicases a inner join user b on a.username=b.username LIMIT %s,%s',[num-1,page_Count])
         apicases = [dict(id=row[0], type=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8]) for row in cur]
-        return render_template('api/apicases.html',SITEURL=SITEURL, username=session['username'], apicases=apicases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '接口测试案例')
+        return render_template('api/apicases.html',SITEURL=SITEURL, username=session['username'], apicases=apicases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '接口测试案例')
 
 # API CASE EDIT
 @app.route('/apicase_edit/<int:id>', methods=['GET', 'POST'])
@@ -522,14 +531,16 @@ def apidate_edit_cases_save(case_name):
 #             SET
 ###############################
 # UI SET
-@app.route('/uiset', methods=['GET', 'POST'])
-def uiset():
+@app.route('/uiset/<int:num>', methods=['GET', 'POST'])
+def uiset(num):
     if not session.get('logged_in'):
         abort(401)
     else:
-        cur = selectall('SELECT id,keyword,description,template,example FROM uiset')
-        uisets = [dict(id=row[0], keyword=row[1], description=row[2], template=row[3], example=row[4]) for row in cur]
-        return render_template('set/uiset.html',SITEURL=SITEURL, username=session['username'],  uisets=uisets, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = 'UI步骤说明')
+        all_Count = selectall('SELECT count(1) FROM uiset')[0][0]
+        all_Page = math.ceil(all_Count/page_Count)
+        cur = selectone('SELECT a.id,a.keyword,a.description,a.template,a.example,b.zh_name,a.create_date FROM uiset a inner join user b on a.username=b.username LIMIT %s,%s',[num-1,page_Count])
+        uisets = [dict(id=row[0], keyword=row[1], description=row[2], template=row[3], example=row[4], username=row[5], create_date=row[6]) for row in cur]
+        return render_template('set/uiset.html',SITEURL=SITEURL, username=session['username'],  uisets=uisets, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = 'UI步骤说明')
 
 # UI SET EDIT
 @app.route('/uiset_edit/<int:id>', methods=['GET', 'POST'])
@@ -591,14 +602,16 @@ def new_uiset():
     return render_template('set/new_uiset.html', SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新建UI步骤说明',error=error)
 
 # API SET
-@app.route('/apiset', methods=['GET', 'POST'])
-def apiset():
+@app.route('/apiset/<int:num>', methods=['GET', 'POST'])
+def apiset(num):
     if not session.get('logged_in'):
         abort(401)
     else:
-        cur = selectall('SELECT id,name,path,method,request,checks,description FROM apiset')
-        apisets = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=row[4], checks=row[5], description=row[6]) for row in cur]
-        return render_template('set/apiset.html',SITEURL=SITEURL, username=session['username'], apisets=apisets, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '全部接口')
+        all_Count = selectall('SELECT count(1) FROM apiset')[0][0]
+        all_Page = math.ceil(all_Count/page_Count)
+        cur = selectone('SELECT a.id,a.name,a.path,a.method,a.request,a.checks,a.description,b.zh_name,a.create_date FROM apiset a inner join user b on a.username=b.username LIMIT %s,%s',[num-1,page_Count])
+        apisets = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=row[4], checks=row[5], description=row[6], username=row[7], create_date=row[8]) for row in cur]
+        return render_template('set/apiset.html',SITEURL=SITEURL, username=session['username'], apisets=apisets, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '全部接口')
 
 # API SET EDIT
 @app.route('/apiset_edit/<int:id>', methods=['GET', 'POST'])
@@ -761,4 +774,4 @@ def logout():
 
 if __name__ == '__main__':
     app.run()
-    #app.run(host='10.43.2.225')
+    #app.run(host='192.168.213.110',port=8000)

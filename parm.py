@@ -18,6 +18,8 @@ model_sicap = ['账号管理','资产管理','资产监控','自动化运维','�
 
 http_methods = ['delete','get','patch','post','put']
 
+page_Count = 15
+
 path_log = 'static/TestLog'
 
 path_api = 'static/TestReport/api'

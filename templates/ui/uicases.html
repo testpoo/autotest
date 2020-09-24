@@ -39,6 +39,11 @@
     {% endfor %}
   </tbody>
 </table>
+<div id='pagination'>
+  {% for page in range(all_Page) %}
+  <span><a href="{{ SITEURL }}/uicases/{{ page+1 }}">{{ page+1 }}</a></span>
+  {% endfor %}
+</div>
 <div class="new">
   <ul>
     <li>

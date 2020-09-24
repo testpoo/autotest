@@ -35,7 +35,7 @@
         <span class="opration"><a href="{{ SITEURL }}/uisitue_{{ links }}/{{ uisitue['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
         {% else %}
-        <span class="opration"><a href="{{ SITEURL }}/uisitue{{ links }}/{{ uisitue['id'] }}">{{ opera }}</a></span>
+        <span class="opration"><a href="{{ SITEURL }}/uisitue_{{ links }}/{{ uisitue['id'] }}">{{ opera }}</a></span>
         {% endif %}
         {% endfor %}
       </td>
@@ -44,6 +44,11 @@
   </tbody>
 </table>
 <div id="loadDiv"><img src="{{ SITEURL }}/static/img/loading.gif" /></div>
+<div id='pagination'>
+  {% for page in range(all_Page) %}
+  <span><a href="{{ SITEURL }}/uicases/{{ page+1 }}">{{ page+1 }}</a></span>
+  {% endfor %}
+</div>
 <div class="new">
   <ul>
     <li>

@@ -33,21 +33,21 @@
         {% if n == 'UI自动化' %}
         <ul id="submenu">
             {% for sub,slink in sub_nav_ui %}
-            <li><a href="{{ SITEURL }}/{{ slink }}">{{ sub }}</a></li>
+            <li><a href="{{ SITEURL }}/{{ slink }}/1">{{ sub }}</a></li>
             {% endfor %}
         </ul>
         {% endif %}
         {% if n == '接口自动化' %}
         <ul id="submenu">
             {% for sub,slink in sub_nav_api %}
-            <li><a href="{{ SITEURL }}/{{ slink }}">{{ sub }}</a></li>
+            <li><a href="{{ SITEURL }}/{{ slink }}/1">{{ sub }}</a></li>
             {% endfor %}
         </ul>
         {% endif %}
         {% if n == '设置' %}
         <ul id="submenu">
             {% for sub,slink in set_nav %}
-            <li><a href="{{ SITEURL }}/{{ slink }}">{{ sub }}</a></li>
+            <li><a href="{{ SITEURL }}/{{ slink }}/1">{{ sub }}</a></li>
             {% endfor %}
         </ul>
         {% endif %}

@@ -43,6 +43,11 @@
     {% endfor %}
   </tbody>
 </table>
+<div id='pagination'>
+  {% for page in range(all_Page) %}
+  <span><a href="{{ SITEURL }}/uicases/{{ page+1 }}">{{ page+1 }}</a></span>
+  {% endfor %}
+</div>
 <div id="loadDiv"><img src="{{ SITEURL }}/static/img/loading.gif" /></div>
 <div class="new">
   <ul>
