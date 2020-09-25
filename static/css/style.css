@@ -13,7 +13,7 @@ html,body{
 
 a {
     text-decoration:none;
-    color: #999;
+    color: #676a6c;
 }
 
 li{
@@ -45,7 +45,7 @@ select,input {
     border-radius: 5px;
     border: 1px solid #eee;
     padding-left: 10px;
-    color: #999;
+    color: #676a6c;
 }
 
 label {
@@ -57,7 +57,7 @@ textarea {
     padding-left: 10px;
     border-radius: 5px;
     border: 1px solid #eee;
-    color: #999;
+    color: #676a6c;
 }
 
 hr {
@@ -69,14 +69,16 @@ hr {
 /* body */
 body {
     background: #fff;
-    font-family: Consolas, Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    /*font-family: Consolas, Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;*/
+    font-family: -apple-system,BlinkMacSystemFont,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 14px;
+    color: #676a6c;
 }
 
 /* base */
 #main {
     width: 100%;
-    color: #999;
+    color: #676a6c;
     position: relative;
     padding-left: 200px;
     height: 100%;
@@ -91,9 +93,11 @@ body {
     text-align: right;
     width: 100%;
     line-height: 60px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #ddd;
     background-color: #fff;
     padding-left: 200px;
+    font-weight: bold;
+    z-index: 1;
 }
 
 #sitename .right {
@@ -122,8 +126,9 @@ body {
     width: 100%;
     line-height: 60px;
     margin-left: -200px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid #ddd;
     background-color: #fff;
+    z-index: 3;
 }
 
 /* base2 */
@@ -140,6 +145,8 @@ body {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    font-weight: bold;
+    z-index: 2;
 }
 
 #nav li {
@@ -190,6 +197,7 @@ body {
     padding: 20px 20px 0px 20px;
     padding-top: 80px;
     padding-bottom: 80px;
+    z-index: 0;
 }
 
 #content td, #content th {
@@ -247,7 +255,7 @@ body {
 
 #content .form-group .button {
     width: 100px;
-    color: #999;
+    color: #676a6c;
 }
 
 #content .opration {
@@ -291,17 +299,15 @@ a.addElement {
     height: 600px;
     line-height: 600px;
     font-size: 300px;
-    color: #eee;
+    color: #ddd;
     font-family: 'Times New Roman', Times, serif;
 }
 
 #loadDiv {
     display: none;
     text-align: center; /*让div内部文字居中*/
-    background-color: #fff;
-    border-radius: 20px;
-    width: 350px;
-    height: 350px;
+    width: 124px;
+    height: 124px;
     margin: auto;
     position: absolute;
     top: 0;

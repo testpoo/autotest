@@ -102,7 +102,7 @@ def login():
 @app.route('/<current_user>/')
 def index(current_user):
     if session.get('logged_in'):
-        return render_template('index.html', nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav,pagename = '主页')
+        return render_template('index.html', username=session['username'],nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav,pagename = '主页')
     else:
         return redirect(url_for('login'))
 
@@ -140,7 +140,7 @@ def uicase_edit(id):
             else:
                 addUpdateDel('update uicases set steps=%s, description=%s where id=%s',[request.form['steps'], request.form['description'],id])
                 flash('编辑成功...')
-                return redirect(url_for('uicases'))
+                return redirect(url_for('uicases',num=1))
         return render_template('ui/uicase_edit.html',SITEURL=SITEURL, username=session['username'],list_steps=list_steps, case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试案例编辑',error=error,id=id)
 
 # UI QUERY
@@ -161,7 +161,7 @@ def uicase_delete(id):
     else:
         cur = addUpdateDel('delete from uicases where id=%s',[id])
         flash('删除成功...')
-        return redirect(url_for('uicases'))
+        return redirect(url_for('uicases',num=1))
 
 # UI CASE EXEC
 @app.route('/uicase_exec/<int:id>', methods=['GET', 'POST'])
@@ -195,7 +195,7 @@ def new_uicase():
             addUpdateDel('insert into uicases (type, model, product, name, steps, description, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                          [request.form['type'], request.form['model'], request.form['product'], request.form['name'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
             flash('创建成功...')
-            return redirect(url_for('uicases'))
+            return redirect(url_for('uicases',num=1))
     return render_template('ui/new_uicase.html', list_steps=list_steps, SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增测试用例', product=product, model_oma=model_oma, error=error)
 
 # UI SITUES
@@ -224,7 +224,7 @@ def uisitue_edit(id):
             else:
                 addUpdateDel('update uisitues set steps=%s, description=%s where id=%s',[request.form['steps'], request.form['description'],id])
                 flash('编辑成功...')
-                return redirect(url_for('uisitues'))
+                return redirect(url_for('uisitues',num=1))
         return render_template('ui/uisitue_edit.html',SITEURL=SITEURL, username=session['username'],  case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集编辑',id=id)
 
 # UI SITUES QUERY
@@ -245,7 +245,7 @@ def uisitue_delete(id):
     else:
         cur = addUpdateDel('delete from uisitues where id=%s',[id])
         flash('删除成功...')
-        return redirect(url_for('uisitues'))
+        return redirect(url_for('uisitues',num=1))
 
 # UI SITUES EXEC
 @app.route('/uisitue_exec/<int:id>', methods=['GET', 'POST'])
@@ -258,7 +258,7 @@ def uisitue_exec(id):
         newrun = RunUiTests(id,username)
         newrun.getTestSiutes()
         flash('执行成功...')
-        return redirect(url_for('uisitues'))
+        return redirect(url_for('uisitues',num=1))
 
 # NEW UI SITUE
 @app.route('/new_uisitue', methods=['GET', 'POST'])
@@ -281,7 +281,7 @@ def new_uisitue():
             addUpdateDel('insert into uisitues (name, steps, description, username, create_date) values (%s, %s, %s, %s, %s)',
                          [request.form['name'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
             flash('创建成功...')
-            return redirect(url_for('uisitues'))
+            return redirect(url_for('uisitues',num=1))
     return render_template('ui/new_uisitue.html',SITEURL=SITEURL, username=session['username'], uisitues=uisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增测试集',error=error)
 
 # UI SIUTE REPORT
@@ -326,7 +326,7 @@ def apisitue_edit(id):
             else:
                 addUpdateDel('update apisitues set steps=%s, description=%s where id=%s',[request.form['steps'], request.form['description'],id])
                 flash('编辑成功...')
-                return redirect(url_for('apisitues'))
+                return redirect(url_for('apisitues',num=1))
         return render_template('api/apisitue_edit.html',SITEURL=SITEURL, username=session['username'], case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集编辑',id=id,apisitues=apisitues)
 
 # API SITUES QUERY
@@ -347,7 +347,7 @@ def apisitue_delete(id):
     else:
         cur = addUpdateDel('delete from apisitues where id=%s',[id])
         flash('删除成功...')
-        return redirect(url_for('apisitues'))
+        return redirect(url_for('apisitues',num=1))
 
 # API SITUES EXEC
 @app.route('/apisitue_exec/<int:id>', methods=['GET', 'POST'])
@@ -360,7 +360,7 @@ def apisitue_exec(id):
         newrun = RunTests(id,username)
         res=newrun.getTestSiutes()
         flash('执行成功...')
-        return redirect(url_for('apisitues'))
+        return redirect(url_for('apisitues',num=1))
 
 # NEW API SITUE
 @app.route('/new_apisitue', methods=['GET', 'POST'])
@@ -383,7 +383,7 @@ def new_apisitue():
             addUpdateDel('insert into apisitues (name, steps, description, username, create_date) values (%s, %s, %s, %s, %s)',
                          [request.form['name'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
             flash('创建成功...')
-            return redirect(url_for('apisitues'))
+            return redirect(url_for('apisitues',num=1))
     return render_template('api/new_apisitue.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增测试集',error=error,apisitues=apisitues)
 
 # API SIUTE REPORT
@@ -419,15 +419,6 @@ def apicase_edit(id):
         apisets = [dict(name=row[0],request=row[1]) for row in cur]
         cur = selectone('SELECT type, name, product, model, steps, description FROM apicases where id=%s',[id])
         cases = [dict(type=row[0], name=row[1], product=row[2], model=row[3], steps=row[4], description=row[5]) for row in cur]
-    '''
-        if request.method == 'POST':
-            if request.form['steps'].strip == '':
-                error = '必输项不能为空'
-            else:
-                addUpdateDel('update apicases set steps=%s where id=%s',[request.form['steps'],id])
-                flash('创建成功...')
-                return redirect(url_for('new_apicase_edit',case_name=request.form["name"]))
-    '''
     return render_template('api/apicase_edit.html',SITEURL=SITEURL, username=session['username'], case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '接口编辑', id=id)
 
 # API CASE QUERY
@@ -455,7 +446,7 @@ def apicase_delete(id):
     else:
         addUpdateDel('delete from apicases where id=%s',[id])
         flash('删除成功...')
-        return redirect(url_for('apicases'))
+        return redirect(url_for('apicases',num=1))
 
 # API CASE EXEC
 @app.route('/apicase_exec/<int:id>', methods=['GET', 'POST'])
@@ -555,8 +546,8 @@ def uiset_edit(id):
                 error = '必输项不能为空'
             else:
                 addUpdateDel('update uiset set template=%s, example=%s, description=%s where id=%s',[request.form['template'], request.form['example'], request.form['description'],id])
-                flash('创建成功...')
-                return redirect(url_for('uiset'))
+                flash('编辑成功...')
+                return redirect(url_for('uiset',num=1))
         return render_template('set/uiset_edit.html', SITEURL=SITEURL, username=session['username'], case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = 'UI步骤说明编辑',id=id)
 
 # UI SET QUERY
@@ -577,7 +568,7 @@ def uiset_delete(id):
     else:
         addUpdateDel('delete from uiset where id=%s',[id])
         flash('删除成功...')
-        return redirect(url_for('uiset'))
+        return redirect(url_for('uiset',num=1))
 
 # NEW UI SET
 @app.route('/new_uiset', methods=['GET', 'POST'])
@@ -598,7 +589,7 @@ def new_uiset():
             addUpdateDel('insert into uiset (keyword,description,template,example, username, create_date) values (%s, %s, %s, %s, %s, %s)',
                          [request.form['keyword'], request.form['description'], request.form['template'], request.form['example'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
             flash('创建成功...')
-            return redirect(url_for('uiset'))
+            return redirect(url_for('uiset',num=1))
     return render_template('set/new_uiset.html', SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新建UI步骤说明',error=error)
 
 # API SET
@@ -627,7 +618,7 @@ def apiset_edit(id):
             else:
                 addUpdateDel('update apiset set path=%s, request=%s, checks=%s, description=%s where id=%s',[request.form['path'], request.form['request'], request.form['checks'], request.form['description'],id])
                 flash('创建成功...')
-                return redirect(url_for('apiset'))
+                return redirect(url_for('apiset',num=1))
         return render_template('set/apiset_edit.html',SITEURL=SITEURL, username=session['username'], case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '接口编辑', id=id)
 
 # API SET QUERY
@@ -648,7 +639,7 @@ def apiset_delete(id):
     else:
         addUpdateDel('delete from apiset where id=%s',[id])
         flash('删除成功...')
-        return redirect(url_for('apiset'))
+        return redirect(url_for('apiset',num=1))
 
 # API SET EXEC
 @app.route('/apiset_exec/<int:id>', methods=['GET', 'POST'])
@@ -661,7 +652,7 @@ def apiset_exec(id):
         res=newrun.getApis()
         if res[0:4] == '执行失败':
             flash('执行失败...')
-            return redirect(url_for('apiset'))
+            return redirect(url_for('apiset',num=1))
         else:
             flash('执行成功...')
         return render_template('set/apiset_exec.html',SITEURL=SITEURL, username=session['username'], res=res,nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '接口执行结果')
@@ -685,8 +676,8 @@ def new_apiset():
             addUpdateDel('insert into apiset (name, description, path, method, request, checks, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                          [request.form['name'], request.form['description'], request.form['path'], request.form['method'], request.form['request'], request.form['checks'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
             flash('创建成功...')
-            return redirect(url_for('apiset'))
-    return render_template('set/new_apiset.html',SITEURL=SITEURL, username=session['username'],  nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增接口', product=product, model_sicap=model_sicap, error=error, methods=http_methods)
+            return redirect(url_for('apiset',num=1))
+    return render_template('set/new_apiset.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增接口', product=product, model_sicap=model_sicap, error=error, methods=http_methods)
 
 ##############################
 #         admin
@@ -700,7 +691,7 @@ def reset_passwd():
         error =None
         cur = selectall('select username from user')
         usernames = [dict(username=row[0]) for row in cur]
-        print(usernames)
+
         if request.form['username'].strip() == '' or request.form['pw_new_o'].strip == '' or request.form['pw_new_t'].strip == '':
             error = '必输项不能为空'
         elif request.form['pw_new_o'].strip != request.form['pw_new_t'].strip:
@@ -711,7 +702,7 @@ def reset_passwd():
     except Exception as e:
         print(str(e))
     finally:
-        return render_template('admin/reset_passwd.html', usernames=usernames, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, error=error, pagename = '重置密码')
+        return render_template('admin/reset_passwd.html', username=session['username'], usernames=usernames, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, error=error, pagename = '重置密码')
 
 
 # 用户注册页面
@@ -738,7 +729,7 @@ def register():
     except Exception as e:
         print(str(e))
     finally:
-        return render_template('admin/register.html', nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, error=error, pagename = '注册')
+        return render_template('admin/register.html', username=session['username'],nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, error=error, pagename = '注册')
 
 # 密码修改
 @app.route('/modify_passwd', methods=['GET', 'POST'])

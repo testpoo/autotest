@@ -3,11 +3,6 @@
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
-<script language="javascript">
-  function loading() {
-    document.getElementById("loadDiv").style.display = "block";
-  }
-</script>
 <table>
   <thead>
     <tr>
@@ -31,12 +26,8 @@
       <td>{{ apisitue['create_date'] }}</td>
       <td>
         {% for opera,links in operation %}
-        {% if opera == '执行' %}
         <span class="opration"><a href="{{ SITEURL }}/apisitue_{{ links }}/{{ apisitue['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
-        {% else %}
-        <span class="opration"><a href="{{ SITEURL }}/apisitue_{{ links }}/{{ apisitue['id'] }}">{{ opera }}</a></span>
-        {% endif %}
         {% endfor %}
       </td>
     </tr>

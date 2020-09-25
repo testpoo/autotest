@@ -9,3 +9,7 @@ function getElements() {
     document.getElementById("steps").value = old + ";" + xstep;
   }
 }
+
+function loading() {
+  document.getElementById("loadDiv").style.display = "block";
+}
