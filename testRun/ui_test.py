@@ -2,11 +2,10 @@
 
 import requests
 import time
-from db_config import *
-from report import *
+from Common.db_config import *
+from Common.report import *
 
 from Common import Config, LogUtility, Extend
-from parm import *
 
 # word cover program
 def cover(keyword):
@@ -28,7 +27,7 @@ class RunUiTests(object):
         self.username = username
 
         LogUtility.CreateLoggerFile(
-            path_log+"/uilog_"+time.strftime("%Y_%m_%d_%H_%M_%S"))
+            Config.path_log+"/uilog_"+time.strftime("%Y_%m_%d_%H_%M_%S"))
             
     # 获取测试案例
     def getTestCases(self):
@@ -42,21 +41,23 @@ class RunUiTests(object):
             steps = cases['steps'].split(';')
 
             TestCase = Extend.Extend()
-
-            result = {'case_name':case_name,'status':'','starttime':starttime,'spenttime':'','error':'',}
-
+            
+            result = {'case_name':case_name,'status':'','starttime':starttime,'spenttime':'','error':''}
+            
             for step in steps:
                 action = cover(step)
                 eval('TestCase.'+action)
 
-            TestCase.quit()
+            result['status'] = "成功"
 
-            result['status'] = '成功'
         except Exception as err:
+            TestCase.getScreenshot('static/Screenshot/'+case_name+'_'+starttime+'.png')
             LogUtility.logger.debug(
                 "Failed running test siutes, error message: {}".format(str(err)))
             result['status'] = '失败'
+            result['error'] = err
         finally:
+            TestCase.quit()
             endtime = Config.getCurrentTime()
             spenttime = Config.timeDiff(starttime,endtime)
             result['spenttime'] = spenttime
@@ -87,7 +88,6 @@ class RunUiTests(object):
         except Exception as e:
             LogUtility.logger.debug(
                 "Failed running test siutes, error message: {}".format(str(e)))
-            print(str(e))
         finally:
             endtime = Config.getCurrentTime()
             spenttime = Config.timeDiff(starttime,endtime)

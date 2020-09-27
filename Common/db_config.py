@@ -50,7 +50,6 @@ def addUpdateDel(sql,info):
     except Exception as err:
         db.rollback()
         LogUtility.logger.debug("事务处理失败: {}".format(str(err)))
-        print(err)
     else:
         db.commit()
         LogUtility.logger.debug("事务处理成功")
@@ -68,7 +67,6 @@ def sDelte(sql):
     except Exception as err:
         db.rollback()
         LogUtility.logger.debug("事务处理失败: {}".format(str(err)))
-        print(err)
     else:
         db.commit()
         LogUtility.logger.debug("事务处理成功")

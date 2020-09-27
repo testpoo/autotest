@@ -4,47 +4,49 @@
 <div class="alert">{{ message }}</div>
 {% endfor %}
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
-  <form class="form-horizontal" id="uicase_edit" action="{{ url_for('uicase_edit',id=id) }}" method="post">
-    <div class="form-group">
-      <label for="type">用例类型</label>
-      <input type="text" class="form-control required" id="type" name="type" maxlength="200" placeholder="请输入用例名称" readonly
-        unselectable="on" value={{ case['type'] }}>
-    </div>
-    <div class="form-group">
-      <label for="product">所属产品</label>
-      <input type="text" class="form-control required" id="product" name="product" maxlength="200" placeholder="请输入用例名称" readonly
-        unselectable="on" value={{ case['product'] }}>
-    </div>
-    <div class="form-group">
-      <label for="model">所属模块</label>
-      <input type="text" class="form-control required" id="model" name="model" maxlength="200" placeholder="请输入用例名称" readonly
-        unselectable="on" value={{ case['model'] }}>
-    </div>
-    <div class="form-group">
-      <label for="name">名称</label>
-      <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称" readonly
-        unselectable="on" value={{ case['name'] }}>
-    </div>
-    <div class="form-group">
-      <label for="choice">选择接口</label>
-      <input id="select" list="choice" class="form-control required" name="choice" maxlength="200" placeholder="请选择操作步骤"
-        onchange="getElements()">
-      <datalist id="choice">
-        {% for list_step in list_steps %}
-        <option value="{{ list_step['keyword'] }}">
-          {% endfor %}
-      </datalist>
-    </div>
-    <div class="form-group">
-      <label for="steps">步骤</label>
-      <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30" rows="5">{{ case['steps'] }}</textarea>
-    </div>
-    <div class="form-group">
-      <label for="description">描述</label>
-      <input type="longtext" class="form-control" id="description" name="description" maxlength="50" placeholder="请输入描述" value={{ case['description'] }}>
-    </div>
-    <div class="form-group">
-      <input type=submit value="修改" class="button">
-    </div>
-  </form>
+<form class="form-horizontal" id="uicase_edit" action="{{ url_for('uicase_edit',id=id) }}" method="post">
+  <div class="form-group">
+    <label for="type">用例类型</label>
+    <input type="text" class="form-control required" id="type" name="type" maxlength="200" placeholder="请输入用例名称"
+      readonly unselectable="on" value={{ case['type'] }}>
+  </div>
+  <div class="form-group">
+    <label for="product">所属产品</label>
+    <input type="text" class="form-control required" id="product" name="product" maxlength="200" placeholder="请输入用例名称"
+      readonly unselectable="on" value={{ case['product'] }}>
+  </div>
+  <div class="form-group">
+    <label for="model">所属模块</label>
+    <input type="text" class="form-control required" id="model" name="model" maxlength="200" placeholder="请输入用例名称"
+      readonly unselectable="on" value={{ case['model'] }}>
+  </div>
+  <div class="form-group">
+    <label for="name">名称</label>
+    <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称"
+      readonly unselectable="on" value={{ case['name'] }}>
+  </div>
+  <div class="form-group">
+    <label for="choice">选择接口</label>
+    <input id="select" list="choice" class="form-control required" name="choice" maxlength="200" placeholder="请选择操作步骤"
+      onchange="getElements()">
+    <datalist id="choice">
+      {% for list_step in list_steps %}
+      <option value="{{ list_step['keyword'] }}">
+        {% endfor %}
+    </datalist>
+  </div>
+  <div class="form-group">
+    <label for="steps">步骤</label>
+    <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30"
+      rows="5">{{ case['steps'] }}</textarea>
+  </div>
+  <div class="form-group">
+    <label for="description">描述</label>
+    <input type="longtext" class="form-control" id="description" name="description" maxlength="50" placeholder="请输入描述"
+      value={{ case['description'] }}>
+  </div>
+  <div class="form-group">
+    <input type=submit value="修改" class="button">
+  </div>
+</form>
 {% endblock %}

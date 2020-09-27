@@ -7,8 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-
-#from Common import LogUtility
+import time
 
 class Extend(object):
     # 安装webdriver
@@ -16,16 +15,18 @@ class Extend(object):
         '''
         初始化selenium webdriver, 将chrome作为默认webdriver
         '''
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
         if browser == "firefox" or browser == "ff":
-            driver = webdriver.Firefox()
+            driver = webdriver.Firefox(options=options)
         elif browser == "chrome":
-            driver = webdriver.Chrome()
+            driver = webdriver.Chrome(options=options)
         elif browser == "internet explorer" or browser == "ie":
-            driver = webdriver.Ie()
+            driver = webdriver.Ie(options=options)
         elif browser == "opera":
-            driver = webdriver.Opera()
+            driver = webdriver.Opera(options=options)
         elif browser == "phantomjs":
-            driver = webdriver.PhantomJS()
+            driver = webdriver.PhantomJS(options=options)
         try:
             self.driver = driver
         except Exception:
@@ -78,12 +79,12 @@ class Extend(object):
         '''
         self.driver.implicitly_wait(time)
 
-    def wait(self,time):
+    def wait(self,clock):
         '''
         描述：等待
-        用法：self.wait(time)
+        用法：self.wait(clock)
         '''
-        time.sleep(time)
+        time.sleep(clock)
 
     def findSelect(self,type,value,text):
         '''
@@ -195,12 +196,18 @@ class Extend(object):
     
     def assert_title(self,text):
         """
-        Assert whether current web page's title contains the given text.
-
-        :param text:
-        :return:
+        描述：验证当前页中title是否在给定得字符串中
+        用法：self.assert_title()
         """
         assert text in self.driver.title
+        
+    def assert_text(self,type,value,text):
+        '''
+        描述：验证当前页中既定得元素是否在给定得字符串中
+        用法：self.assert_text()
+        '''
+        element = self.findElement(type, value)
+        assert text in element.text
 
     def getCurrentUrl(self):
         '''

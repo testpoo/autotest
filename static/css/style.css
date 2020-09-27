@@ -35,6 +35,10 @@ th,tr,td {
     padding: 0 5px;
 }
 
+td {
+    min-width: 100px;
+}
+
 th {
     background-color: #eee;
     border: 1px solid #fff;
@@ -44,7 +48,7 @@ select,input {
     height: 42px;
     border-radius: 5px;
     border: 1px solid #eee;
-    padding-left: 10px;
+    padding: 0px 10px;
     color: #676a6c;
 }
 
@@ -53,8 +57,8 @@ label {
 }
 
 textarea {
-    line-height: 42px;
-    padding-left: 10px;
+    line-height: 20px;
+    padding: 11px 10px;
     border-radius: 5px;
     border: 1px solid #eee;
     color: #676a6c;
@@ -69,7 +73,6 @@ hr {
 /* body */
 body {
     background: #fff;
-    /*font-family: Consolas, Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;*/
     font-family: -apple-system,BlinkMacSystemFont,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 14px;
     color: #676a6c;
@@ -314,21 +317,4 @@ a.addElement {
     left: 0;
     right: 0;
     bottom: 0;
-}
-
-#pagination {
-    height: 42px;
-    line-height: 42px;
-    border-bottom: 1px solid #eee;
-    border-left: 1px solid #eee;
-    border-right: 1px solid #eee;
-}
-
-#pagination span {
-    display: inline-block;
-    width: 42px;
-}
-
-#pagination span a {
-    color: steelblue
 }

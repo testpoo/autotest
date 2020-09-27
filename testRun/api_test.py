@@ -2,12 +2,10 @@
 
 import requests
 import time
-from db_config import *
-from report import *
-
+from Common.db_config import *
+from Common.report import *
+from Common.Config import *
 from Common import Config, LogUtility
-from parm import *
-
 
 class RunTests(object):
 
@@ -33,13 +31,14 @@ class RunTests(object):
             data = cases['request']
 
             headers = {}
-
-            r = eval('requests.'+method + '(url, headers=headers, data=data)')
+            
+            r = eval('requests.'+method + '(url, headers=headers, data=data, verify=False)')
             result = [name, url, method, data, r.text]
+            print(result)
         except Exception as err:
             LogUtility.logger.debug(
                 "Failed running test apis, error message: {}".format(str(err)))
-            result = '执行失败'+str(err)
+            result = [name, url, method, data, str(err)]
         finally:
             endtime = Config.getCurrentTime()
             return result
@@ -64,14 +63,14 @@ class RunTests(object):
                 url = cases_list['path']
                 method = cases_list['method']
                 data = cases_list['request']
+                checks = cases_list['checks']
                 headers = para_headers
 
                 result = {'case_name':case_name,'name':name,'url':url,'method':method,'error':'','status':'成功'}
                 
                 try:
                     r = eval('requests.'+method + '(url, headers=headers, data=data, verify=False)')
-                
-                    if r.status_code == 200:
+                    if r.text == checks:
                         result['status'] = "成功"
                     else:
                         result['status'] = "失败"

@@ -37,13 +37,15 @@
       </td>
     </tr>
     {% endfor %}
+    <tr>
+      <td colspan="8">
+        {% for page in range(all_Page) %}
+        <span class="opration"><a href="{{ SITEURL }}/uiset/{{ page+1 }}">{{ page+1 }}</a></span>
+        {% endfor %}
+      </td>
+    </tr>
   </tbody>
 </table>
-<div id='pagination'>
-  {% for page in range(all_Page) %}
-  <span><a href="{{ SITEURL }}/uiset/{{ page+1 }}">{{ page+1 }}</a></span>
-  {% endfor %}
-</div>
 <div class="new">
   <ul>
     <li>

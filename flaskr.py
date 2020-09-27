@@ -7,13 +7,12 @@ from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash
 import time
 from contextlib import closing
-from encrypt import *
-from parm import *
 
-from db_config import *
+from Common.db_config import *
+from Common.Config import *
 import requests
-from api_test import RunTests
-from ui_test import RunUiTests
+from testRun.api_test import RunTests
+from testRun.ui_test import RunUiTests
 
 # configuration
 DATABASE = 'flaskr.db'
@@ -27,25 +26,6 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 
 #app.config.from_envvar('FLASKR_SETTINGS', silent=True)
-
-def connect_db():
-    return pymysql.connect("127.0.0.1","test","123456","autotest",charset = 'utf8')
-
-def init_db():
-    with closing(connect_db()) as db:
-        with app.open_resource('schema.sql', mode='r') as f:
-            db.cursor().executescript(f.read())
-        db.commit()
-
-#@app.before_request
-#def before_request():
-#    g.db = connect_db()
-
-#@app.teardown_request
-#def teardown_request(exception):
-#    db = getattr(g, 'db', None)
-#    if db is not None:
-#        db.close()
 
 # 导入time
 @app.context_processor
@@ -122,7 +102,7 @@ def uicases(num):
         cases = [dict(id=row[0], type=row[1], model=row[2], product=row[3], name=row[4], steps=row[5], description=row[6], username=row[7], create_date=row[8]) for row in cur]
         return render_template('ui/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试案例')
 
-# UI EDIT
+# UI CASE EDIT
 @app.route('/uicase_edit/<int:id>', methods=['GET', 'POST'])
 def uicase_edit(id):
     error = None
@@ -143,7 +123,7 @@ def uicase_edit(id):
                 return redirect(url_for('uicases',num=1))
         return render_template('ui/uicase_edit.html',SITEURL=SITEURL, username=session['username'],list_steps=list_steps, case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试案例编辑',error=error,id=id)
 
-# UI QUERY
+# UI CASE QUERY
 @app.route('/uicase_query/<int:id>', methods=['GET', 'POST'])
 def uicase_query(id):
     if not session.get('logged_in'):
@@ -617,7 +597,7 @@ def apiset_edit(id):
                 error = '必输项不能为空'
             else:
                 addUpdateDel('update apiset set path=%s, request=%s, checks=%s, description=%s where id=%s',[request.form['path'], request.form['request'], request.form['checks'], request.form['description'],id])
-                flash('创建成功...')
+                flash('编辑成功...')
                 return redirect(url_for('apiset',num=1))
         return render_template('set/apiset_edit.html',SITEURL=SITEURL, username=session['username'], case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '接口编辑', id=id)
 
@@ -650,11 +630,7 @@ def apiset_exec(id):
         error = None
         newrun = RunTests(id,session['username'])
         res=newrun.getApis()
-        if res[0:4] == '执行失败':
-            flash('执行失败...')
-            return redirect(url_for('apiset',num=1))
-        else:
-            flash('执行成功...')
+        flash('执行成功...')
         return render_template('set/apiset_exec.html',SITEURL=SITEURL, username=session['username'], res=res,nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '接口执行结果')
 
 # NEW API
