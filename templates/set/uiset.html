@@ -19,7 +19,7 @@
   </thead>
 
   <tbody>
-    {% for uiset in uisets %}
+    {% for uiset in uisets|reverse %}
     <tr>
       <td>{{ loop.index }}</td>
       <td>{{ uiset['keyword'] }}</td>

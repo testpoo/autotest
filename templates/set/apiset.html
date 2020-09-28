@@ -19,7 +19,7 @@
   </thead>
 
   <tbody>
-    {% for apiset in apisets %}
+    {% for apiset in apisets|reverse %}
     <tr>
       <td>{{ loop.index }}</td>
       <td>{{ apiset['name'] }}</td>

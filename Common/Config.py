@@ -6,6 +6,8 @@ import base64
 SITEURL = "http://127.0.0.1:5000/"
 #SITEURL = "http://192.168.213.110:8000/"
 
+dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
+
 nav = [['自动化测试平台',''],['UI自动化',''],['接口自动化',''],['设置','']]
 
 sub_nav_ui = [['UI封装','uiset'],['测试用例','uicases'],['测试集','uisitues'],['测试报告','ui_report_list']]
@@ -26,11 +28,13 @@ http_methods = ['delete','get','patch','post','put']
 
 page_Count = 15
 
-path_log = 'static/TestLog'
+path_log = 'TestLog'
 
 path_api = 'static/TestReport/api'
 
 path_ui = 'static/TestReport/ui'
+
+Screenshot = 'static/Screenshot'
 
 para_headers = {}
 

@@ -139,8 +139,19 @@ def uicase_delete(id):
     if not session.get('logged_in'):
         abort(401)
     else:
-        cur = addUpdateDel('delete from uicases where id=%s',[id])
-        flash('删除成功...')
+        uisitue = selectall('select steps from uisitues')
+        uisitues = [dict(steps=row[0]) for row in uisitue]
+        uisitues = [uisitue['steps'] for uisitue in uisitues]
+
+        uicase = selectone('select name from uicases where id=%s',[id])
+        uicases = [dict(name=row[0]) for row in uicase]
+        uicase_name = uicases[0]['name']
+        
+        if uicase_name in uisitues:
+            error = "该案例被测试集引用，不能删除~！"
+        else:
+            cur = addUpdateDel('delete from uicases where id=%s',[id])
+            flash('删除成功...')
         return redirect(url_for('uicases',num=1))
 
 # UI CASE EXEC
@@ -152,7 +163,7 @@ def uicase_exec(id):
         error = None
         newrun = RunUiTests(id,session['username'])
         res = newrun.getTestCases()
-        return render_template('ui/uicase_exec.html',res=res,SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '接口执行结果')
+        return render_template('ui/uicase_exec.html',res=res,SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '案例执行结果')
 
 # NEW UI CASE
 @app.route('/new_uicase', methods=['GET', 'POST'])
@@ -424,8 +435,20 @@ def apicase_delete(id):
     if not session.get('logged_in'):
         abort(401)
     else:
-        addUpdateDel('delete from apicases where id=%s',[id])
-        flash('删除成功...')
+        apisitue = selectall('select steps from apisitues')
+        apisitues = [dict(steps=row[0]) for row in apisitue]
+        apisitues = [apisitue['steps'] for apisitue in apisitues]
+
+        apicase = selectone('select name from apicases where id=%s',[id])
+        apicases = [dict(name=row[0]) for row in apicase]
+        apicase_name = apicases[0]['name']
+        
+        if apicase_name in apisitues:
+            error = "该案例被测试集引用，不能删除~！"
+        else:
+            addUpdateDel('delete from apicases where id=%s',[id])
+            addUpdateDel('delete from apidates where case_name=%s',[apicase_name])
+            flash('删除成功...')
         return redirect(url_for('apicases',num=1))
 
 # API CASE EXEC
@@ -676,7 +699,7 @@ def reset_passwd():
             addUpdateDel('update user set password = %s where username = %s',[encrypt(request.form['pw_new_o']),request.form['username']])
             flash("重置密码成功...")
     except Exception as e:
-        print(str(e))
+        error = str(err)
     finally:
         return render_template('admin/reset_passwd.html', username=session['username'], usernames=usernames, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, error=error, pagename = '重置密码')
 
@@ -703,7 +726,7 @@ def register():
                          [request.form['username'], encrypt(request.form['password_o']), request.form['fullname'], request.form['email'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
                 flash('注册成功...')
     except Exception as e:
-        print(str(e))
+        error = str(err)
     finally:
         return render_template('admin/register.html', username=session['username'],nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, error=error, pagename = '注册')
 

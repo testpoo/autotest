@@ -64,6 +64,10 @@ textarea {
     color: #676a6c;
 }
 
+input, button, select, textarea {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
 hr {
     height: 5px;
     background-color: #eee;

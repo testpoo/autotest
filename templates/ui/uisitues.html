@@ -21,7 +21,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for uisitue in uisitues %}
+    {% for uisitue in uisitues|reverse %}
     <tr>
       <td>{{ loop.index }}</td>
       <td>{{ uisitue['name'] }}</td>

@@ -3,6 +3,7 @@
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
 <table>
   <thead>
     <tr>
@@ -19,7 +20,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for case in apicases %}
+    {% for case in apicases|reverse %}
     <tr>
       <td>{{ loop.index }}</td>
       <td>{{ case['type'] }}</td>

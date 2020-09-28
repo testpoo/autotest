@@ -2,11 +2,14 @@
 
 import pymysql
 from Common import Config, LogUtility
+import time
+
+LogUtility.CreateLoggerFile(Config.path_log+"/dblog_"+time.strftime("%Y_%m_%d_%H_%M_%S"))
 
 def selectall(sql):
     try:
         #连接MySQL数据库
-        db = pymysql.connect("127.0.0.1","test","123456","autotest",charset = 'utf8')
+        db = pymysql.connect(Config.dblink['url'],Config.dblink['username'],Config.dblink['password'],Config.dblink['database'],charset = 'utf8')
         #使用cursor()方法获取操作游标
         cursor = db.cursor()
         #使用execute()方法执行sql语句
@@ -24,7 +27,7 @@ def selectall(sql):
 def selectone(sql,info):
     try:
         #连接MySQL数据库
-        db = pymysql.connect("127.0.0.1","test","123456","autotest",charset = 'utf8')
+        db = pymysql.connect(Config.dblink['url'],Config.dblink['username'],Config.dblink['password'],Config.dblink['database'],charset = 'utf8')
         #使用cursor()方法获取操作游标
         cursor = db.cursor()
         #使用execute()方法执行sql语句
@@ -42,7 +45,7 @@ def selectone(sql,info):
 def addUpdateDel(sql,info):
     try:
         #连接MySQL数据库
-        db = pymysql.connect("127.0.0.1","test","123456","autotest",charset = 'utf8')
+        db = pymysql.connect(Config.dblink['url'],Config.dblink['username'],Config.dblink['password'],Config.dblink['database'],charset = 'utf8')
         #使用cursor()方法获取操作游标
         cursor = db.cursor()
         #使用execute()方法执行sql语句
@@ -59,7 +62,7 @@ def addUpdateDel(sql,info):
 def sDelte(sql):
     try:
         #连接MySQL数据库
-        db = pymysql.connect("127.0.0.1","test","123456","autotest",charset = 'utf8')
+        db = pymysql.connect(Config.dblink['url'],Config.dblink['username'],Config.dblink['password'],Config.dblink['database'],charset = 'utf8')
         #使用cursor()方法获取操作游标
         cursor = db.cursor()
         #使用execute()方法执行sql语句

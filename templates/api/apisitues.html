@@ -16,7 +16,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for apisitue in apisitues %}
+    {% for apisitue in apisitues|reverse %}
     <tr>
       <td>{{ loop.index }}</td>
       <td>{{ apisitue['name'] }}</td>
