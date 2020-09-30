@@ -262,7 +262,7 @@ def new_uisitue():
     if not session.get('logged_in'):
         abort(401)
     error = None
-    cur = selectall('SELECT name FROM uicases where activity="0"')
+    cur = selectall('SELECT name FROM uicases where activity="1"')
     uisitues = [dict(name=row[0]) for row in cur]
     if request.method == 'POST':
         uiname = selectall('select name from uisitues')
@@ -871,7 +871,7 @@ def caseManage_new_uicase():
     cur = selectall('SELECT keyword FROM uiset')
     list_steps = [dict(keyword=row[0]) for row in cur]
     if request.method == 'POST':
-        uiname = selectall('select name from uicases where activity="0"')
+        uiname = selectall('select name from uicases')
         uinames = [dict(name=row[0]) for row in uiname]
         uinames = [uiname['name'] for uiname in uinames]
 
@@ -969,7 +969,7 @@ def caseManage_new_apicase():
     versions = [version['version'] for version in versions]
 
     if request.method == 'POST':
-        apiname = selectall('select name from apicases where activity="0"')
+        apiname = selectall('select name from apicases')
         apinames = [dict(name=row[0]) for row in apiname]
         apinames = [apiname['name'] for apiname in apinames]
 

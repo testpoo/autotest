@@ -38,9 +38,9 @@
   </div>
   <div class="form-group">
     <label for="choice">选择动作</label>
-    <input id="choice" list="choice" class="form-control required" name="choice" maxlength="200" placeholder="请选择操作步骤"
+    <input id="choice" list="choices" class="form-control required" name="choice" maxlength="200" placeholder="请选择操作步骤"
       onchange="getElements()">
-    <datalist id="choice">
+    <datalist id="choices">
       {% for list_step in list_steps %}
       <option value="{{ list_step['keyword'] }}">
         {% endfor %}
