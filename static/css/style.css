@@ -131,11 +131,14 @@ body {
     margin: 0 auto;
     text-align: center;
     width: 100%;
-    line-height: 60px;
     margin-left: -200px;
     border-top: 1px solid #ddd;
     background-color: #fff;
     z-index: 3;
+}
+
+#footer li {
+    line-height: 30px;
 }
 
 /* base2 */
@@ -182,6 +185,8 @@ body {
     text-align: center;
     line-height: 60px;
     border-bottom: 1px solid #eee;
+    font-size: 28px;
+    font-weight: bold;
 }
 
 #login {

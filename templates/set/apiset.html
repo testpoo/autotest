@@ -1,4 +1,4 @@
-{% extends "base_index.html" %}
+{% extends "caseManage/base_index.html" %}
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
@@ -30,7 +30,7 @@
       <td>{{ apiset['create_date'] }}</td>
       <td>
         {% for opera,links in operation %}
-        <span class="opration"><a href="{{ SITEURL }}/apiset_{{ links }}/{{ apiset['id'] }}"
+        <span class="opration"><a href="{{ SITEURL }}/caseManage/apiset_{{ links }}/{{ apiset['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
         {% endfor %}
       </td>
@@ -39,7 +39,7 @@
     <tr>
       <td colspan="8">
         {% for page in range(all_Page) %}
-        <span class="opration"><a href="{{ SITEURL }}/apiset/{{ page+1 }}">{{ page+1 }}</a></span>
+        <span class="opration"><a href="{{ SITEURL }}/caseManage/apiset/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>
@@ -49,7 +49,7 @@
 <div class="new">
   <ul>
     <li>
-      <a href="{{ SITEURL }}/new_apiset">新建</a>
+      <a href="{{ SITEURL }}/caseManage/new_apiset">新建</a>
     </li>
   </ul>
 </div>

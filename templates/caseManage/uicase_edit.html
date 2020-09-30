@@ -1,13 +1,13 @@
-{% extends "base_index.html" %}
+{% extends "caseManage/base_index.html" %}
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
-<form class="form-horizontal" id="uicase_edit" action="{{ url_for('uicase_edit',id=id) }}" method="post">
+<form class="form-horizontal" id="caseManage_uicase_edit" action="{{ url_for('caseManage_uicase_edit',id=id) }}" method="post">
   <div class="form-group">
-    <label for="type">用例类型</label>
-    <input type="text" class="form-control required" id="type" name="type" maxlength="200" placeholder="请输入用例名称"
+    <label for="version">用例版本</label>
+    <input type="text" class="form-control required" id="version" name="version" maxlength="200" placeholder="请输入用例名称"
       readonly unselectable="on" value={{ case['type'] }}>
   </div>
   <div class="form-group">

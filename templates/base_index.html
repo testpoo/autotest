@@ -2,8 +2,8 @@
 {% block login %}
 <div id=nav>
     {% if username == 'admin' %}
-    {% for n,nlink in nav %}
-    <li class="nav"><a class="color" href="{{ SITEURL }}/{{ nlink }}">{{ n }}</a>
+    {% for n in nav %}
+    <li class="nav"><a class="color" href="{{ SITEURL }}/{{ username }}">{{ n }}</a>
         {% if n == 'UI自动化' %}
         <ul id="submenu">
             {% for sub,slink in sub_nav_ui %}
@@ -26,9 +26,9 @@
         </ul>
         {% endif %}
     </li>
-    {%  endfor %}
+    {% endfor %}
     {% else %}
-    {% for n,nlink in nav[0:3] %}
+    {% for n in nav[:3] %}
     <li class="nav"><a class="color" href="{{ SITEURL }}/{{ nlink }}">{{ n }}</a>
         {% if n == 'UI自动化' %}
         <ul id="submenu">
@@ -47,7 +47,7 @@
         {% if n == '设置' %}
         <ul id="submenu">
             {% for sub,slink in set_nav %}
-            <li><a href="{{ SITEURL }}/{{ slink }}">{{ sub }}</a></li>
+            <li><a href="{{ SITEURL }}/{{ slink }}/1">{{ sub }}</a></li>
             {% endfor %}
         </ul>
         {% endif %}

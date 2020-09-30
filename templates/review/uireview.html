@@ -1,9 +1,8 @@
-{% extends "base_index.html" %}
+{% extends "review/base_index.html" %}
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
-{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
 <table>
   <thead>
     <tr>
@@ -12,7 +11,7 @@
       <th>所属产品</th>
       <th>所属模块</th>
       <th>名称</th>
-      <th>操作步骤</th>
+      <th>步骤</th>
       <th>描述</th>
       <th>创建者</th>
       <th>创建时间</th>
@@ -20,7 +19,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for case in apicases|reverse %}
+    {% for case in cases|reverse %}
     <tr>
       <td>{{ loop.index }}</td>
       <td>{{ case['version'] }}</td>
@@ -32,11 +31,9 @@
       <td>{{ case['username'] }}</td>
       <td>{{ case['create_date'] }}</td>
       <td>
-        {% for opera,links in operation %}
-        {% if opera !='编辑' %}
-        <span class="opration"><a href="{{ SITEURL }}/apicase_{{ links }}/{{ case['id'] }}"
+        {% for opera,links in review_operation %}
+        <span class="opration"><a href="{{ SITEURL }}/review/uicase_{{ links }}/{{ case['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
-        {% endif %}
         {% endfor %}
       </td>
     </tr>
@@ -44,9 +41,7 @@
     <tr>
       <td colspan="10">
         {% for page in range(all_Page) %}
-        {% if opera !='编辑' %}
-        <span class="opration"><a href="{{ SITEURL }}/apicases/{{ page+1 }}">{{ page+1 }}</a></span>
-        {% endif %}
+        <span class="opration"><a href="{{ SITEURL }}/review/uicases/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>

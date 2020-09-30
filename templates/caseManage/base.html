@@ -10,7 +10,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
     <meta name="renderer" content="webkit">
-    <title>自动化测试平台</title>
+    <title>案例管理平台</title>
     <link rel="shortcut icon" type="image/ico" href="{{ SITEURL }}/static/img/favicon.ico">
     <link rel=stylesheet type=text/css href="{{ SITEURL }}/static/css/style.css">
     <script type="text/javascript" src="{{ SITEURL }}/static/js/getElements.js"></script>
@@ -22,21 +22,19 @@
             <div class="left">{{ pagename }}</div>
             <div class="right">
                 <span>{{ get_name(session['username']) if session.get('logged_in') }}</span>
-                <span><a href="{{ url_for('modify_passwd') }}">修改密码</a></span>
-                <span><a href="{{ url_for('logout') }}">退出</a></span>
+                <span><a href="{{ url_for('caseManage_modify_passwd') }}">修改密码</a></span>
+                <span><a href="{{ url_for('caseManage_logout') }}">退出</a></span>
             </div>
         </div>
         {% block login %}
         {% endblock %}
         <div id=footer>
             <ul>
-                <li><a href="{{ SITEURL }}/login">自动化测试平台</a> | <a href="{{ SITEURL }}/caseManage">案例管理平台</a> | <a
-                        href="{{ SITEURL }}/review">案例审核平台</a></li>
+                <li><a href="{{ SITEURL }}/login">自动化测试平台</a> | <a href="{{ SITEURL }}/caseManage">案例管理平台</a> | <a href="{{ SITEURL }}/review">案例审核平台</a></li>
                 <li>&nbsp;&copy;&nbsp;上讯西研自动化测试组</li>
             </ul>
         </div>
     </div>
-
 </body>
 
 </html>

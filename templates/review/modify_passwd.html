@@ -1,6 +1,6 @@
-{% extends "base_index.html" %}
+{% extends "review/base_index.html" %}
 {% block content %}
-<form action="{{ url_for('modify_passwd') }}" method=post>
+<form action="{{ url_for('review_modify_passwd') }}" method=post>
   <div class="form-group">
     <label class="pwcha">当前密码<span style="color:red">*</span></label>
     <input type="password" class="form-control required" name="pw_old" id="pw_old" maxlength="20" placeholder="请输入当前密码">

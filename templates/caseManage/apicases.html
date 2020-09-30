@@ -1,4 +1,4 @@
-{% extends "base_index.html" %}
+{% extends "caseManage/base_index.html" %}
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
@@ -33,10 +33,8 @@
       <td>{{ case['create_date'] }}</td>
       <td>
         {% for opera,links in operation %}
-        {% if opera !='编辑' %}
-        <span class="opration"><a href="{{ SITEURL }}/apicase_{{ links }}/{{ case['id'] }}"
+        <span class="opration"><a href="{{ SITEURL }}/caseManage/apicase_{{ links }}/{{ case['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
-        {% endif %}
         {% endfor %}
       </td>
     </tr>
@@ -44,13 +42,18 @@
     <tr>
       <td colspan="10">
         {% for page in range(all_Page) %}
-        {% if opera !='编辑' %}
-        <span class="opration"><a href="{{ SITEURL }}/apicases/{{ page+1 }}">{{ page+1 }}</a></span>
-        {% endif %}
+        <span class="opration"><a href="{{ SITEURL }}/caseManage/apicases/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>
   </tbody>
 </table>
 <div id="loadDiv"><img src="{{ SITEURL }}/static/img/loading.gif" /></div>
+<div class="new">
+  <ul>
+    <li>
+      <a href="{{ SITEURL }}/caseManage/new_apicase">新建</a>
+    </li>
+  </ul>
+</div>
 {% endblock %}

@@ -1,0 +1,32 @@
+{% extends "review/base_index.html" %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+<div class="form-group">
+  <label for="name">名称</label>
+  <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="" readonly
+      unselectable="on" value="{{ res['case_name'] if res }}">
+</div>
+<div class="form-group">
+  <label for="status">状态</label>
+  <input type="text" class="form-control required" id="status" name="status" maxlength="200" placeholder="" readonly
+      unselectable="on" value="{{ res['status'] if res }}">
+</div>
+<div class="form-group">
+  <label for="starttime">开始时间</label>
+  <input type="text" class="form-control required" id="starttime" name="starttime" maxlength="200" placeholder="" readonly
+      unselectable="on" value="{{ res['starttime'] if res }}">
+</div>
+<div class="form-group">
+  <label for="spenttime">消耗时间</label>
+  <input type="text" class="form-control required" id="spenttime" name="spenttime" maxlength="200" placeholder="" readonly
+      unselectable="on" value="{{ res['spenttime'] if res }}">
+</div>
+<div class="form-group">
+  <label for="error">错误信息</label>
+  <input type="text" class="form-control required" id="error" name="error" maxlength="200" placeholder="" readonly
+      unselectable="on" value="{{ res['error'] if res }}">
+</div>
+{% endblock %}

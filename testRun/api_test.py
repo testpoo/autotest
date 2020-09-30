@@ -71,24 +71,30 @@ class RunTests(object):
             name = cases_list['name']
             url = cases_list['path']
             method = cases_list['method']
-            data = json.loads(cases_list['request'])
-            checks = cases_list['checks']
             parameter = cases_list['parameter']
+            data = eval(cases_list['request'])
+            if i>0 :
+                replace_param=results[-1]['new_param']
+                get_targe_value(data,replace_param)
+            
+            checks = cases_list['checks']
 
             headers = para_headers
             err = ''
             result = {'case_name': case_name, 'name': name, 'url': url,
-                      'method': method, 'error': '', 'status': '失败','parameter':parameter}
-
-            if i > 0 and results[-1]['parameter'] != '':
-                    old_parameter = json.loads(results[-1]['parameter'])
-                    for param in old_parameter:
-                        data[param] = old_parameter[param]
+                      'method': method, 'error': '', 'status': '失败','new_param':''}
 
             try:
+                true=True
                 r = eval('requests.'+method +
                          '(url, headers=headers, data=data, verify=False)')
-                if r.text in checks:
+                print(data)
+                parameter = eval(parameter)
+                content = eval(r.text)
+                if parameter != '' and isinstance(parameter,list):
+                    result['new_param']=traverse_take_field(content,parameter)
+                
+                if r.text == checks:
                     result['status'] = "成功"
                 else:
                     result['status'] = "失败"
@@ -99,7 +105,7 @@ class RunTests(object):
                 LogUtility.logger.debug(
                     "Failed running test siutes, error message: {}".format(str(err)))
                 result['status'] = "失败"
-                result['error'] = api_err
+                result['error'] = str(api_err)
                 status = '失败'
                 break
             finally:
@@ -110,7 +116,6 @@ class RunTests(object):
         finally_results['results'] = results
         finally_results['status'] = status
         finally_results['spenttime'] = spenttime
-
         return finally_results
 
     # 获取测试集

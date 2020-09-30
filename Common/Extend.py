@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from unittest.case import TestCase
 import time
 
 class Extend(object):
@@ -31,7 +32,7 @@ class Extend(object):
             self.driver = driver
         except Exception:
             raise NameError("Not found %s browser,You can enter 'ie', 'ff' or 'chrome'." % browser)
-            LogUtility.log("Not found %s browser,You can enter 'ie', 'ff' or 'chrome'." % browser)
+            #LogUtility.log("Not found %s browser,You can enter 'ie', 'ff' or 'chrome'." % browser)
             
             
     def findElement(self,type,value):
@@ -56,6 +57,10 @@ class Extend(object):
             elif type == "link_text" or type == "LINK_TEXT" or type=="Link_text":
                 element = self.driver.find_element_by_link_text(value)
                 #LogUtility.log("Find element link text:%s" % value)
+                
+            elif type == "tag_name" or type == "TAG_NAME" or type=="Tag_name":
+                element = self.driver.find_element_by_tag_name(value)
+                #LogUtility.log("Find element tag_name:%s" % value)
 
             elif type == "xpath" or type == "XPATH" or type=="Xpath":
                 element = self.driver.find_element_by_xpath(value)
@@ -194,21 +199,6 @@ class Extend(object):
         '''
         return self.driver.title
     
-    def assert_title(self,text):
-        """
-        描述：验证当前页中title是否在给定得字符串中
-        用法：self.assert_title()
-        """
-        assert text in self.driver.title
-        
-    def assert_text(self,type,value,text):
-        '''
-        描述：验证当前页中既定得元素是否在给定得字符串中
-        用法：self.assert_text()
-        '''
-        element = self.findElement(type, value)
-        assert text in element.text
-
     def getCurrentUrl(self):
         '''
         描述：获取当前链接
@@ -285,3 +275,79 @@ class Extend(object):
         用法：self.WindowHandle()
         '''
         self.driver.window_handle
+ 
+    def assert_title(self,text):
+        """
+        描述：验证当前页中title是否在给定得字符串中
+        用法：self.assert_title()
+        """
+        TestCase().assertIn(text, self.driver.title)
+   
+    def assert_text(self,type,value,text):
+        '''
+        描述：验证当前页中既定得元素是否在给定得字符串中
+        用法：self.assert_text()
+        '''
+        element = self.findElement(type, value)
+        TestCase().assertIn(text, element.text) 
+        
+    def switchToAlert(self):
+        '''
+        切换到弹窗
+        '''
+        self.driver.switch_to.alert
+        
+    def acceptAlert(self):
+        '''
+        弹窗确认
+        '''
+        self.driver.switch_to.alert.accept()
+        
+    def dismissAlert(self):
+        '''
+        弹窗取消
+        '''
+        self.driver.switch_to.alert.dismiss()
+        
+    def textAlert(self):
+        '''
+        弹窗信息
+        '''
+        self.driver.switch_to.alert.text
+        
+    def assertTextAlert(self,text):
+        '''
+        验证弹窗信息
+        '''
+        realtext = self.driver.switch_to.alert.text
+        print('打印:',realtext)
+        TestCase().assertIn(text,realtext)
+        
+    def tpyeAlert(self,text):
+        '''
+        弹窗填写
+        '''
+        self.driver.switch_to.alert.send_keys(text)
+        
+    def setWindowSize(self,width,height,windowHandle='current'):
+        '''
+        描述：设置浏览器窗口大小
+        用法：setWindowSize(width,height,windowHandle='current'):
+        参数：
+        width:浏览器宽
+        height:浏览器搞高
+        '''
+        
+        return self.driver.set_window_size(width, height, windowHandle)
+        
+    def scrollBar(self, leftmargin,topmargin):
+        '''
+        描述：设置滚动条
+        用法：self.driver.execute_script(js)
+        参数：
+        lefttmargin:左边距
+        topmargin:上边距
+        '''
+        js="window.scrollTo(" + leftmargin + ',' + topmargin +");"
+        print(js)
+        self.driver.execute_script(js)

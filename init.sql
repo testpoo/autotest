@@ -6,16 +6,17 @@ USE `autotest`;
 CREATE TABLE IF NOT EXISTS `apicases` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `type` varchar(255) NOT NULL,
+  `version` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `product` varchar(255) NOT NULL,
   `model` varchar(255) NOT NULL,
-  `steps` longtext CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `steps` varchar(2550) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+  `activity` int(11) NOT NULL,
   `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '',
   `username` varchar(255) NOT NULL,
   `create_date` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
 
@@ -25,16 +26,16 @@ CREATE TABLE IF NOT EXISTS `apidates` (
   `case_name` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `path` varchar(255) NOT NULL,
-  `method` varchar(255) NOT NULL,
-  `request` varchar(255) NOT NULL,
-  `checks` longtext CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `method` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `request` varchar(2550) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+  `checks` varchar(2550) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
   `parameter` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '',
   `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '',
   `username` varchar(255) NOT NULL,
   `create_date` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`case_name`,`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
 
@@ -45,13 +46,13 @@ CREATE TABLE IF NOT EXISTS `apiset` (
   `path` varchar(255) NOT NULL,
   `method` varchar(255) NOT NULL,
   `request` varchar(255) NOT NULL,
-  `checks` longtext CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `checks` varchar(2550) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
   `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '',
   `username` varchar(255) NOT NULL,
   `create_date` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
 
@@ -59,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `apiset` (
 CREATE TABLE IF NOT EXISTS `apisitues` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `steps` longtext CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `steps` varchar(2550) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
   `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '',
   `username` varchar(255) NOT NULL,
   `create_date` varchar(255) NOT NULL,
@@ -81,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `report` (
   `username` varchar(50) NOT NULL,
   `create_date` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=153 DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
 
@@ -89,16 +90,17 @@ CREATE TABLE IF NOT EXISTS `report` (
 CREATE TABLE IF NOT EXISTS `uicases` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `type` varchar(255) NOT NULL,
+  `version` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `model` varchar(255) NOT NULL,
   `product` varchar(255) NOT NULL,
-  `steps` longtext CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `steps` varchar(2550) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
   `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '',
+  `activity` int(11) NOT NULL,
   `username` varchar(255) NOT NULL,
   `create_date` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
 
@@ -113,7 +115,7 @@ CREATE TABLE IF NOT EXISTS `uiset` (
   `create_date` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `keyword` (`keyword`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
 
@@ -121,7 +123,7 @@ CREATE TABLE IF NOT EXISTS `uiset` (
 CREATE TABLE IF NOT EXISTS `uisitues` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `steps` longtext CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `steps` varchar(2550) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
   `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '',
   `username` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `create_date` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
@@ -146,31 +148,45 @@ CREATE TABLE IF NOT EXISTS `user` (
 
 -- 数据导出被取消选择。
 
--- 正在导出表  autotest.uiset 的数据：~8 rows (大约)
-/*!40000 ALTER TABLE `uiset` DISABLE KEYS */;
-INSERT INTO `uiset` (`keyword`, `template`, `example`, `description`, `username`, `create_date`) VALUES
+-- 导出  表 autotest.versions 结构
+CREATE TABLE IF NOT EXISTS `versions` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `version` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `username` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `create_date` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `version` (`version`)
+) ENGINE=InnoDB AUTO_INCREMENT=156 DEFAULT CHARSET=utf8;
+
+-- 数据导出被取消选择。
+
+REPLACE INTO `uiset` (`keyword`, `template`, `example`, `description`, `username`, `create_date`) VALUES
 	('前往|(\'test_keywordurl\')', 'open', '前往(\'https://www.baidu.com\')', '', 'lvhao', '2020-09-23 15:35:37'),
 	('最大化|()', 'maximizeWindow', '最大化()', '', 'lvhao', '2020-09-23 15:35:37'),
 	('填写|(\'元素\',\'值\',\'文本\')', 'type', '填写(\'id\',\'kw\',\'selenium\')', '', 'lvhao', '2020-09-23 15:35:37'),
-	('点击|(\'元素\',\'值\')', 'click', 'click(\'id\',\'su\')', '', 'lvhao', '2020-09-23 15:35:37'),
-	('清除|(\'元素\',\'值\')', 'clear', 'clear(\'id\',\'kw\')', '', 'lvhao', '2020-09-23 15:35:37'),
-	('验证标题|(\'文本\')', 'assert_title', 'assert_title(\'selenium\')', '', 'lvhao', '2020-09-23 15:35:37'),
-	('隐式等待|(time)', 'implicitlyWwait', 'implicitlyWwait(20)', '', 'lvhao', '2020-09-23 15:35:37'),
-	('标题|()', 'getTitle', 'getTitle()', '', 'lvhao', '2020-09-23 15:35:37'),
-	('等待|(time)', 'wait', 'wait(5)', '', 'lvhao', '2020-09-23 15:35:37'),
-	('验证文本|(\'元素\', \'值\',\'文本\')', 'assert_text', 'assert_text(\'class\',\'nums_text\',\'百度为您找到\')', '', 'lvhao', '2020-09-23 15:35:37'),
-	('截图|(\'路径\')', 'getScreenshot', 'getScreenshot(\'D://baidu.png\')', '', 'lvhao', '2020-09-23 15:35:37'),
-	('前进|()', 'forward', 'forward()', '', 'lvhao', '2020-09-23 15:35:37'),
-	('后退|()', 'back', 'back()', '', 'lvhao', '2020-09-23 15:35:37'),
-	('切换frame|(\'元素\',\'值\')', 'switchToFrame', 'switchToFrame(\'id\',\'login_frame\')', '', 'lvhao', '2020-09-23 15:35:37'),
-	('切换到最外层frame|()', 'switchToOuterFrame', 'switchToOuterFrame()', '', 'lvhao', '2020-09-23 15:35:37');
-/*!40000 ALTER TABLE `uiset` ENABLE KEYS */;
+	('点击|(\'元素\',\'值\')', 'click', '点击(\'id\',\'su\')', '', 'lvhao', '2020-09-23 15:35:37'),
+	('清除|(\'元素\',\'值\')', 'clear', '清除(\'id\',\'kw\')', '', 'lvhao', '2020-09-23 15:35:37'),
+	('验证标题|(\'文本\')', 'asserTitle', '验证标题(\'首页-上讯信息\')', '', 'lvhao', '2020-09-23 15:35:37'),
+	('隐式等待|(time)', 'implicitlyWwait', '隐式等待(20)', '', 'lvhao', '2020-09-23 15:35:37'),
+	('标题|()', 'getTitle', '标题()', '', 'lvhao', '2020-09-23 15:35:37'),
+	('等待|(time)', 'wait', '等待(5)', '', 'lvhao', '2020-09-23 15:35:37'),
+	('验证文本|(\'元素\', \'值\',\'文本\')', 'assertText', '验证文本(\'class\',\'nums_text\',\'百度为您找到\')', '', 'lvhao', '2020-09-23 15:35:37'),
+	('截图|(\'路径\')', 'getScreenshot', '截图(\'D://baidu.png\')', '', 'lvhao', '2020-09-23 15:35:37'),
+	('前进|()', 'forward', '前进()', '', 'lvhao', '2020-09-23 15:35:37'),
+	('后退|()', 'back', '后退()', '', 'lvhao', '2020-09-23 15:35:37'),
+	('切换frame|(\'元素\',\'值\')', 'switchToFrame', '切换frame(\'id\',\'login_frame\')', '', 'lvhao', '2020-09-23 15:35:37'),
+	('切换到最外层frame|()', 'switchToOuterFrame', '切换到最外层frame()', '', 'lvhao', '2020-09-23 15:35:37'),
+	('切换到弹窗|()', 'switchToAlert', '切换到弹窗()', '', 'lvhao', '2020-09-23 15:35:37'),
+	('弹窗填写|(‘文本’)', 'tpyeAlert', '弹窗填写(‘人员管理’)', '', 'lvhao', '2020-09-23 15:35:37'),
+	('验证弹窗文本|(\'文本\')', 'assertTextAlert', '验证弹窗文本(\'保存成功\')', '', 'lvhao', '2020-09-23 15:35:37'),
+	('弹窗确认|()', 'acceptAlert', '弹窗确认()', '', 'lvhao', '2020-09-23 15:35:37'),
+	('设置窗口大小|(宽,高)', 'setWindowSize', '设置窗口大小(800,500)', '', 'lvhao', '2020-09-23 15:35:37'),
+	('提交表单|()', 'submit', '提交表单()', '', 'lvhao', '2020-09-23 15:35:37'),
+	('刷新|()', 'refresh', '刷新()', '', 'lvhao', '2020-09-23 15:35:37'),
+	('下拉框|(\'元素\',\'值\',\'文本\')', 'findSelect', '下拉框|(\'name\',\'user_gender\',\'男\')', '', 'lvhao', '2020-09-23 15:35:37');
 
--- 正在导出表  autotest.user 的数据：~4 rows (大约)
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
 INSERT INTO `user` (`username`, `password`, `last_login`, `email`, `zh_name`, `create_date`) VALUES
-	('puyawei', 'MQ==', '2020-09-28 19:41:59', '2', '蒲亚伟', '2020-09-18 17:15:44'),
-	('admin', 'MQ==', '2020-09-28 19:41:08', '2', '管理员', '2020-09-18 17:15:44'),
-	('lvhao', 'MQ==', '2020-09-23 15:16:45', '2', '吕浩', '2020-09-23 14:50:12'),
-	('bailu', 'MQ==', '2020-09-25 10:26:33', 'bailu@suninfo.com', '白露', '2020-09-25 10:26:25');
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
+	('puyawei', 'MQ==', '2020-09-30 15:25:46', '2', '蒲亚伟', '2020-09-18 17:15:44'),
+	('admin', 'MQ==', '2020-09-30 09:15:14', '2', '管理员', '2020-09-18 17:15:44'),
+	('lvhao', 'MQ==', '2020-09-29 15:09:25', '2', '吕浩', '2020-09-23 14:50:12'),
+	('bailu', 'MQ==', '2020-09-29 16:58:27', 'bailu@suninfo.com', '白露', '2020-09-25 10:26:25');

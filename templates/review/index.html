@@ -1,7 +1,7 @@
-{% extends "base_index.html" %}
+{% extends "review/base_index.html" %}
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
-<div class="suninfo">ATS</div>
+<div class="suninfo">REVIEW</div>
 {% endblock %}

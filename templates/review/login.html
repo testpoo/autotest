@@ -1,17 +1,17 @@
-{% extends "base.html" %}
+{% extends "review/base.html" %}
 {% block login %}
 <style>
   #sitename {display: none;}
   #main {padding-left: 0px;}
   #footer {margin: 0 auto;}
 </style>
-<div id="login_nav">自动化测试平台</div>
+<div id="login_nav">案例审核平台</div>
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
 <div id=login>
   {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
-  <form action="{{ url_for('login') }}" method=post>
+  <form action="{{ url_for('review_login') }}" method=post>
     <ul>
       <li class="login"><input type=text name=username placeholder="用户名"></li>
       <li class="login"><input type=password name=password placeholder="密码"></li>

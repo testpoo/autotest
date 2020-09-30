@@ -7,7 +7,7 @@
   <thead>
     <tr>
       <th>ID</th>
-      <th>用例类型</th>
+      <th>用例版本</th>
       <th>所属产品</th>
       <th>所属模块</th>
       <th>名称</th>
@@ -22,7 +22,7 @@
     {% for case in cases|reverse %}
     <tr>
       <td>{{ loop.index }}</td>
-      <td>{{ case['type'] }}</td>
+      <td>{{ case['version'] }}</td>
       <td>{{ case['product'] }}</td>
       <td>{{ case['model'] }}</td>
       <td>{{ case['name'] }}</td>
@@ -32,8 +32,10 @@
       <td>{{ case['create_date'] }}</td>
       <td>
         {% for opera,links in operation %}
+        {% if opera !='编辑' %}
         <span class="opration"><a href="{{ SITEURL }}/uicase_{{ links }}/{{ case['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
+        {% endif %}
         {% endfor %}
       </td>
     </tr>
@@ -48,11 +50,4 @@
   </tbody>
 </table>
 <div id="loadDiv"><img src="{{ SITEURL }}/static/img/loading.gif" /></div>
-<div class="new">
-  <ul>
-    <li>
-      <a href="{{ SITEURL }}/new_uicase">新建</a>
-    </li>
-  </ul>
-</div>
 {% endblock %}

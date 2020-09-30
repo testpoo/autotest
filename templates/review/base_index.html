@@ -1,0 +1,27 @@
+{% extends "review/base.html" %}
+{% block login %}
+<div id=nav>
+    {% for n in review_nav %}
+    <li class="nav"><a class="color" href="{{ SITEURL }}/review/{{ username }}">{{ n }}</a>
+        {% if n == 'UI自动化' %}
+        <ul id="submenu">
+            {% for sub,slink in review_sub_nav_ui %}
+            <li><a href="{{ SITEURL }}/review/{{ slink }}/1">{{ sub }}</a></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% if n == '接口自动化' %}
+        <ul id="submenu">
+            {% for sub,slink in review_sub_nav_api %}
+            <li><a href="{{ SITEURL }}/review/{{ slink }}/1">{{ sub }}</a></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </li>
+    {%  endfor %}
+</div>
+<div id=content>
+    {% block content %}
+    {% endblock %}
+</div>
+{% endblock %}

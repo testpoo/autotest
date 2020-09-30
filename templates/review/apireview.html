@@ -1,4 +1,4 @@
-{% extends "base_index.html" %}
+{% extends "review/base_index.html" %}
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
@@ -32,11 +32,9 @@
       <td>{{ case['username'] }}</td>
       <td>{{ case['create_date'] }}</td>
       <td>
-        {% for opera,links in operation %}
-        {% if opera !='编辑' %}
-        <span class="opration"><a href="{{ SITEURL }}/apicase_{{ links }}/{{ case['id'] }}"
+        {% for opera,links in review_operation %}
+        <span class="opration"><a href="{{ SITEURL }}/review/apicase_{{ links }}/{{ case['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
-        {% endif %}
         {% endfor %}
       </td>
     </tr>
@@ -44,9 +42,7 @@
     <tr>
       <td colspan="10">
         {% for page in range(all_Page) %}
-        {% if opera !='编辑' %}
-        <span class="opration"><a href="{{ SITEURL }}/apicases/{{ page+1 }}">{{ page+1 }}</a></span>
-        {% endif %}
+        <span class="opration"><a href="{{ SITEURL }}/review/apicases/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>

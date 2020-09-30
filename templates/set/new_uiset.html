@@ -1,10 +1,10 @@
-{% extends "base_index.html" %}
+{% extends "caseManage/base_index.html" %}
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
-<form class="form-horizontal" id="new_uiset" action="/new_uiset" method="post">
+<form class="form-horizontal" id="new_uiset" action="{{ url_for('new_uiset',id=id) }}" method="post">
     <div class="form-group">
         <label for="keyword">步骤名称</label>
         <input type="text" class="form-control required" id="keyword" name="keyword" maxlength="200" placeholder="请输入用例名称">
