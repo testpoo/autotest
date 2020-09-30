@@ -212,6 +212,9 @@ def uisitue_edit(id):
     if not session.get('logged_in'):
         abort(401)
     else:
+        cur = selectall('SELECT name FROM uicases where activity="1"')
+        uisitues = [dict(name=row[0]) for row in cur]
+
         cur = selectone('SELECT name, steps, description FROM uisitues where id=%s',[id])
         cases = [dict(name=row[0], steps=row[1], description=row[2]) for row in cur]
         if request.method == 'POST':
@@ -221,7 +224,7 @@ def uisitue_edit(id):
                 addUpdateDel('update uisitues set steps=%s, description=%s where id=%s',[request.form['steps'], request.form['description'],id])
                 flash('编辑成功...')
                 return redirect(url_for('uisitues',num=1))
-        return render_template('ui/uisitue_edit.html',SITEURL=SITEURL, username=session['username'],  case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集编辑',id=id)
+        return render_template('ui/uisitue_edit.html',SITEURL=SITEURL, username=session['username'], uisitues=uisitues, case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集编辑',id=id)
 
 # UI SITUES QUERY
 @app.route('/uisitue_query/<int:id>', methods=['GET', 'POST'])
