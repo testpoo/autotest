@@ -98,7 +98,7 @@ def uicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM uicases where activity = "1"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.version, a.model, a.product, a.name, a.steps, a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="1" LIMIT %s,%s',[num-1,page_Count])
+        cur = selectone('SELECT a.id,a.version, a.model, a.product, a.name, a.steps, a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="1" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         cases = [dict(id=row[0], version=row[1], model=row[2], product=row[3], name=row[4], steps=row[5], description=row[6], username=row[7], create_date=row[8]) for row in cur]
         return render_template('ui/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试案例')
 '''
@@ -202,7 +202,7 @@ def uisitues(num):
     else:
         all_Count = selectall('SELECT count(1) FROM uisitues')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.name,a.steps,a.description,b.zh_name,a.create_date FROM uisitues a inner join user b on a.username=b.username LIMIT %s,%s',[num-1,page_Count])
+        cur = selectone('SELECT a.id,a.name,a.steps,a.description,b.zh_name,a.create_date FROM uisitues a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         uisitues = [dict(id=row[0], name=row[1], steps=row[2], description=row[3], username=row[4], create_date=row[5]) for row in cur]
         return render_template('ui/uisitues.html', SITEURL=SITEURL, username=session['username'], uisitues=uisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试集')
 
@@ -302,7 +302,7 @@ def apisitues(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apisitues')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.name,a.steps,a.description,b.zh_name,a.create_date FROM apisitues a inner join user b on a.username=b.username LIMIT %s,%s',[num-1,page_Count])
+        cur = selectone('SELECT a.id,a.name,a.steps,a.description,b.zh_name,a.create_date FROM apisitues a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apisitues = [dict(id=row[0], name=row[1], steps=row[2], description=row[3], username=row[4], create_date=row[5]) for row in cur]
         return render_template('api/apisitues.html', SITEURL=SITEURL, username=session['username'], apisitues=apisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试集')
 
@@ -400,7 +400,7 @@ def apicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apicases where activity="1"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, steps FROM apicases a inner join user b on a.username=b.username where activity="1" LIMIT %s,%s',[num-1,page_Count])
+        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, steps FROM apicases a inner join user b on a.username=b.username where activity="1" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apicases = [dict(id=row[0], version=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8]) for row in cur]
         return render_template('api/apicases.html',SITEURL=SITEURL, username=session['username'], apicases=apicases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '接口测试案例')
 '''
@@ -541,7 +541,7 @@ def uiset(num):
     else:
         all_Count = selectall('SELECT count(1) FROM uiset')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.keyword,a.description,a.template,a.example,b.zh_name,a.create_date FROM uiset a inner join user b on a.username=b.username LIMIT %s,%s',[num-1,page_Count])
+        cur = selectone('SELECT a.id,a.keyword,a.description,a.template,a.example,b.zh_name,a.create_date FROM uiset a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         uisets = [dict(id=row[0], keyword=row[1], description=row[2], template=row[3], example=row[4], username=row[5], create_date=row[6]) for row in cur]
         return render_template('set/uiset.html',SITEURL=SITEURL, username=session['username'],  uisets=uisets, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = 'UI步骤说明')
 
@@ -612,7 +612,7 @@ def apiset(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apiset')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.name,a.path,a.method,a.request,a.checks,a.description,b.zh_name,a.create_date FROM apiset a inner join user b on a.username=b.username LIMIT %s,%s',[num-1,page_Count])
+        cur = selectone('SELECT a.id,a.name,a.path,a.method,a.request,a.checks,a.description,b.zh_name,a.create_date FROM apiset a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apisets = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=row[4], checks=row[5], description=row[6], username=row[7], create_date=row[8]) for row in cur]
         return render_template('set/apiset.html',SITEURL=SITEURL, username=session['username'], apisets=apisets, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = '全部接口')
 
@@ -730,7 +730,7 @@ def versions(num):
     else:
         all_Count = selectall('SELECT count(1) FROM versions')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.version,b.zh_name,a.create_date FROM versions a inner join user b on a.username=b.username LIMIT %s,%s',[num-1,page_Count])
+        cur = selectone('SELECT a.id,a.version,b.zh_name,a.create_date FROM versions a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         versions = [dict(id=row[0], version=row[1], username=row[2], create_date=row[3]) for row in cur]
         return render_template('version/versions.html', SITEURL=SITEURL, username=session['username'], versions=versions, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = '版本号')
 
@@ -790,7 +790,7 @@ def caseManage_uicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM uicases where activity="0"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.version, a.model, a.product, a.name, a.steps, a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[num-1,page_Count])
+        cur = selectone('SELECT a.id,a.version, a.model, a.product, a.name, a.steps, a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         cases = [dict(id=row[0], version=row[1], model=row[2], product=row[3], name=row[4], steps=row[5], description=row[6], username=row[7], create_date=row[8]) for row in cur]
         return render_template('caseManage/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = '测试案例')
 
@@ -894,7 +894,7 @@ def caseManage_apicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apicases where activity="0"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, steps FROM apicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[num-1,page_Count])
+        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, steps FROM apicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apicases = [dict(id=row[0], version=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8]) for row in cur]
         return render_template('caseManage/apicases.html',SITEURL=SITEURL, username=session['username'], apicases=apicases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = '接口测试案例')
 
@@ -1099,7 +1099,7 @@ def review_uicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM uicases where activity = "0"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.version, a.model, a.product, a.name, a.steps, a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[num-1,page_Count])
+        cur = selectone('SELECT a.id,a.version, a.model, a.product, a.name, a.steps, a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         cases = [dict(id=row[0], version=row[1], model=row[2], product=row[3], name=row[4], steps=row[5], description=row[6], username=row[7], create_date=row[8]) for row in cur]
         return render_template('review/uireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, pagename = '案例审核')
 
@@ -1132,7 +1132,7 @@ def review_apicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apicases where activity="0"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, steps FROM apicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[num-1,page_Count])
+        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, steps FROM apicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apicases = [dict(id=row[0], version=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8]) for row in cur]
         return render_template('review/apireview.html',SITEURL=SITEURL, username=session['username'], apicases=apicases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, pagename = '案例审核')
 
