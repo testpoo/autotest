@@ -37,6 +37,8 @@ th,tr,td {
 
 td {
     min-width: 100px;
+    max-width: 600px;
+    word-break : break-all;
 }
 
 th {

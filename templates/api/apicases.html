@@ -8,8 +8,8 @@
   <thead>
     <tr>
       <th>ID</th>
-      <th>用例版本</th>
       <th>所属产品</th>
+      <th>用例版本</th>
       <th>所属模块</th>
       <th>名称</th>
       <th>操作步骤</th>
@@ -23,8 +23,8 @@
     {% for case in apicases|reverse %}
     <tr>
       <td>{{ loop.index }}</td>
-      <td>{{ case['version'] }}</td>
       <td>{{ case['product'] }}</td>
+      <td>{{ case['version'] }}</td>
       <td>{{ case['model'] }}</td>
       <td>{{ case['name'] }}</td>
       <td>{{ case['steps'] }}</td>
