@@ -6,13 +6,13 @@
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
 <div class="form-group">
     <label for="type">用例类型</label>
-    <input type="text"  id="type" class="form-control required" name="type" maxlength="200" placeholder="请输入用例类型" readonly
-        unselectable="on" value={{ case['type'] }}>
+    <input type="text" id="type" class="form-control required" name="type" maxlength="200" placeholder="请输入用例类型"
+        readonly unselectable="on" value={{ case['type'] }}>
 </div>
 <div class="form-group">
     <label for="version">用例版本</label>
-    <input type="text"  id="version" class="form-control required" name="version" maxlength="200" placeholder="请输入版本号" readonly
-        unselectable="on" value={{ case['version'] }}>
+    <input type="text" id="version" class="form-control required" name="version" maxlength="200" placeholder="请输入版本号"
+        readonly unselectable="on" value={{ case['version'] }}>
 </div>
 <div class="form-group">
     <label for="name">名称</label>
@@ -37,8 +37,7 @@
 {% if case['type'] == '普通用例' %}
 <div class="form-group">
     <label for="pre-steps">前置事务</label>
-    <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入前置事务">
-        {{ case['next_steps'] }}</div>
+    <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入前置事务">{{ case['pre_steps'] }}</div>
 </div>
 {% endif %}
 <div class="form-group">
@@ -47,9 +46,8 @@
 </div>
 {% if case['type'] == '普通用例' %}
 <div class="form-group">
-    <label for="pre-steps">后置事务</label>
-    <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入后置事务">
-        {{ case['next_steps'] }}</div>
+    <label for="next-steps">后置事务</label>
+    <div class="form-control required textarea" id="next-steps" name="next-steps" placeholder="请输入后置事务">{{ case['next_steps'] }}</div>
 </div>
 {% endif %}
 <div class="new">

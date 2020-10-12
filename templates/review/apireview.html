@@ -14,6 +14,7 @@
       <th>所属模块</th>
       <th>名称</th>
       <th>前置事件</th>
+      <th>操作步骤</th>
       <th>后置事件</th>
       <th>描述</th>
       <th>创建者</th>
@@ -30,8 +31,13 @@
       <td>{{ case['product'] }}</td>
       <td>{{ case['model'] }}</td>
       <td>{{ case['name'] }}</td>
-      <td>{{ '前置事件' }}</td>
-      <td>{{ '后置事件' }}</td>
+      <td>{{ case['pre_steps'] }}</td>
+      <td>
+        {% for case_step in case['steps'].split("\r\n") %}
+        {{ case_step }}<br />
+        {% endfor %}
+      </td>
+      <td>{{ case['next_steps'] }}</td>
       <td>{{ case['description'] }}</td>
       <td>{{ case['username'] }}</td>
       <td>{{ case['create_date'] }}</td>
@@ -44,7 +50,7 @@
     </tr>
     {% endfor %}
     <tr>
-      <td colspan="10">
+      <td colspan="13">
         {% for page in range(all_Page) %}
         <span class="opration"><a href="{{ SITEURL }}/review/apicases/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}

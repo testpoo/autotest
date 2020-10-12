@@ -403,8 +403,8 @@ def apicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apicases where activity="1"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, steps FROM apicases a inner join user b on a.username=b.username where activity="1" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
-        apicases = [dict(id=row[0], version=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8]) for row in cur]
+        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, a.steps,a.type, a.pre_steps,a.next_steps FROM apicases a inner join user b on a.username=b.username where activity="1" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        apicases = [dict(id=row[0], version=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8], type=row[9], pre_steps=row[10], next_steps=row[11]) for row in cur]
         return render_template('api/apicases.html',SITEURL=SITEURL, username=session['username'], apicases=apicases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '接口测试用例')
 '''
 # API CASE EDIT
@@ -432,7 +432,7 @@ def apicase_query(id):
         case_name = cases[0]['name']
         case_details = []
         for i in range(len(steps)):
-            cur = selectone('select name,path,method,request,checks,parameter from apidates where case_name=%s and name=%s',[case_name,steps[i]+'_'+str(i)])
+            cur = selectone('select name,path,method,request,checks,parameter from apidates where case_name=%s and name=%s',[case_name,str(i)+'_'+steps[i]])
             case_detail = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5]) for row in cur]
             case_details.append(case_detail[0])
         return render_template('api/apicase_query.html',SITEURL=SITEURL, username=session['username'], case_details=case_details, case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '接口查看')
@@ -937,7 +937,7 @@ def caseManage_apicase_query(id):
         case_name = cases[0]['name']
         case_details = []
         for i in range(len(steps)):
-            cur = selectone('select name,path,method,request,checks,parameter from apidates where case_name=%s and name=%s',[case_name,steps[i]+'_'+str(i)])
+            cur = selectone('select name,path,method,request,checks,parameter from apidates where case_name=%s and name=%s',[case_name,str(i)+'_'+steps[i]])
             case_detail = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5]) for row in cur]
             case_details.append(case_detail[0])
         return render_template('caseManage/apicase_query.html',SITEURL=SITEURL, username=session['username'], case_details=case_details, case=cases[0], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, pagename = '接口查看')
@@ -1129,7 +1129,7 @@ def review_uicases(num):
         all_Page = math.ceil(all_Count/page_Count)
         cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
-    return render_template('review/uireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, pagename = '测试用例')
+        return render_template('review/uireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, pagename = '测试用例')
 
 # REVIEW UI CASE QUERY
 @app.route('/review/uicase_query/<int:id>', methods=['GET', 'POST'])
@@ -1171,8 +1171,8 @@ def review_apicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apicases where activity="0"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, steps FROM apicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
-        apicases = [dict(id=row[0], version=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8]) for row in cur]
+        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, steps,pre_steps,next_steps,type FROM apicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        apicases = [dict(id=row[0], version=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8], pre_steps=row[9], next_steps=row[10], type=row[11]) for row in cur]
         return render_template('review/apireview.html',SITEURL=SITEURL, username=session['username'], apicases=apicases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, pagename = '用例审核')
 
 # REVIEW API CASE QUERY
@@ -1181,16 +1181,15 @@ def review_apicase_query(id):
     if not session.get('logged_in') or session['username'] not in review_user:
         abort(401)
     else:
-        cur = selectone('SELECT version, name, product, model, steps, description FROM apicases where id=%s',[id])
-        cases = [dict(version=row[0], name=row[1], product=row[2], model=row[3], steps=row[4], description=row[5]) for row in cur]
+        cur = selectone('SELECT type, version, name, product, model, pre_steps, steps, next_steps, description FROM apicases where id=%s',[id])
+        cases = [dict(type=row[0], version=row[1], name=row[2], product=row[3], model=row[4], pre_steps=row[5], steps=row[6], next_steps=row[7], description=row[8]) for row in cur]
         steps = cases[0]['steps'].split('\r\n')
         case_name = cases[0]['name']
         print(case_name)
         case_details = []
         for i in range(len(steps)):
-            cur = selectone('select name,path,method,request,checks,parameter from apidates where case_name=%s and name=%s',[case_name,steps[i]+'_'+str(i)])
+            cur = selectone('select name,path,method,request,checks,parameter from apidates where case_name=%s and name=%s',[case_name,str(i)+'_'+steps[i]])
             case_detail = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5]) for row in cur]
-            print(cur)
             case_details.append(case_detail[0])
         return render_template('review/apicase_review.html',SITEURL=SITEURL, username=session['username'], case_details=case_details, case=cases[0], review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, id=id, pagename = '用例审核')
 
