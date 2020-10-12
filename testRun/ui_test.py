@@ -35,15 +35,34 @@ class RunUiTests(object):
         try:
             starttime = Config.getCurrentTime()
             Screenshottime = time.strftime("%Y_%m_%d_%H_%M_%S")
-            cur = selectone('SELECT name, steps from uicases WHERE id=%s', [self.id])
-            cases = [dict(name=row[0], steps=row[1]) for row in cur][0]
+            cur = selectone('SELECT name,pre_steps, steps, next_steps from uicases WHERE id=%s', [self.id])
+            cases = [dict(name=row[0], pre_steps=row[1], steps=row[2], next_steps=row[3]) for row in cur][0]
             case_name = cases['name']
-            steps = cases['steps'].split(';')
+            
+            if cases['pre_steps'] == '':
+                pre_steps = []
+            else:
+                pre_steps = []
+                pre_names = cases['pre_steps'].split('\r\n')
+                for pre_name in pre_names:
+                    pre_step = selectone('SELECT steps FROM uicases WHERE name = %s',[pre_name])[0][0].split('\r\n')
+                    pre_steps.extend(pre_step)
+
+            if cases['next_steps'] == '':
+                next_steps = []
+            else:
+                next_steps = []
+                next_names = cases['next_steps'].split('\r\n')
+                for next_name in next_names:
+                    next_step = selectone('SELECT steps FROM uicases WHERE name = %s',[next_name])[0][0].split('\r\n')
+                    next_steps.extend(next_step)
+            
+            steps = pre_steps+cases['steps'].split('\r\n')+next_steps
 
             TestCase = Extend.Extend()
             
             result = {'case_name':case_name,'status':'失败','starttime':starttime,'spenttime':'','error':''}
-            
+            print(steps)
             for step in steps:
                 action = cover(step)
                 eval('TestCase.'+action)
@@ -70,7 +89,7 @@ class RunUiTests(object):
 
             cur = selectone('SELECT name, steps, description FROM uisitues where id=%s',[self.id])
             cases = [dict(name=row[0], steps=row[1], description=row[2]) for row in cur]
-            cases_step = cases[0]['steps'].split(';')
+            cases_step = cases[0]['steps'].split('\r\n')
             cases_name = cases[0]['name']
             count = len(cases_step)
             all_id = []

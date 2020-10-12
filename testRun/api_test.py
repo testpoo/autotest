@@ -58,16 +58,17 @@ class RunTests(object):
 
         case_name = cases[0]['name']
         product = cases[0]['product']
-        list_apis = cases[0]['steps'] = cases[0]['steps'].split(';')
+        apis_cur = selectone('SELECT name FROM apidates WHERE case_name=%s', [case_name])
+        list_apis = [dict(name=row[0]) for row in apis_cur]
+        list_apis = [list_api['name'] for list_api in list_apis]
         results = []
         finally_results = {'case_name': case_name, 'results': '',
                            'status': '', 'starttime': starttime, 'spenttime': '', 'error': ''}
         status = '成功'
         for i in range(len(list_apis)):
             cases_cur = selectone('SELECT name, path, method, request, checks, parameter from apidates WHERE case_name=%s and name=%s', [
-                                  case_name, list_apis[i]+'_'+str(i)])
-            cases_list = [dict(name=row[0], path=row[1], method=row[2],
-                               request=row[3], checks=row[4], parameter=row[5]) for row in cases_cur][0]
+                                  case_name, list_apis[i]])
+            cases_list = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5]) for row in cases_cur][0]
             name = cases_list['name']
             url = cases_list['path']
             method = cases_list['method']
@@ -88,8 +89,10 @@ class RunTests(object):
                 true=True
                 r = eval('requests.'+method +
                          '(url, headers=headers, data=data, verify=False)')
-                print(data)
-                parameter = eval(parameter)
+                if parameter!='':
+                    parameter = eval(parameter)
+                else:
+                    parameter=parameter
                 content = eval(r.text)
                 if parameter != '' and isinstance(parameter,list):
                     result['new_param']=traverse_take_field(content,parameter)
@@ -101,6 +104,7 @@ class RunTests(object):
                     result['error'] = "断言失败"
                     status = '失败'
                     finally_results['error'] = result['error']
+                    break
             except Exception as api_err:
                 LogUtility.logger.debug(
                     "Failed running test siutes, error message: {}".format(str(err)))
@@ -126,7 +130,7 @@ class RunTests(object):
                 'SELECT name,steps FROM apisitues WHERE id=%s', [self.id])
             cases = [dict(name=row[0], steps=row[1]) for row in cur]
             cases_name = cases[0]['name']
-            cases_step = cases[0]['steps'].split(';')
+            cases_step = cases[0]['steps'].split('\r\n')
             count = len(cases_step)
             all_id = []
             for step in cases_step:
@@ -144,7 +148,6 @@ class RunTests(object):
         except Exception as err:
             LogUtility.logger.debug(
                 "Failed running test siutes, error message: {}".format(str(err)))
-            print("测试异常。。。"+str(err))
         finally:
             endtime = Config.getCurrentTime()
             spenttime = Config.timeDiff(starttime, endtime)

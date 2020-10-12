@@ -70,6 +70,27 @@ input, button, select, textarea {
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
+.textarea {
+    line-height: 20px;
+    padding: 11px 10px;
+    border-radius: 5px;
+    border: 1px solid #eee;
+    color: #676a6c;
+    text-align: left;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    white-space: pre;
+}
+
+/*为空时显示 element attribute content*/
+.textarea:empty:before{
+    content: attr(placeholder);   /* element attribute*/
+    /*content: 'this is content';*/
+}
+/*焦点时内容为空*/
+.textarea:focus:before{
+    content:none;
+}
+
 hr {
     height: 5px;
     background-color: #eee;

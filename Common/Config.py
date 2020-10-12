@@ -41,7 +41,7 @@ review_sub_nav_api = [['测试用例','apicases']]
 
 review_user = ['puyawei','lvhao']
 
-review_operation = [['审核','review'],['执行','exec']]
+review_operation = [['审核','query'],['执行','exec']]
 
 #==============================================================================================================
 product = ['SiCAP','OMA']
@@ -131,3 +131,11 @@ def get_list(values):
         get_list(values)
     else:
         get_targe_value(rustle)
+
+# 去掉前置后置事件中“-”
+def deline(temp):
+    list=[]
+    for te in temp:
+        te = te.split("_")[1]
+        list.append(te)
+    return list

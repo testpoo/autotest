@@ -1,9 +1,14 @@
 {% extends "base_index.html" %}
 {% block content %}
 <div class="form-group">
+  <label for="type">用例类型</label>
+  <input id="type" class="form-control required" name="type" maxlength="200" placeholder="请输入用例类型" readonly
+      unselectable="on" value={{ case['type'] }}>
+</div>
+<div class="form-group">
   <label for="version">用例版本</label>
-  <input type="text" class="form-control required" id="version" name="version" maxlength="200" placeholder="请输入用例名称" readonly
-    unselectable="on" value={{ case['type'] }}>
+  <input type="text" class="form-control required" id="version" name="version" maxlength="200" placeholder="请输入用例版本" readonly
+    unselectable="on" value={{ case['version'] }}>
 </div>
 <div class="form-group">
   <label for="product">所属产品</label>
@@ -21,9 +26,16 @@
     unselectable="on" value={{ case['name'] }}>
 </div>
 <div class="form-group">
+  <label for="pre-steps">前置事务</label>
+  <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入前置事务">{{ case['pre_steps'] }}</div>
+</div>
+<div class="form-group">
   <label for="steps">步骤</label>
-  <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30" rows="5" readonly
-    unselectable="on">{{ case['steps'] }}</textarea>
+  <div class="form-control required textarea" id="steps" name="steps" placeholder="请输入步骤">{{ case['steps'] }}</div>
+</div>
+<div class="form-group">
+  <label for="pre-steps">后置事务</label>
+  <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入后置事务">{{ case['next_steps'] }}</div>
 </div>
 <div class="form-group">
   <label for="description">描述</label>

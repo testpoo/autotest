@@ -1,4 +1,4 @@
-{% extends "base_index.html" %}
+{% extends "review/base_index.html" %}
 {% block content %}
 <div class="form-group">
     <label for="type">用例类型</label>
@@ -36,8 +36,8 @@
 </div>
 <div class="form-group">
     <label for="steps">操作步骤</label>
-    <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30"
-        rows="1">{{ case['steps'] }}</textarea>
+    <div class="form-control required textarea" id="steps" name="steps" placeholder="请输入步骤" cols="30"
+        rows="1">{{ case['steps'] }}</div>
 </div>
 <div class="form-group">
     <label for="pre-steps">后置事务</label>
@@ -47,13 +47,13 @@
 <hr>
 <div class="form-group">
     <label for="case_name">名称</label>
-    <input type="text" class="form-control required" id="case_name" name="case_name" maxlength="200" placeholder="请输入路径"
-        readonly unselectable="on" value={{ case_detail['name'] }}>
+    <input type="text" class="form-control required" id="case_name" name="case_name" maxlength="200" placeholder="请输入路径" readonly
+        unselectable="on" value={{ case_detail['name'] }}>
 </div>
 <div class="form-group">
     <label for="case_path">路径</label>
-    <input type="text" class="form-control required" id="case_path" name="case_path" maxlength="200" placeholder="请输入路径"
-        readonly unselectable="on" value={{ case_detail['path'] }}>
+    <input type="text" class="form-control required" id="case_path" name="case_path" maxlength="200" placeholder="请输入路径" readonly
+        unselectable="on" value={{ case_detail['path'] }}>
 </div>
 <div class="form-group">
     <label for="case_method">方法</label>
@@ -62,18 +62,25 @@
 </div>
 <div class="form-group">
     <label for="case_request">请求</label>
-    <textarea class="form-control required" id="request" name="case_request" placeholder="请输入请求" cols="30" rows="5"
-        readonly unselectable="on">{{ case_detail['request'] }}</textarea>
+    <textarea class="form-control required" id="request" name="case_request" placeholder="请输入请求" cols="30" rows="5" readonly
+        unselectable="on">{{ case_detail['request'] }}</textarea>
 </div>
 <div class="form-group">
     <label for="case_checks">检查项</label>
-    <textarea class="form-control required" id="checks" name="case_checks" placeholder="请输入检查项" cols="30" rows="5"
-        readonly unselectable="on">{{ case_detail['checks'] }}</textarea>
+    <textarea class="form-control required" id="checks" name="case_checks" placeholder="请输入检查项" cols="30" rows="5" readonly
+        unselectable="on">{{ case_detail['checks'] }}</textarea>
 </div>
 <div class="form-group">
     <label for="case_parameter">参数</label>
-    <textarea class="form-control required" id="case_parameter" name="case_parameter" placeholder="请输入响应" cols="30"
-        rows="1" readonly unselectable="on">{{ case_detail['parameter'] }}</textarea>
+    <textarea class="form-control required" id="case_parameter" name="case_parameter" placeholder="请输入响应" cols="30" rows="1"
+        readonly unselectable="on">{{ case_detail['parameter'] }}</textarea>
 </div>
 {% endfor %}
+<div class="new">
+    <ul>
+        <li>
+            <a href="{{ SITEURL }}/review/apicase_review/{{ id }}">审核</a>
+        </li>
+    </ul>
+  </div>
 {% endblock %}

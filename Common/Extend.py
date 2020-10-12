@@ -97,11 +97,7 @@ class Extend(object):
 
         用法：self.findSelect(type,value,text)
         '''
-        try:
-            element = Select(self.findElement(type,value)).select_by_visible_text(text)
-        except Exception:
-            raise ValueError("No such element found %s:%s:%s" % (str(type),str(value),str(text)))
-            #LogUtility.log("No such element found %s:%s:%s" % (str(type),str(value),str(text)))
+        element = Select(self.findElement(type,value)).select_by_visible_text(text)
         return element
 
     def open(self,url):
@@ -125,13 +121,23 @@ class Extend(object):
         element =self.findElement(type,value)
         element.send_keys(text)
 
-    def enter(self,element):
+    def enter(self,type,value):
         '''
         描述：回车
 
-        用法：self.enter(element)
+        用法：self.enter(type,value)
         '''
-        element.send_keys(Keys.RETURN)
+        element =self.findElement(type,value)
+        element.send_keys(Keys.ENTER)
+        
+    def table(self,type,value):
+        '''
+        描述：Table
+
+        用法：self.table(type,value)
+        '''
+        element =self.findElement(type,value)
+        element.send_keys(Keys.TAB)
 
     def submit(self,element):
         '''
@@ -276,20 +282,27 @@ class Extend(object):
         '''
         self.driver.window_handle
  
-    def assert_title(self,text):
+    def assertTitle(self,text):
         """
         描述：验证当前页中title是否在给定得字符串中
         用法：self.assert_title()
         """
+        print(self.driver.title)
+        print(type(self.driver.title))
         TestCase().assertIn(text, self.driver.title)
    
-    def assert_text(self,type,value,text):
+    def assertText(self,type,value,text):
         '''
         描述：验证当前页中既定得元素是否在给定得字符串中
         用法：self.assert_text()
         '''
         element = self.findElement(type, value)
         TestCase().assertIn(text, element.text) 
+    
+    def assertAttribute(self,type,value,attribute,text):
+        
+        element = self.findElement(type, value)
+        TestCase().assertIn(text, element.get_attribute(attribute))
         
     def switchToAlert(self):
         '''
@@ -351,3 +364,9 @@ class Extend(object):
         js="window.scrollTo(" + leftmargin + ',' + topmargin +");"
         print(js)
         self.driver.execute_script(js)
+        
+    def uploadFile(self,type,value,path):
+        '''
+        描述：上传文件
+        '''
+        self.findElement(type,value).send_keys(path)

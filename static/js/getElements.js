@@ -1,18 +1,63 @@
+// 步骤
 function getElements() {
   var xstep = document.getElementsByName("choice")[0].value;
   var old = document.getElementById("steps").value;
   document.getElementsByName("choice")[0].value = '';
   if (old == '') {
-    document.getElementById("steps").value = (old + ";" + xstep).substr(1);
+    document.getElementById("steps").value = xstep;
   }
   else {
-    document.getElementById("steps").value = old + ";" + xstep;
+    document.getElementById("steps").value = old + "\n" + xstep;
+  }
+}
+// 前置事件
+function getPres() {
+  var xstep = document.getElementById("pre-choice").value;
+  var old = document.getElementById("pre-steps").value;
+  document.getElementsByName("pre-choice")[0].value = '';
+  if (old == '') {
+    document.getElementById("pre-steps").value = xstep;
+  }
+  else {
+    document.getElementById("pre-steps").value = old + "\n" + xstep;
+  }
+}
+// 后置事件
+function getNexts() {
+  var xstep = document.getElementById("next-choice").value;
+  var old = document.getElementById("next-steps").value;
+  document.getElementsByName("next-choice")[0].value = '';
+  if (old == '') {
+    document.getElementById("next-steps").value = xstep;
+  }
+  else {
+    document.getElementById("next-steps").value = old + "\n" + xstep;
   }
 }
 
 function loading() {
   document.getElementById("loadDiv").style.display = "block";
 }
+
+// 公共案例去掉前置后置事件
+function delPreNext() {
+  if (document.getElementById("type").value == '公共用例'){
+    for (var i=0;i<4;i++){
+      document.getElementsByClassName("delPreNext")[i].style.display = "none";
+    }
+  }
+  else {
+    for (var i=0;i<4;i++){
+      document.getElementsByClassName("delPreNext")[i].style.display = "block";
+    }
+  }
+}
+
+function test() {
+  alert("test");
+}
+
+
 /*
 function getModel() {
   var product = document.getElementsByName("product")[0].value;

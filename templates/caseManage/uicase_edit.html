@@ -4,11 +4,17 @@
 <div class="alert">{{ message }}</div>
 {% endfor %}
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
-<form class="form-horizontal" id="caseManage_uicase_edit" action="{{ url_for('caseManage_uicase_edit',id=id) }}" method="post">
+<form class="form-horizontal" id="caseManage_uicase_edit" action="{{ url_for('caseManage_uicase_edit',id=id) }}"
+  method="post">
+  <div class="form-group">
+    <label for="type">用例类型</label>
+    <input id="type" class="form-control required" name="type" maxlength="200" placeholder="请输入用例类型" readonly
+      unselectable="on" value={{ case['type'] }}>
+  </div>
   <div class="form-group">
     <label for="version">用例版本</label>
     <input type="text" class="form-control required" id="version" name="version" maxlength="200" placeholder="请输入用例名称"
-      readonly unselectable="on" value={{ case['type'] }}>
+      readonly unselectable="on" value={{ case['version'] }}>
   </div>
   <div class="form-group">
     <label for="product">所属产品</label>
@@ -25,8 +31,25 @@
     <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称"
       readonly unselectable="on" value={{ case['name'] }}>
   </div>
+  {% if case['type'] == '普通用例' %}
   <div class="form-group">
-    <label for="choice">选择接口</label>
+    <label for="pre-choice">前置事务</label>
+    <input id="pre-choice" list="pre-choices" class="form-control required" name="pre-choice" maxlength="200"
+      placeholder="请选择前置事务" onchange="getPres()">
+      <datalist id="pre-choices">
+        {% for issuetype in issuetypes %}
+        <option value="{{ issuetype['name'] }}">
+          {% endfor %}
+      </datalist>
+  </div>
+  <div class="form-group">
+    <label for="pre-steps"></label>
+    <textarea class="form-control required" id="pre-steps" name="pre-steps"
+      placeholder="请输入前置事务" cols="300" rows="5">{{ case['pre_steps'] }}</textarea>
+  </div>
+  {% endif %}
+  <div class="form-group">
+    <label for="choice">操作步骤</label>
     <input id="select" list="choice" class="form-control required" name="choice" maxlength="200" placeholder="请选择操作步骤"
       onchange="getElements()">
     <datalist id="choice">
@@ -36,10 +59,26 @@
     </datalist>
   </div>
   <div class="form-group">
-    <label for="steps">步骤</label>
-    <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30"
-      rows="5">{{ case['steps'] }}</textarea>
+    <label for="steps"></label>
+    <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤"
+      cols="30" rows="5">{{ case['steps'] }}</textarea>
   </div>
+  {% if case['type'] == '普通用例' %}
+  <div class="form-group">
+    <label for="next-choice">后置事务</label>
+    <input id="next-choice" list="next-choices" class="form-control required" name="next-choice" maxlength="200" placeholder="请选择后置事务"
+      onchange="getNexts()">
+    <datalist id="next-choices">
+      {% for issuetype in issuetypes %}
+      <option value="{{ issuetype['name'] }}">
+        {% endfor %}
+    </datalist>
+  </div>
+  <div class="form-group">
+    <label for="next-steps"></label>
+    <textarea class="form-control required" id="next-steps" name="next-steps" placeholder="请输入后置事务" cols="300" rows="5"></textarea>
+  </div>
+  {% endif %}
   <div class="form-group">
     <label for="description">描述</label>
     <input type="longtext" class="form-control" id="description" name="description" maxlength="50" placeholder="请输入描述"
