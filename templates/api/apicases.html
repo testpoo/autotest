@@ -52,11 +52,9 @@
     </tr>
     {% endfor %}
     <tr>
-      <td colspan="10">
+      <td colspan="13">
         {% for page in range(all_Page) %}
-        {% if opera !='编辑' %}
         <span class="opration"><a href="{{ SITEURL }}/apicases/{{ page+1 }}">{{ page+1 }}</a></span>
-        {% endif %}
         {% endfor %}
       </td>
     </tr>
