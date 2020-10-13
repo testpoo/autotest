@@ -16,7 +16,9 @@
   </div>
   <div class="form-group">
     <label for="product">所属产品</label>
-    <input id="product" list="products" class="form-control required" name="product" maxlength="200" placeholder="请选择产品">
+    <input id="model_oma" value="{{ model_oma }}" style="display: none;">
+    <input id="model_sicap" value="{{ model_sicap }}" style="display: none;">
+    <input id="product" list="products" class="form-control required" name="product" maxlength="200" placeholder="请选择产品" onchange="getModel(document.getElementById('model_oma').value,document.getElementById('model_sicap').value)">
     <datalist id="products">
       {% for pro in product %}
       <option value="{{ pro }}">
@@ -36,9 +38,6 @@
     <label for="model">所属模块</label>
     <input id="model" list="models" class="form-control required" name="model" maxlength="200" placeholder="请选择模块">
     <datalist id="models">
-      {% for mod in model_oma %}
-      <option value="{{ mod }}">
-        {% endfor %}
     </datalist>
   </div>
   <div class="form-group">

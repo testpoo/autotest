@@ -53,10 +53,29 @@ function delPreNext() {
   }
 }
 
-function test() {
-  alert("test");
+// 获取模块
+function getModel(model_oma,model_sicap) {
+  model_oma = model_oma.split(",");
+  model_sicap = model_sicap.split(",");
+  if (document.getElementById("product").value == 'SiCAP') {
+    parent = document.getElementById("models");
+    parent.innerHTML = "";
+    for (var i=0;i<model_sicap.length;i++) {
+      var option=document.createElement('option');
+      option.value=model_sicap[i];
+      parent.appendChild(option);
+    }
+  }
+  else {
+    parent = document.getElementById("models");
+    parent.innerHTML = "";
+    for (var i=0;i<model_oma.length;i++) {
+      var option=document.createElement('option');
+      option.value=model_oma[i];
+      parent.appendChild(option);
+    }
+  }
 }
-
 
 /*
 function getModel() {
