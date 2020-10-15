@@ -149,7 +149,7 @@ class RunTests(object):
                     case_step_list = [case['name'] for case in cases_dict]
                     steps_case.extend(case_step_list)
             count = len(steps_case)
-            print
+
             all_id = []
             for step in cases_step:
                 cur_step = selectone(

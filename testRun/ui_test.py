@@ -62,7 +62,7 @@ class RunUiTests(object):
             TestCase = Extend.Extend()
             
             result = {'case_name':case_name,'status':'失败','starttime':starttime,'spenttime':'','error':''}
-            print(steps)
+
             for step in steps:
                 action = cover(step)
                 eval('TestCase.'+action)
@@ -109,7 +109,6 @@ class RunUiTests(object):
                     cases_dict = [dict(name=row[0]) for row in cur_version]
                     case_step_list = [case['name'] for case in cases_dict]
                     steps_case.extend(case_step_list)
-                print("版本："+str(steps_case))
 
             count = len(steps_case)
             all_id = []
