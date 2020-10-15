@@ -13,6 +13,7 @@
     <tr>
       <th>ID</th>
       <th>名称</th>
+      <th>执行模式</th>
       <th>步骤</th>
       <th>描述</th>
       <th>创建者</th>
@@ -25,7 +26,21 @@
     <tr>
       <td>{{ loop.index }}</td>
       <td>{{ uisitue['name'] }}</td>
-      <td>{{ uisitue['steps'] }}</td>
+      <td>{{ uisitue['exec_mode'] }}</td>
+      <td style="position: relative;">
+        <span id="pack_{{ loop.index }}">
+          {{ uisitue['steps'].split("\r\n")[0] }}<br />
+        </span>
+        <span id="more_{{ loop.index }}" style="display: none;">
+          {% for case_step in uisitue['steps'].split("\r\n") %}
+          {{ case_step }}<br />
+          {% endfor %}
+        </span>
+        {% if uisitue['steps'].split("\r\n")|length > 1 %}
+        <a id="expand_more_{{ loop.index }}" class="expand_more_pack" onclick="more('{{ loop.index }}')"> ↓ </a>
+        <a id="expand_pack_{{ loop.index }}" class="expand_more_pack" onclick="pack('{{ loop.index }}')" style="display: none;"> ↑ </a>
+        {% endif %}
+      </td>
       <td>{{ uisitue['description'] }}</td>
       <td>{{ uisitue['username'] }}</td>
       <td>{{ uisitue['create_date'] }}</td>
@@ -38,7 +53,7 @@
     </tr>
     {% endfor %}
     <tr>
-      <td colspan="10">
+      <td colspan="11">
         {% for page in range(all_Page) %}
         <span class="opration"><a href="{{ SITEURL }}/uisitues/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}

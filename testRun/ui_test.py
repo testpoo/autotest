@@ -87,13 +87,33 @@ class RunUiTests(object):
         try:
             starttime = Config.getCurrentTime()
 
-            cur = selectone('SELECT name, steps, description FROM uisitues where id=%s',[self.id])
-            cases = [dict(name=row[0], steps=row[1], description=row[2]) for row in cur]
+            cur = selectone('SELECT name, exec_mode, steps, description FROM uisitues where id=%s',[self.id])
+            cases = [dict(name=row[0], exec_mode=row[1], steps=row[2], description=row[3]) for row in cur]
             cases_step = cases[0]['steps'].split('\r\n')
+            exec_mode = cases[0]['exec_mode']
             cases_name = cases[0]['name']
-            count = len(cases_step)
+            
+            if exec_mode == '按用例':
+                steps_case = cases_step
+            elif exec_mode == '按模块':
+                steps_case = []
+                for case_step in cases_step:
+                    cur_model= selectone("SELECT name FROM uicases WHERE model = %s and activity='1'",[cases_step])
+                    cases_dict = [dict(name=row[0]) for row in cur_model]
+                    case_step_list = [case['name'] for case in cases_dict]
+                    steps_case.extend(case_step_list)
+            elif exec_mode == '按版本':
+                steps_case = []
+                for case_step in cases_step:
+                    cur_version= selectone("SELECT name FROM uicases WHERE version = %s and activity='1'",[cases_step])
+                    cases_dict = [dict(name=row[0]) for row in cur_version]
+                    case_step_list = [case['name'] for case in cases_dict]
+                    steps_case.extend(case_step_list)
+                print("版本："+str(steps_case))
+
+            count = len(steps_case)
             all_id = []
-            for step in cases_step:
+            for step in steps_case:
                 cur_step = selectone('select id, product from uicases where name =%s',[step])
                 cases_step = [dict(id=row[0], product=row[1]) for row in cur_step]
                 all_id.append([cases_step[0]['id'], cases_step[0]['product']])

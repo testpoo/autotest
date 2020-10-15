@@ -36,7 +36,7 @@ th,tr,td {
 }
 
 td {
-    min-width: 100px;
+    min-width: 70px;
     max-width: 600px;
     word-break : break-all;
 }
@@ -349,4 +349,17 @@ a.addElement {
     left: 0;
     right: 0;
     bottom: 0;
+}
+
+#select-issue-mode,#select-model-mode,#select-version-mode {
+    display: none;
+}
+
+.expand_more_pack {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    height: 25px;
+    line-height: 25px;
+    cursor:pointer;
 }

@@ -32,9 +32,9 @@ class RunTests(object):
             name = cases['name']
             url = cases['path']
             method = cases['method']
-            data = json.loads(cases['request'])
+            data = json.dumps(json.loads(cases['request']))
 
-            headers = {}
+            headers = para_headers
 
             r = eval('requests.'+method +
                      '(url=url, headers=headers, data=data, verify=False)')
@@ -127,11 +127,29 @@ class RunTests(object):
         try:
             starttime = Config.getCurrentTime()
             cur = selectone(
-                'SELECT name,steps FROM apisitues WHERE id=%s', [self.id])
-            cases = [dict(name=row[0], steps=row[1]) for row in cur]
+                'SELECT name,exec_mode,steps FROM apisitues WHERE id=%s', [self.id])
+            cases = [dict(name=row[0], exec_mode=row[1], steps=row[2]) for row in cur]
             cases_name = cases[0]['name']
+            exec_mode = cases[0]['exec_mode']
             cases_step = cases[0]['steps'].split('\r\n')
-            count = len(cases_step)
+            if exec_mode == '按用例':
+                steps_case = cases_step
+            elif exec_mode == '按模块':
+                steps_case = []
+                for case_step in cases_step:
+                    cur_model= selectone("SELECT name FROM apicases WHERE model = %s and activity='1'",[cases_step])
+                    cases_dict = [dict(name=row[0]) for row in cur_model]
+                    case_step_list = [case['name'] for case in cases_dict]
+                    steps_case.extend(case_step_list)
+            elif exec_mode == '按版本':
+                steps_case = []
+                for case_step in cases_step:
+                    cur_version= selectone("SELECT name FROM apicases WHERE version = %s and activity='1'",[cases_step])
+                    cases_dict = [dict(name=row[0]) for row in cur_version]
+                    case_step_list = [case['name'] for case in cases_dict]
+                    steps_case.extend(case_step_list)
+            count = len(steps_case)
+            print
             all_id = []
             for step in cases_step:
                 cur_step = selectone(

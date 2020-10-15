@@ -15,17 +15,44 @@
             placeholder="请输入描述">
     </div>
     <div class="form-group">
-        <label for="choice">选择步骤</label>
-        <input list="choice"  class="form-control required" id="select" name="choice" maxlength="200" placeholder="请选择操作步骤" onchange="getElements()">
-        <datalist id="choice">
-          {% for apisitue in apisitues %}
-          <option value="{{ apisitue['name'] }}">
+      <label for="exec-mode">执行模式</label>
+      <input list="exec-modes"  class="form-control required" id="exec-mode" name="exec-mode" maxlength="200" placeholder="请选择执行模式" onchange="getExecMode()">
+      <datalist id="exec-modes">
+        <option value="按用例">
+        <option value="按模块">
+        <option value="按版本">
+      </datalist>
+    </div>
+    <div class="form-group" id="select-issue-mode">
+        <label for="select-issue">选择用例</label>
+        <input list="select-issues"  class="form-control required" id="select-issue" name="select-issue" maxlength="200" placeholder="请选择操作用例" onchange="getIssueModes()">
+        <datalist id="select-issues">
+          {% for apisitue_issue in apisitues_issue %}
+          <option value="{{ apisitue_issue['name'] }}">
+            {% endfor %}
+        </datalist>
+      </div>
+      <div class="form-group" id="select-model-mode">
+        <label for="select-model">选择模块</label>
+        <input list="select-models"  class="form-control required" id="select-model" name="select-model" maxlength="200" placeholder="请选择操作模块" onchange="getModelModes()">
+        <datalist id="select-models">
+          {% for apisitue_model in apisitues_model %}
+          <option value="{{ apisitue_model['model'] }}">
+            {% endfor %}
+        </datalist>
+      </div>
+      <div class="form-group" id="select-version-mode">
+        <label for="select-version">选择版本</label>
+        <input list="select-versions"  class="form-control required" id="select-version" name="select-version" maxlength="200" placeholder="请选择操作版本" onchange="getVersionModes()">
+        <datalist id="select-versions">
+          {% for apisitue_version in apisitues_version %}
+          <option value="{{ apisitue_version['version'] }}">
             {% endfor %}
         </datalist>
       </div>
       <div class="form-group">
         <label for="steps">操作步骤</label>
-        <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30" rows="1"></textarea>
+        <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30" rows="5"></textarea>
         <div id="addElement"></div> 
       </div>
     <div class="form-group">

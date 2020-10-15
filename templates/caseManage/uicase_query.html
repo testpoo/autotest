@@ -44,7 +44,6 @@
 {% endif %}
 <div class="form-group">
   <label for="description">描述</label>
-  <input type="longtext" class="form-control" id="description" name="description" maxlength="500" placeholder="请输入描述"
-    readonly unselectable="on" value={{ case['description'] }}>
+  <div class="form-control required textarea" id="description" name="description" maxlength="500" placeholder="请输入描述">{{ case['description'] }}</div>
 </div>
 {% endblock %}

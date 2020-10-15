@@ -202,8 +202,8 @@ def uisitues(num):
     else:
         all_Count = selectall('SELECT count(1) FROM uisitues')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.name,a.steps,a.description,b.zh_name,a.create_date FROM uisitues a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
-        uisitues = [dict(id=row[0], name=row[1], steps=row[2], description=row[3], username=row[4], create_date=row[5]) for row in cur]
+        cur = selectone('SELECT a.id,a.name,a.exec_mode,a.steps,a.description,b.zh_name,a.create_date FROM uisitues a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        uisitues = [dict(id=row[0], name=row[1], exec_mode=row[2], steps=row[3], description=row[4], username=row[5], create_date=row[6]) for row in cur]
         return render_template('ui/uisitues.html', SITEURL=SITEURL, username=session['username'], uisitues=uisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试集')
 
 # UI SITUES EDIT
@@ -212,8 +212,14 @@ def uisitue_edit(id):
     if not session.get('logged_in'):
         abort(401)
     else:
-        cur = selectall('SELECT name FROM uicases where activity="1"')
-        uisitues = [dict(name=row[0]) for row in cur]
+        cur_issue = selectall('SELECT name FROM uicases where activity="1"')
+        uisitues_issue = [dict(name=row[0]) for row in cur_issue]
+
+        cur_model = selectall('SELECT model FROM uicases where activity="1" group by model')
+        uisitues_model = [dict(model=row[0]) for row in cur_model]
+
+        cur_version = selectall('SELECT version FROM uicases where activity="1" group by version')
+        uisitues_version = [dict(version=row[0]) for row in cur_version]
 
         cur = selectone('SELECT name, steps, description FROM uisitues where id=%s',[id])
         cases = [dict(name=row[0], steps=row[1], description=row[2]) for row in cur]
@@ -224,7 +230,7 @@ def uisitue_edit(id):
                 addUpdateDel('update uisitues set steps=%s, description=%s where id=%s',[request.form['steps'], request.form['description'],id])
                 flash('编辑成功...')
                 return redirect(url_for('uisitues',num=1))
-        return render_template('ui/uisitue_edit.html',SITEURL=SITEURL, username=session['username'], uisitues=uisitues, case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集编辑',id=id)
+        return render_template('ui/uisitue_edit.html',SITEURL=SITEURL, username=session['username'], uisitues_issue=uisitues_issue, uisitues_model=uisitues_model, uisitues_version=uisitues_version, case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集编辑',id=id)
 
 # UI SITUES QUERY
 @app.route('/uisitue_query/<int:id>', methods=['GET', 'POST'])
@@ -232,8 +238,8 @@ def uisitue_query(id):
     if not session.get('logged_in'):
         abort(401)
     else:
-        cur = selectone('SELECT name, steps, description FROM uisitues where id=%s',[id])
-        cases = [dict(name=row[0], steps=row[1], description=row[2]) for row in cur]
+        cur = selectone('SELECT name,exec_mode, steps, description FROM uisitues where id=%s',[id])
+        cases = [dict(name=row[0], exec_mode=row[1], steps=row[2], description=row[3]) for row in cur]
         return render_template('ui/uisitue_query.html',SITEURL=SITEURL, username=session['username'],  case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集查看')
 
 # UI SITUES DELETE
@@ -265,23 +271,29 @@ def new_uisitue():
     if not session.get('logged_in'):
         abort(401)
     error = None
-    cur = selectall('SELECT name FROM uicases where activity="1"')
-    uisitues = [dict(name=row[0]) for row in cur]
+    cur_issue = selectall('SELECT name FROM uicases where activity="1"')
+    uisitues_issue = [dict(name=row[0]) for row in cur_issue]
+
+    cur_model = selectall('SELECT model FROM uicases where activity="1" group by model')
+    uisitues_model = [dict(model=row[0]) for row in cur_model]
+
+    cur_version = selectall('SELECT version FROM uicases where activity="1" group by version')
+    uisitues_version = [dict(version=row[0]) for row in cur_version]
     if request.method == 'POST':
         uiname = selectall('select name from uisitues')
         uinames = [dict(name=row[0]) for row in uiname]
         uinames = [uiname['name'] for uiname in uinames]
 
-        if request.form['name'].strip() == '' or request.form['steps'].strip() == '':
+        if request.form['name'].strip() == '' or request.form['exec-mode'].strip() == '' or request.form['steps'].strip() == '':
             error = '必输项不能为空'
         elif request.form['name'].strip() in uinames:
             error = "该用例集已经存在"
         else:
-            addUpdateDel('insert into uisitues (name, steps, description, username, create_date) values (%s, %s, %s, %s, %s)',
-                         [request.form['name'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+            addUpdateDel('insert into uisitues (name, exec_mode, steps, description, username, create_date) values (%s, %s, %s, %s, %s, %s)',
+                         [request.form['name'], request.form['exec-mode'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
             flash('创建成功...')
             return redirect(url_for('uisitues',num=1))
-    return render_template('ui/new_uisitue.html',SITEURL=SITEURL, username=session['username'], uisitues=uisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增测试集',error=error)
+    return render_template('ui/new_uisitue.html',SITEURL=SITEURL, username=session['username'], uisitues_issue=uisitues_issue, uisitues_model=uisitues_model, uisitues_version=uisitues_version, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增测试集',error=error)
 
 # UI SIUTE REPORT
 @app.route('/ui_report_list/1', methods=['GET', 'POST'])
@@ -305,8 +317,8 @@ def apisitues(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apisitues')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.name,a.steps,a.description,b.zh_name,a.create_date FROM apisitues a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
-        apisitues = [dict(id=row[0], name=row[1], steps=row[2], description=row[3], username=row[4], create_date=row[5]) for row in cur]
+        cur = selectone('SELECT a.id,a.name,a.exec_mode, a.steps,a.description,b.zh_name,a.create_date FROM apisitues a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        apisitues = [dict(id=row[0], name=row[1], exec_mode=row[2], steps=row[3], description=row[4], username=row[5], create_date=row[6]) for row in cur]
         return render_template('api/apisitues.html', SITEURL=SITEURL, username=session['username'], apisitues=apisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试集')
 
 # API SITUES EDIT
@@ -315,18 +327,25 @@ def apisitue_edit(id):
     if not session.get('logged_in'):
         abort(401)
     else:
-        cur = selectall('SELECT name FROM apicases where activity="1"')
-        apisitues = [dict(name=row[0]) for row in cur]
-        cur = selectone('SELECT name, steps, description FROM apisitues where id=%s',[id])
-        cases = [dict(name=row[0], steps=row[1], description=row[2]) for row in cur]
+        cur_issue = selectall('SELECT name FROM apicases where activity="1"')
+        apisitues_issue = [dict(name=row[0]) for row in cur_issue]
+
+        cur_model = selectall('SELECT model FROM apicases where activity="1" group by model')
+        apisitues_model = [dict(model=row[0]) for row in cur_model]
+
+        cur_version = selectall('SELECT version FROM apicases where activity="1" group by version')
+        apisitues_version = [dict(version=row[0]) for row in cur_version]
+
+        cur = selectone('SELECT name, exec_mode, steps, description FROM apisitues where id=%s',[id])
+        cases = [dict(name=row[0], exec_mode=row[1], steps=row[2], description=row[3]) for row in cur]
         if request.method == 'POST':
             if request.form['steps'].strip == '':
                 error = '必输项不能为空'
             else:
-                addUpdateDel('update apisitues set steps=%s, description=%s where id=%s',[request.form['steps'], request.form['description'],id])
+                addUpdateDel('update apisitues set exec_mode=%s, steps=%s, description=%s where id=%s',[request.form['exec-mode'], request.form['steps'], request.form['description'],id])
                 flash('编辑成功...')
                 return redirect(url_for('apisitues',num=1))
-        return render_template('api/apisitue_edit.html',SITEURL=SITEURL, username=session['username'], case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集编辑',id=id,apisitues=apisitues)
+        return render_template('api/apisitue_edit.html',SITEURL=SITEURL, username=session['username'], case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集编辑',id=id,apisitues_issue=apisitues_issue,apisitues_model=apisitues_model,apisitues_version=apisitues_version)
 
 # API SITUES QUERY
 @app.route('/apisitue_query/<int:id>', methods=['GET', 'POST'])
@@ -334,8 +353,8 @@ def apisitue_query(id):
     if not session.get('logged_in'):
         abort(401)
     else:
-        cur = selectone('SELECT name, steps, description FROM apisitues where id=%s',[id])
-        cases = [dict(name=row[0], steps=row[1], description=row[2]) for row in cur]
+        cur = selectone('SELECT name, exec_mode, steps, description FROM apisitues where id=%s',[id])
+        cases = [dict(name=row[0], exec_mode=row[1], steps=row[2], description=row[3]) for row in cur]
         return render_template('api/apisitue_query.html',SITEURL=SITEURL, username=session['username'], case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集查看')
 
 # API SITUES DELETE
@@ -367,23 +386,30 @@ def new_apisitue():
     if not session.get('logged_in'):
         abort(401)
     error = None
-    cur = selectall('SELECT name FROM apicases where activity="1"')
-    apisitues = [dict(name=row[0]) for row in cur]
+    cur_issue = selectall('SELECT name FROM apicases where activity="1"')
+    apisitues_issue = [dict(name=row[0]) for row in cur_issue]
+
+    cur_model = selectall('SELECT model FROM apicases where activity="1" group by model')
+    apisitues_model = [dict(model=row[0]) for row in cur_model]
+
+    cur_version = selectall('SELECT version FROM apicases where activity="1" group by version')
+    apisitues_version = [dict(version=row[0]) for row in cur_version]
+
     if request.method == 'POST':
         apiname = selectall('select name from apisitues')
         apinames = [dict(name=row[0]) for row in apiname]
         apinames = [apiname['name'] for apiname in apinames]
 
-        if request.form['name'].strip() == '' or request.form['steps'].strip() == '':
+        if request.form['name'].strip() == '' or request.form['exec-mode'].strip() == '' or request.form['steps'].strip() == '':
             error = '必输项不能为空'
         elif request.form['name'].strip() in apinames:
             error = "该用例集已经存在"
         else:
-            addUpdateDel('insert into apisitues (name, steps, description, username, create_date) values (%s, %s, %s, %s, %s)',
-                         [request.form['name'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+            addUpdateDel('insert into apisitues (name, exec_mode, steps, description, username, create_date) values (%s, %s, %s, %s, %s, %s)',
+                         [request.form['name'], request.form['exec-mode'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
             flash('创建成功...')
             return redirect(url_for('apisitues',num=1))
-    return render_template('api/new_apisitue.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增测试集',error=error,apisitues=apisitues)
+    return render_template('api/new_apisitue.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增测试集',error=error,apisitues_issue=apisitues_issue,apisitues_model=apisitues_model,apisitues_version=apisitues_version)
 
 # API SIUTE REPORT
 @app.route('/api_report_list/1', methods=['GET', 'POST'])

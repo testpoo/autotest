@@ -49,10 +49,9 @@
   </div>
   <div class="form-group">
     <label for="description">描述</label>
-    <input type="text" class="form-control required" id="description" name="description" maxlength="200"
-      placeholder="请输入用例描述">
+    <textarea class="form-control required" id="description" name="description" placeholder="请输入描述" cols="300" rows="5"></textarea>
   </div>
-  <div class="form-group" delPreNext>
+  <div class="form-group delPreNext">
     <label for="pre-choice">前置事务</label>
     <input id="pre-choice" list="pre-choices" class="form-control required" name="pre-choice" maxlength="200"
       placeholder="请选择前置事务" onchange="getPres()">
@@ -62,7 +61,7 @@
         {% endfor %}
     </datalist>
   </div>
-  <div class="form-group">
+  <div class="form-group delPreNext">
     <label for="pre-steps"></label>
     <textarea class="form-control required" id="pre-steps" name="pre-steps" placeholder="请输入前置事务" cols="300"
       rows="5"></textarea>
@@ -91,7 +90,7 @@
         {% endfor %}
     </datalist>
   </div>
-  <div class="form-group">
+  <div class="form-group delPreNext">
     <label for="next-steps"></label>
     <textarea class="form-control required" id="next-steps" name="next-steps" placeholder="请输入后置事务" cols="300"
       rows="5"></textarea>

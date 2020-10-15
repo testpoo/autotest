@@ -62,7 +62,23 @@ path_ui = 'static/TestReport/ui'
 
 Screenshot = 'static/Screenshot'
 
-para_headers = {}
+para_headers = {
+	"Host": "192.168.213.113",
+	"Connection": "keep-alive",
+	"Content-Length": "170",
+	"Accept": "application/json, text/plain, */*",
+	"axios-header": "axios",
+	"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36 Edg/86.0.622.38",
+	"Content-Type": "application/json;charset=UTF-8",
+	"Origin": "https://192.168.213.113",
+	"Sec-Fetch-Site": "same-origin",
+	"Sec-Fetch-Mode": "cors",
+	"Sec-Fetch-Dest": "empty",
+	"Referer": "https://192.168.213.113/",
+	"Accept-Encoding": "gzip, deflate, br",
+	"Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+	"Cookie": "SICAP_SESSIONID=1745f260-bf03-4720-b180-8aa48e309fca"
+}
 #==============================================================================================================
 #change time to str
 def getCurrentTime():

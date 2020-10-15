@@ -32,10 +32,19 @@
       <td>{{ case['model'] }}</td>
       <td>{{ case['name'] }}</td>
       <td>{{ case['pre_steps'] }}</td>
-      <td>
-        {% for case_step in case['steps'].split("\r\n") %}
-        {{ case_step }}<br />
-        {% endfor %}
+      <td style="position: relative;">
+        <span id="pack_{{ loop.index }}">
+          {{ case['steps'].split("\r\n")[0] }}<br />
+        </span>
+        <span id="more_{{ loop.index }}" style="display: none;">
+          {% for case_step in case['steps'].split("\r\n") %}
+          {{ case_step }}<br />
+          {% endfor %}
+        </span>
+        {% if case['steps'].split("\r\n")|length > 1 %}
+        <a id="expand_more_{{ loop.index }}" class="expand_more_pack" onclick="more('{{ loop.index }}')"> ↓ </a>
+        <a id="expand_pack_{{ loop.index }}" class="expand_more_pack" onclick="pack('{{ loop.index }}')" style="display: none;"> ↑ </a>
+        {% endif %}
       </td>
       <td>{{ case['next_steps'] }}</td>
       <td>{{ case['description'] }}</td>

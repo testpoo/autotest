@@ -21,8 +21,7 @@
 </div>
 <div class="form-group">
     <label for="description">描述</label>
-    <input type="text" class="form-control required" id="description" name="description" maxlength="200"
-        placeholder="请输入用例描述" readonly unselectable="on" value={{ case['description'] }}>
+    <textarea class="form-control required" id="description" name="description" placeholder="请输入描述" cols="300" rows="5">{{ case['description'] }}</textarea>
 </div>
 <div class="form-group">
     <label for="product">所属产品</label>
