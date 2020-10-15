@@ -98,7 +98,7 @@ def uicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM uicases where activity = "1"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="1" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="1" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
         return render_template('ui/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试用例')
 '''
@@ -151,7 +151,13 @@ def uicase_delete(id):
             error = "该用例被测试集引用，不能删除~！"
         else:
             cur = addUpdateDel('delete from uicases where id=%s',[id])
-            flash('删除成功...')
+
+            cur_uicases_del= selectone("SELECT * FROM uicases where id=%s",[id])
+            if cur_uicases_del == ():
+                flash('删除成功...')
+            else:
+                flash('删除失败...')
+
         return redirect(url_for('uicases',num=1))
 
 # UI CASE EXEC
@@ -202,7 +208,7 @@ def uisitues(num):
     else:
         all_Count = selectall('SELECT count(1) FROM uisitues')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.name,a.exec_mode,a.steps,a.description,b.zh_name,a.create_date FROM uisitues a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        cur = selectone('SELECT a.id,a.name,a.exec_mode,a.steps,a.description,b.zh_name,a.create_date FROM uisitues a inner join user b on a.username=b.username order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         uisitues = [dict(id=row[0], name=row[1], exec_mode=row[2], steps=row[3], description=row[4], username=row[5], create_date=row[6]) for row in cur]
         return render_template('ui/uisitues.html', SITEURL=SITEURL, username=session['username'], uisitues=uisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试集')
 
@@ -228,7 +234,15 @@ def uisitue_edit(id):
                 error = '必输项不能为空'
             else:
                 addUpdateDel('update uisitues set steps=%s, description=%s where id=%s',[request.form['steps'], request.form['description'],id])
-                flash('编辑成功...')
+
+                cur_edit= selectone("SELECT steps,description FROM uisitues WHERE id = %s",[id])
+                uisitues_edit = [dict(steps=row[0],description=row[1]) for row in cur_edit]
+                uisitues_steps = uisitues_edit[0]['steps']
+                uisitues_description = uisitues_edit[0]['description']
+                if request.form['steps'] == uisitues_steps and request.form['description'] == uisitues_description:
+                    flash('编辑成功...')
+                else:
+                    flash('编辑失败...')
                 return redirect(url_for('uisitues',num=1))
         return render_template('ui/uisitue_edit.html',SITEURL=SITEURL, username=session['username'], uisitues_issue=uisitues_issue, uisitues_model=uisitues_model, uisitues_version=uisitues_version, case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集编辑',id=id)
 
@@ -249,7 +263,13 @@ def uisitue_delete(id):
         abort(401)
     else:
         cur = addUpdateDel('delete from uisitues where id=%s',[id])
-        flash('删除成功...')
+
+        cur_uisitues_del= selectone("SELECT * FROM uisitues where id=%s",[id])
+        if cur_uisitues_del == ():
+            flash('删除成功...')
+        else:
+            flash('删除失败...')
+
         return redirect(url_for('uisitues',num=1))
 
 # UI SITUES EXEC
@@ -291,7 +311,12 @@ def new_uisitue():
         else:
             addUpdateDel('insert into uisitues (name, exec_mode, steps, description, username, create_date) values (%s, %s, %s, %s, %s, %s)',
                          [request.form['name'], request.form['exec-mode'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
-            flash('创建成功...')
+            
+            cur_new= selectone("SELECT * FROM uisitues WHERE name = %s",[request.form['name']])
+            if cur_new != ():
+                flash('创建成功...')
+            else:
+                flash('创建失败...')
             return redirect(url_for('uisitues',num=1))
     return render_template('ui/new_uisitue.html',SITEURL=SITEURL, username=session['username'], uisitues_issue=uisitues_issue, uisitues_model=uisitues_model, uisitues_version=uisitues_version, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增测试集',error=error)
 
@@ -317,7 +342,7 @@ def apisitues(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apisitues')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.name,a.exec_mode, a.steps,a.description,b.zh_name,a.create_date FROM apisitues a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        cur = selectone('SELECT a.id,a.name,a.exec_mode, a.steps,a.description,b.zh_name,a.create_date FROM apisitues a inner join user b on a.username=b.username order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apisitues = [dict(id=row[0], name=row[1], exec_mode=row[2], steps=row[3], description=row[4], username=row[5], create_date=row[6]) for row in cur]
         return render_template('api/apisitues.html', SITEURL=SITEURL, username=session['username'], apisitues=apisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试集')
 
@@ -327,6 +352,7 @@ def apisitue_edit(id):
     if not session.get('logged_in'):
         abort(401)
     else:
+        error=None
         cur_issue = selectall('SELECT name FROM apicases where activity="1"')
         apisitues_issue = [dict(name=row[0]) for row in cur_issue]
 
@@ -339,13 +365,22 @@ def apisitue_edit(id):
         cur = selectone('SELECT name, exec_mode, steps, description FROM apisitues where id=%s',[id])
         cases = [dict(name=row[0], exec_mode=row[1], steps=row[2], description=row[3]) for row in cur]
         if request.method == 'POST':
-            if request.form['steps'].strip == '':
+            if request.form['steps'].strip == '' or request.form['exec-mode'] == '':
                 error = '必输项不能为空'
             else:
                 addUpdateDel('update apisitues set exec_mode=%s, steps=%s, description=%s where id=%s',[request.form['exec-mode'], request.form['steps'], request.form['description'],id])
-                flash('编辑成功...')
+
+                cur_edit= selectone("SELECT exec_mode,steps,description FROM apisitues WHERE id = %s",[id])
+                apisitues_edit = [dict(exec_mode=row[0],steps=row[1],description=row[2]) for row in cur_edit]
+                apisitues_exec_mode = apisitues_edit[0]['exec_mode']
+                apisitues_steps = apisitues_edit[0]['steps']
+                apisitues_description = apisitues_edit[0]['description']
+                if request.form['exec-mode'] == apisitues_exec_mode and request.form['steps'] == apisitues_steps and request.form['description'] == apisitues_description:
+                    flash('编辑成功...')
+                else:
+                    flash('编辑失败...')
                 return redirect(url_for('apisitues',num=1))
-        return render_template('api/apisitue_edit.html',SITEURL=SITEURL, username=session['username'], case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集编辑',id=id,apisitues_issue=apisitues_issue,apisitues_model=apisitues_model,apisitues_version=apisitues_version)
+        return render_template('api/apisitue_edit.html',SITEURL=SITEURL, username=session['username'], case=cases[0], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, pagename = '测试集编辑',id=id,apisitues_issue=apisitues_issue,apisitues_model=apisitues_model,apisitues_version=apisitues_version,error=error)
 
 # API SITUES QUERY
 @app.route('/apisitue_query/<int:id>', methods=['GET', 'POST'])
@@ -364,7 +399,13 @@ def apisitue_delete(id):
         abort(401)
     else:
         cur = addUpdateDel('delete from apisitues where id=%s',[id])
-        flash('删除成功...')
+
+        cur_apisitues_del= selectone("SELECT * FROM apisitues where id=%s",[id])
+        if cur_apisitues_del == ():
+            flash('删除成功...')
+        else:
+            flash('删除失败...')
+
         return redirect(url_for('apisitues',num=1))
 
 # API SITUES EXEC
@@ -407,7 +448,13 @@ def new_apisitue():
         else:
             addUpdateDel('insert into apisitues (name, exec_mode, steps, description, username, create_date) values (%s, %s, %s, %s, %s, %s)',
                          [request.form['name'], request.form['exec-mode'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
-            flash('创建成功...')
+
+            cur_new= selectone("SELECT * FROM apisitues WHERE name = %s",[request.form['name']])
+            if cur_new != ():
+                flash('创建成功...')
+            else:
+                flash('创建失败...')
+
             return redirect(url_for('apisitues',num=1))
     return render_template('api/new_apisitue.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '新增测试集',error=error,apisitues_issue=apisitues_issue,apisitues_model=apisitues_model,apisitues_version=apisitues_version)
 
@@ -429,7 +476,7 @@ def apicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apicases where activity="1"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, a.steps,a.type, a.pre_steps,a.next_steps FROM apicases a inner join user b on a.username=b.username where activity="1" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, a.steps,a.type, a.pre_steps,a.next_steps FROM apicases a inner join user b on a.username=b.username where activity="1" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apicases = [dict(id=row[0], version=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8], type=row[9], pre_steps=row[10], next_steps=row[11]) for row in cur]
         return render_template('api/apicases.html',SITEURL=SITEURL, username=session['username'], apicases=apicases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '接口测试用例')
 '''
@@ -482,7 +529,14 @@ def apicase_delete(id):
         else:
             addUpdateDel('delete from apicases where id=%s',[id])
             addUpdateDel('delete from apidates where case_name=%s',[apicase_name])
-            flash('删除成功...')
+
+            cur_apicases_del= selectone("SELECT * FROM apicases where id=%s",[id])
+            cur_apidates_del= selectone("SELECT * FROM apidates where case_name=%s",[apicase_name])
+            if cur_apidates_del == () and cur_apidates_del == ():
+                flash('删除成功...')
+            else:
+                flash('删除失败...')
+
         return redirect(url_for('apicases',num=1))
 
 # API CASE EXEC
@@ -570,7 +624,7 @@ def uiset(num):
     else:
         all_Count = selectall('SELECT count(1) FROM uiset')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.keyword,a.description,a.template,a.example,b.zh_name,a.create_date FROM uiset a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        cur = selectone('SELECT a.id,a.keyword,a.description,a.template,a.example,b.zh_name,a.create_date FROM uiset a inner join user b on a.username=b.username order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         uisets = [dict(id=row[0], keyword=row[1], description=row[2], template=row[3], example=row[4], username=row[5], create_date=row[6]) for row in cur]
         return render_template('set/uiset.html',SITEURL=SITEURL, username=session['username'],  uisets=uisets, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = 'UI步骤说明')
 
@@ -587,7 +641,17 @@ def uiset_edit(id):
                 error = '必输项不能为空'
             else:
                 addUpdateDel('update uiset set template=%s, example=%s, description=%s where id=%s',[request.form['template'], request.form['example'], request.form['description'],id])
-                flash('编辑成功...')
+
+                cur_edit= selectone("SELECT template,example,description FROM uiset WHERE id = %s",[id])
+                uiset_edit = [dict(template=row[0],example=row[1],description=row[2]) for row in cur_edit]
+                uiset_template = uiset_edit[0]['template']
+                uiset_steps = uiset_edit[0]['example']
+                uiset_description = uiset_edit[0]['description']
+                if request.form['template'] == uiset_template and request.form['example'] == uiset_steps and request.form['description'] == uiset_description:
+                    flash('编辑成功...')
+                else:
+                    flash('编辑失败...')
+
                 return redirect(url_for('uiset',num=1))
         return render_template('set/uiset_edit.html', SITEURL=SITEURL, username=session['username'], case=cases[0], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, pagename = 'UI步骤说明编辑',id=id)
 
@@ -608,7 +672,13 @@ def uiset_delete(id):
         abort(401)
     else:
         addUpdateDel('delete from uiset where id=%s',[id])
-        flash('删除成功...')
+
+        cur_uiset_del= selectone("SELECT * FROM uiset where id=%s",[id])
+        if cur_uiset_del == ():
+            flash('删除成功...')
+        else:
+            flash('删除失败...')
+
         return redirect(url_for('uiset',num=1))
 
 # NEW UI SET
@@ -629,7 +699,13 @@ def new_uiset():
         else:
             addUpdateDel('insert into uiset (keyword,description,template,example, username, create_date) values (%s, %s, %s, %s, %s, %s)',
                          [request.form['keyword'], request.form['description'], request.form['template'], request.form['example'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
-            flash('创建成功...')
+
+            cur_new= selectone("SELECT * FROM uiset WHERE keyword = %s",[request.form['keyword']])
+            if cur_new != ():
+                flash('创建成功...')
+            else:
+                flash('创建失败...')
+
             return redirect(url_for('uiset',num=1))
     return render_template('set/new_uiset.html', SITEURL=SITEURL, username=session['username'], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, pagename = '新建UI步骤说明',error=error)
 
@@ -641,7 +717,7 @@ def apiset(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apiset')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.name,a.path,a.method,a.request,a.checks,a.description,b.zh_name,a.create_date FROM apiset a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        cur = selectone('SELECT a.id,a.name,a.path,a.method,a.request,a.checks,a.description,b.zh_name,a.create_date FROM apiset a inner join user b on a.username=b.username order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apisets = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=row[4], checks=row[5], description=row[6], username=row[7], create_date=row[8]) for row in cur]
         return render_template('set/apiset.html',SITEURL=SITEURL, username=session['username'], apisets=apisets, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = '全部接口')
 
@@ -658,7 +734,18 @@ def apiset_edit(id):
                 error = '必输项不能为空'
             else:
                 addUpdateDel('update apiset set path=%s, request=%s, checks=%s, description=%s where id=%s',[request.form['path'], request.form['request'], request.form['checks'], request.form['description'],id])
-                flash('编辑成功...')
+
+                cur_edit= selectone("SELECT path,request,checks,description FROM apiset WHERE id = %s",[id])
+                apiset_edit = [dict(path=row[0],request=row[1],checks=row[2],description=row[3]) for row in cur_edit]
+                apiset_path = apiset_edit[0]['path']
+                apiset_request = apiset_edit[0]['request']
+                apiset_checks = apiset_edit[0]['checks']
+                apiset_description = apiset_edit[0]['description']
+                if request.form['path'] == apiset_path and request.form['request'] == apiset_request and request.form['checks'] == apiset_checks and request.form['description'] == apiset_description:
+                    flash('编辑成功...')
+                else:
+                    flash('编辑失败...')
+
                 return redirect(url_for('apiset',num=1))
         return render_template('set/apiset_edit.html',SITEURL=SITEURL, username=session['username'], case=cases[0], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, pagename = '接口编辑', id=id)
 
@@ -679,7 +766,13 @@ def apiset_delete(id):
         abort(401)
     else:
         addUpdateDel('delete from apiset where id=%s',[id])
-        flash('删除成功...')
+
+        cur_apiset_del= selectone("SELECT * FROM apiset where id=%s",[id])
+        if cur_apiset_del == ():
+            flash('删除成功...')
+        else:
+            flash('删除失败...')
+
         return redirect(url_for('apiset',num=1))
 
 # API SET EXEC
@@ -712,7 +805,13 @@ def new_apiset():
         else:
             addUpdateDel('insert into apiset (name, description, path, method, request, checks, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                          [request.form['name'], request.form['description'], request.form['path'], request.form['method'], request.form['request'], request.form['checks'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
-            flash('创建成功...')
+
+            cur_new= selectone("SELECT * FROM apiset WHERE name = %s",[request.form['name']])
+            if cur_new != ():
+                flash('创建成功...')
+            else:
+                flash('创建失败...')
+
             return redirect(url_for('apiset',num=1))
     return render_template('set/new_apiset.html',SITEURL=SITEURL, username=session['username'], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, pagename = '新增接口', product=product, model_sicap=model_sicap, error=error, methods=http_methods)
 
@@ -726,7 +825,13 @@ def version_delete(id):
         abort(401)
     else:
         cur = addUpdateDel('delete from versions where id=%s',[id])
-        flash('删除成功...')
+
+        cur_versions_del= selectone("SELECT * FROM versions where id=%s",[id])
+        if cur_versions_del == ():
+            flash('删除成功...')
+        else:
+            flash('删除失败...')
+
         return redirect(url_for('versions',num=1))
 
 # NEW VERSION
@@ -747,7 +852,13 @@ def new_version():
         else:
             addUpdateDel('insert into versions (version, username, create_date) values (%s, %s, %s)',
                          [request.form['version'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
-            flash('创建成功...')
+
+            cur_new= selectone("SELECT * FROM versions WHERE version = %s",[request.form['version']])
+            if cur_new != ():
+                flash('创建成功...')
+            else:
+                flash('创建失败...')
+
             return redirect(url_for('versions',num=1))
     return render_template('version/new_version.html',  SITEURL=SITEURL, username=session['username'], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, pagename = '新增版本号', product=product, model_oma=model_oma, error=error)
 
@@ -759,7 +870,7 @@ def versions(num):
     else:
         all_Count = selectall('SELECT count(1) FROM versions')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.version,b.zh_name,a.create_date FROM versions a inner join user b on a.username=b.username LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        cur = selectone('SELECT a.id,a.version,b.zh_name,a.create_date FROM versions a inner join user b on a.username=b.username order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         versions = [dict(id=row[0], version=row[1], username=row[2], create_date=row[3]) for row in cur]
         return render_template('version/versions.html', SITEURL=SITEURL, username=session['username'], versions=versions, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = '版本号')
 
@@ -819,7 +930,7 @@ def caseManage_uicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM uicases where activity="0"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
         return render_template('caseManage/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = '测试用例')
 
@@ -843,11 +954,31 @@ def caseManage_uicase_edit(id):
                 error = '必输项不能为空'
             elif request.form['type'].strip() == '公共用例':
                 addUpdateDel('update uicases set steps=%s, description=%s where id=%s',[request.form['steps'], request.form['description'],id])
-                flash('编辑成功...')
+
+                cur_edit= selectone("SELECT steps,description FROM uicases WHERE id = %s",[id])
+                uicases_edit = [dict(steps=row[0],description=row[1]) for row in cur_edit]
+                uicases_steps = uicases_edit[0]['steps']
+                uicases_description = uicases_edit[0]['description']
+                if request.form['steps'] == uicases_steps and request.form['description'] == uicases_description:
+                    flash('编辑成功...')
+                else:
+                    flash('编辑失败...')
+
                 return redirect(url_for('caseManage_uicases',num=1))
             else:
                 addUpdateDel('update uicases set pre_steps=%s, steps=%s, next_steps=%s, description=%s where id=%s',[request.form['pre-steps'], request.form['steps'], request.form['next-steps'],request.form['description'],id])
-                flash('编辑成功...')
+
+                cur_edit= selectone("SELECT pre_steps,steps,next_steps,description FROM uicases WHERE id = %s",[id])
+                uicases_edit = [dict(pre_steps=row[0],steps=row[1],next_steps=row[2],description=row[3]) for row in cur_edit]
+                uicases_pre_steps = uicases_edit[0]['pre_steps']
+                uicases_steps = uicases_edit[0]['steps']
+                uicases_next_steps = uicases_edit[0]['next_steps']
+                uicases_description = uicases_edit[0]['description']
+                if request.form['pre-steps'] == uicases_pre_steps and request.form['steps'] == uicases_steps and request.form['next-steps'] == uicases_next_steps and request.form['description'] == uicases_description:
+                    flash('编辑成功...')
+                else:
+                    flash('编辑失败...')
+
                 return redirect(url_for('caseManage_uicases',num=1))
         return render_template('caseManage/uicase_edit.html',SITEURL=SITEURL, username=session['username'],list_steps=list_steps, case=cases[0], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation,issuetypes=issuetypes, pagename = '测试用例编辑',error=error,id=id)
 
@@ -879,7 +1010,13 @@ def caseManage_uicase_delete(id):
             error = "该用例被测试集引用，不能删除~！"
         else:
             cur = addUpdateDel('delete from uicases where id=%s',[id])
-            flash('删除成功...')
+
+            cur_uicases_del= selectone("SELECT * FROM uicases where id=%s",[id])
+            if cur_uicases_del == ():
+                flash('删除成功...')
+            else:
+                flash('删除失败...')
+
         return redirect(url_for('caseManage_uicases',num=1))
 
 # caseManage UI CASE EXEC
@@ -921,7 +1058,13 @@ def caseManage_new_uicase():
         else:
             addUpdateDel('insert into uicases (type,version, model, product, name, pre_steps,steps,next_steps, description,activity, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
                          [request.form['type'],request.form['version'], request.form['model'], request.form['product'], request.form['name'],request.form['pre-steps'], request.form['steps'],request.form['next-steps'], request.form['description'], '0', session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
-            flash('创建成功...')
+
+            cur_new= selectone("SELECT * FROM uicases WHERE name = %s",[request.form['name']])
+            if cur_new != ():
+                flash('创建成功...')
+            else:
+                flash('创建失败...')
+
             return redirect(url_for('caseManage_uicases',num=1))
     return render_template('caseManage/new_uicase.html', list_steps=list_steps, SITEURL=SITEURL, username=session['username'], versions=versions, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, pagename = '新增测试用例', product=product, model_oma=model_oma, model_sicap=model_sicap, issuetypes=issuetypes, error=error)
 
@@ -933,7 +1076,7 @@ def caseManage_apicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apicases where activity="0"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.type,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, a.steps,a.pre_steps,a.next_steps FROM apicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        cur = selectone('SELECT a.id,a.type,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, a.steps,a.pre_steps,a.next_steps FROM apicases a inner join user b on a.username=b.username where activity="0" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apicases = [dict(id=row[0], type=row[1],version=row[2], product=row[3], model=row[4], name=row[5], description=row[6], username=row[7], create_date=row[8], steps=row[9], pre_steps=row[10], next_steps=row[11]) for row in cur]
         return render_template('caseManage/apicases.html',SITEURL=SITEURL, username=session['username'], apicases=apicases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = '接口测试用例')
 
@@ -948,7 +1091,6 @@ def caseManage_apicase_edit(id):
         apisets = [dict(name=row[0],request=row[1]) for row in cur]
         cur = selectone('SELECT type, version, name, product, model, pre_steps, steps, next_steps,description FROM apicases where id=%s',[id])
         cases = [dict(type=row[0], version=row[1], name=row[2], product=row[3], model=row[4], pre_steps=row[5], steps=row[6], next_steps=row[7], description=row[8]) for row in cur]
-        print(cases)
     return render_template('caseManage/apicase_edit.html',SITEURL=SITEURL, username=session['username'], case=cases[0], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, pagename = '接口编辑', id=id)
 
 # caseManage API CASE QUERY
@@ -980,7 +1122,13 @@ def caseManage_apicase_delete(id):
         
         addUpdateDel('delete from apicases where id=%s',[id])
         addUpdateDel('delete from apidates where case_name=%s',[apicase_name])
-        flash('删除成功...')
+
+        cur_apicases_del= selectone("SELECT * FROM apicases where id=%s",[id])
+        cur_apidates_del= selectone("SELECT * FROM apidates where case_name=%s",[apicase_name])
+        if cur_apicases_del == () and cur_apidates_del == ():
+            flash('删除成功...')
+        else:
+            flash('删除失败...')
         return redirect(url_for('caseManage_apicases',num=1))
 
 # caseManage API CASE EXEC
@@ -1040,7 +1188,14 @@ def caseManage_new_apicase():
                     cur = selectone('select name,path,method,request,checks from apiset where name = %s',[steps[i]])
                     cases = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4]) for row in cur]
                     addUpdateDel('insert into apidates (case_name,name,path,method,request,checks,username,create_date) values (%s,%s,%s,%s,%s,%s,%s,%s)',[request.form['name'], str(i)+'_'+steps[i], cases[0]['path'], cases[0]['method'], cases[0]['request'], cases[0]['checks'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
-            flash('创建成功...')
+
+            cur_apicases_new= selectone("SELECT * FROM apicases WHERE name = %s",[request.form['name']])
+            cur_apidates_new= selectone("SELECT * FROM apidates WHERE case_name = %s,name = %s",[request.form['name'],steps[-1]])
+            if cur_apicases_new != () and cur_apidates_new !=():
+                flash('创建成功...')
+            else:
+                flash('创建失败...')
+
             return redirect(url_for('caseManage_apidate_edit_cases_query',case_name=request.form["name"]))
     return render_template('caseManage/new_apicase.html', SITEURL=SITEURL, username=session['username'], apisets=apisets, model_sicap=model_sicap, model_oma=model_oma, versions=versions, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, product=product, issuetypes=issuetypes, pagename = '新增用例',error=error)
 
@@ -1064,13 +1219,24 @@ def caseManage_apidate_edit_cases_query(case_name):
 def caseManage_apidate_edit_cases_save(case_name):
     if not session.get('logged_in'):
         abort(401)
+    error=None
     if request.method == 'POST':
         if request.form['request'].strip() == '' or request.form['checks'].strip() == '' or request.form['parameter'].strip() == '':
             error = '必输项不能为空'
         else:
             addUpdateDel('update apidates set request=%s, checks=%s, parameter=%s where case_name=%s and name=%s',[request.form['request'],request.form['checks'],request.form['parameter'],case_name,request.form['name']])
-            flash('更新成功...')
-    return render_template('caseManage/apidate_edit_cases.html',SITEURL=SITEURL, username=session['username'], case_name=case_name, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, pagename = '编辑接口数据')
+
+            cur_edit= selectone("SELECT request,checks,parameter FROM apidates where case_name=%s and name=%s",[case_name,request.form['name']])
+            apidates_edit = [dict(request=row[0],checks=row[1],parameter=row[2]) for row in cur_edit]
+            apidates_request = apidates_edit[0]['request']
+            apidates_checks = apidates_edit[0]['checks']
+            apidates_parameter = apidates_edit[0]['parameter']
+            if request.form['request'] == apidates_request and request.form['checks'] == apidates_checks and request.form['parameter'] == apidates_parameter:
+                flash('编辑成功...')
+            else:
+                flash('编辑失败...')
+
+    return render_template('caseManage/apidate_edit_cases.html',SITEURL=SITEURL, username=session['username'], case_name=case_name, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav,error=error, pagename = '编辑接口数据')
 
 # 密码修改
 @app.route('/caseManage/modify_passwd', methods=['GET', 'POST'])
@@ -1153,7 +1319,7 @@ def review_uicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM uicases where activity = "0"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
         return render_template('review/uireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, pagename = '测试用例')
 
@@ -1175,7 +1341,12 @@ def uicase_review(id):
         abort(401)
     else:
         cur = addUpdateDel('update uicases set activity="1" where id=%s',[id])
-        flash('审核成功...')
+
+        cur_new= selectone("SELECT * FROM uicases WHERE id = %s activity='1'",[id])
+        if cur_new != ():
+            flash('审核成功...')
+        else:
+            flash('审核失败...')
         return redirect(url_for('review_uicases',num=1))
 
 # UI CASE EXEC
@@ -1197,7 +1368,7 @@ def review_apicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apicases where activity="0"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, steps,pre_steps,next_steps,type FROM apicases a inner join user b on a.username=b.username where activity="0" LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+        cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, steps,pre_steps,next_steps,type FROM apicases a inner join user b on a.username=b.username where activity="0" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apicases = [dict(id=row[0], version=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8], pre_steps=row[9], next_steps=row[10], type=row[11]) for row in cur]
         return render_template('review/apireview.html',SITEURL=SITEURL, username=session['username'], apicases=apicases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, pagename = '用例审核')
 
@@ -1226,7 +1397,13 @@ def apicase_review(id):
         abort(401)
     else:
         cur = addUpdateDel('update apicases set activity="1" where id=%s',[id])
-        flash('审核成功...')
+
+        cur_new= selectone("SELECT * FROM apicases WHERE id = %s activity='1'",[id])
+        if cur_new != ():
+            flash('审核成功...')
+        else:
+            flash('审核失败...')
+
         return redirect(url_for('review_apicases',num=1))
 
 # API CASE EXEC
