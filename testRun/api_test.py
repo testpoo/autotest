@@ -73,7 +73,7 @@ class RunTests(object):
             url = cases_list['path']
             method = cases_list['method']
             parameter = cases_list['parameter']
-            data = eval(cases_list['request'])
+            data = json.dumps(json.loads(cases['request']))
             if i>0 :
                 replace_param=results[-1]['new_param']
                 get_targe_value(data,replace_param)
@@ -96,6 +96,9 @@ class RunTests(object):
                 content = eval(r.text)
                 if parameter != '' and isinstance(parameter,list):
                     result['new_param']=traverse_take_field(content,parameter)
+                else:
+                    result['new_param']=''
+                    LogUtility.logger.debug("Failed running test siutes, error message: {}".format('参数不是列表'))
                 
                 if r.text == checks:
                     result['status'] = "成功"
@@ -179,7 +182,7 @@ class RunTests(object):
             cases_report = [dict(case_name=row[0], type=row[1], product=row[2],status=row[3], spenttime=row[4], error=row[5], username=row[6]) for row in cur]
             content = {'cases_name': cases_name, 'count': count, 'testPass_count': testPass_count, 'testFail_count': testFail_count,
                        'testSkip_count': testSkip_count, 'starttime': starttime, 'spenttime': spenttime, 'cases_report': cases_report}
-            report(content, Config.path_api)
+            report(cases_name, content, Config.path_api)
 
 
 if __name__ == "__main__":

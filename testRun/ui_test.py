@@ -134,7 +134,7 @@ class RunUiTests(object):
             cur = selectone('select case_name,type,product,status,spenttime,error,username from report where type="ui" and username=%s',[self.username])
             cases_report = [dict(case_name=row[0], type=row[1], product=row[2],status=row[3], spenttime=row[4], error=row[5], username=row[6]) for row in cur]
             content={'cases_name':cases_name,'count':count,'testPass_count':testPass_count,'testFail_count':testFail_count,'testSkip_count':testSkip_count,'starttime':starttime,'spenttime':spenttime,'cases_report':cases_report}
-            report(content,Config.path_ui)
+            report(cases_name,content,Config.path_ui)
 
 if __name__ == "__main__":
     newrun = RunUiTests('5','puyawei')

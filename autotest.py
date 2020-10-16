@@ -698,7 +698,7 @@ def new_uiset():
             error = "该关键字已经存在"
         else:
             addUpdateDel('insert into uiset (keyword,description,template,example, username, create_date) values (%s, %s, %s, %s, %s, %s)',
-                         [request.form['keyword'], request.form['description'], request.form['template'], request.form['example'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+                         [cn_to_uk(request.form['keyword']), cn_to_uk(request.form['description']), request.form['template'], cn_to_uk(request.form['example']), session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
 
             cur_new= selectone("SELECT * FROM uiset WHERE keyword = %s",[request.form['keyword']])
             if cur_new != ():
@@ -727,14 +727,17 @@ def apiset_edit(id):
     if not session.get('logged_in'):
         abort(401)
     else:
+        error=None
         cur = selectone('SELECT id,name,path,method,request,checks,description FROM apiset where id=%s',[id])
         cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=row[4], checks=row[5], description=row[6]) for row in cur]
+
         if request.method == 'POST':
-            if request.form['path'].strip == '' or request.form['request'].strip == '':
+            if request.form['path'].strip() == '' or request.form['request'].strip() == '' or request.form['checks'].strip() == '':
                 error = '必输项不能为空'
+            elif request.form['path'][0:7] not in ['https:/','http://'] or is_dict(request.form['request'].strip()) or is_dict(request.form['checks'].strip()):
+                error = '必输项格式不对'
             else:
                 addUpdateDel('update apiset set path=%s, request=%s, checks=%s, description=%s where id=%s',[request.form['path'], request.form['request'], request.form['checks'], request.form['description'],id])
-
                 cur_edit= selectone("SELECT path,request,checks,description FROM apiset WHERE id = %s",[id])
                 apiset_edit = [dict(path=row[0],request=row[1],checks=row[2],description=row[3]) for row in cur_edit]
                 apiset_path = apiset_edit[0]['path']
@@ -747,7 +750,7 @@ def apiset_edit(id):
                     flash('编辑失败...')
 
                 return redirect(url_for('apiset',num=1))
-        return render_template('set/apiset_edit.html',SITEURL=SITEURL, username=session['username'], case=cases[0], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, pagename = '接口编辑', id=id)
+        return render_template('set/apiset_edit.html',SITEURL=SITEURL, username=session['username'], case=cases[0], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation,error=error, pagename = '接口编辑', id=id)
 
 # API SET QUERY
 @app.route('/caseManage/apiset_query/<int:id>', methods=['GET', 'POST'])
@@ -802,9 +805,11 @@ def new_apiset():
             error = '必输项不能为空'
         elif request.form['name'].strip() in apisets:
             error = "该API已经存在"
+        elif (request.form['path'][0:8] != 'https://' or request.form['path'][0:7] != 'http://') or is_dict(request.form['request'].strip()) or is_dict(request.form['checks'].strip()):
+            error = '必输项格式不对'
         else:
             addUpdateDel('insert into apiset (name, description, path, method, request, checks, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s)',
-                         [request.form['name'], request.form['description'], request.form['path'], request.form['method'], request.form['request'], request.form['checks'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+                         [request.form['name'], request.form['description'], cn_to_uk(request.form['path']), request.form['method'], cn_to_uk(request.form['request']), cn_to_uk(request.form['checks']), session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
 
             cur_new= selectone("SELECT * FROM apiset WHERE name = %s",[request.form['name']])
             if cur_new != ():
@@ -953,7 +958,7 @@ def caseManage_uicase_edit(id):
             if request.form['steps'].strip() == '':
                 error = '必输项不能为空'
             elif request.form['type'].strip() == '公共用例':
-                addUpdateDel('update uicases set steps=%s, description=%s where id=%s',[request.form['steps'], request.form['description'],id])
+                addUpdateDel('update uicases set steps=%s, description=%s where id=%s',[cn_to_uk(request.form['steps']), request.form['description'],id])
 
                 cur_edit= selectone("SELECT steps,description FROM uicases WHERE id = %s",[id])
                 uicases_edit = [dict(steps=row[0],description=row[1]) for row in cur_edit]
@@ -966,7 +971,7 @@ def caseManage_uicase_edit(id):
 
                 return redirect(url_for('caseManage_uicases',num=1))
             else:
-                addUpdateDel('update uicases set pre_steps=%s, steps=%s, next_steps=%s, description=%s where id=%s',[request.form['pre-steps'], request.form['steps'], request.form['next-steps'],request.form['description'],id])
+                addUpdateDel('update uicases set pre_steps=%s, steps=%s, next_steps=%s, description=%s where id=%s',[request.form['pre-steps'], cn_to_uk(request.form['steps']), request.form['next-steps'],request.form['description'],id])
 
                 cur_edit= selectone("SELECT pre_steps,steps,next_steps,description FROM uicases WHERE id = %s",[id])
                 uicases_edit = [dict(pre_steps=row[0],steps=row[1],next_steps=row[2],description=row[3]) for row in cur_edit]
@@ -1057,7 +1062,7 @@ def caseManage_new_uicase():
             error = "该用例已经存在"
         else:
             addUpdateDel('insert into uicases (type,version, model, product, name, pre_steps,steps,next_steps, description,activity, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                         [request.form['type'],request.form['version'], request.form['model'], request.form['product'], request.form['name'],request.form['pre-steps'], request.form['steps'],request.form['next-steps'], request.form['description'], '0', session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+                         [request.form['type'],request.form['version'], request.form['model'], request.form['product'], request.form['name'],request.form['pre-steps'], cn_to_uk(request.form['steps']),request.form['next-steps'], request.form['description'], '0', session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
 
             cur_new= selectone("SELECT * FROM uicases WHERE name = %s",[request.form['name']])
             if cur_new != ():
@@ -1185,9 +1190,9 @@ def caseManage_new_apicase():
             steps = pre_steps+request.form['steps'].split('\r\n')+next_steps
 
             for i in range(len(steps)):
-                    cur = selectone('select name,path,method,request,checks from apiset where name = %s',[steps[i]])
-                    cases = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4]) for row in cur]
-                    addUpdateDel('insert into apidates (case_name,name,path,method,request,checks,username,create_date) values (%s,%s,%s,%s,%s,%s,%s,%s)',[request.form['name'], str(i)+'_'+steps[i], cases[0]['path'], cases[0]['method'], cases[0]['request'], cases[0]['checks'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+                cur = selectone('select name,path,method,request,checks from apiset where name = %s',[steps[i]])
+                cases = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4]) for row in cur]
+                addUpdateDel('insert into apidates (case_name,name,path,method,request,checks,username,create_date) values (%s,%s,%s,%s,%s,%s,%s,%s)',[request.form['name'], str(i)+'_'+steps[i], cn_to_uk(cases[0]['path']), cases[0]['method'], cn_to_uk(cases[0]['request']), cn_to_uk(cases[0]['checks']), session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
 
             cur_apicases_new= selectone("SELECT * FROM apicases WHERE name = %s",[request.form['name']])
             cur_apidates_new= selectone("SELECT * FROM apidates WHERE case_name = %s,name = %s",[request.form['name'],steps[-1]])
@@ -1221,10 +1226,12 @@ def caseManage_apidate_edit_cases_save(case_name):
         abort(401)
     error=None
     if request.method == 'POST':
-        if request.form['request'].strip() == '' or request.form['checks'].strip() == '' or request.form['parameter'].strip() == '':
+        if request.form['request'].strip() == '' or request.form['checks'].strip() == '':
             error = '必输项不能为空'
+        elif is_dict(request.form['request'].strip()) or is_dict(request.form['checks'].strip()) or (request.form['parameter'].strip() != '' and is_list(request.form['parameter'].strip())):
+            error = '必输项格式不对'
         else:
-            addUpdateDel('update apidates set request=%s, checks=%s, parameter=%s where case_name=%s and name=%s',[request.form['request'],request.form['checks'],request.form['parameter'],case_name,request.form['name']])
+            addUpdateDel('update apidates set request=%s, checks=%s, parameter=%s where case_name=%s and name=%s',[cn_to_uk(request.form['request']),cn_to_uk(request.form['checks']),cn_to_uk(request.form['parameter']),case_name,request.form['name']])
 
             cur_edit= selectone("SELECT request,checks,parameter FROM apidates where case_name=%s and name=%s",[case_name,request.form['name']])
             apidates_edit = [dict(request=row[0],checks=row[1],parameter=row[2]) for row in cur_edit]

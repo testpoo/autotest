@@ -155,3 +155,26 @@ def deline(temp):
         te = te.split("_")[1]
         list.append(te)
     return list
+
+# 中文标点符号转英文
+def cn_to_uk(words):
+
+    table = str.maketrans('‘’“”|（）【】{}，','\'\'\"\"|()[]{},') # 转换表，单个字符的替换
+    new_file = words.translate(table)
+    return new_file
+
+# 能否转成字典
+def is_dict(str):
+    try:
+        eval(str)
+    except SyntaxError:
+        return False
+    return True
+
+# 能否转成列表
+def is_list(str):
+    try:
+        eval(str)
+    except SyntaxError:
+        return False
+    return True

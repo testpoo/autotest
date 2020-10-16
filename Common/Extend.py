@@ -100,6 +100,20 @@ class Extend(object):
         element = Select(self.findElement(type,value)).select_by_visible_text(text)
         return element
 
+    def assertSelectOptions(self,type,value,*args):
+        '''
+        描述：校验下拉框文本
+
+        用法：assertSelectOptions(self,type,value,*args)
+        '''
+        element = Select(self.findElement(type,value))
+        optionslist=[]
+
+        for i in element.options:
+            optionslist.append(i.text)
+
+        TestCase().assertListEqual(optionslist, list(args))
+
     def open(self,url):
         '''
         描述：打开url
@@ -254,12 +268,25 @@ class Extend(object):
         '''
         self.driver.refresh()
 
-    def switchToFrame(self, value):
+    def switchToFrame(self, type, value):
         '''
         描述：切换到frame
         用法：self.switchToFrame()
         '''
-        self.driver.switch_to_frame(value)
+        element = self.findElement(type, value)
+        self.driver.switch_to.frame(element)
+
+    def switchToParentFrame(self):
+        '''描述：返回上层frame
+        用法：self.switchToParentFrame()
+        '''
+        self.driver.switch_to.parent_frame()
+
+    def switchToOuterFrame(self):
+        '''描述：返回最外层frame
+        用法：self.switchToOuterFrame()
+        '''
+        self.driver.switch_to.default_content()
 
     def switchToWindow(self, handle):
         '''
