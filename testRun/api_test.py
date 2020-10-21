@@ -79,7 +79,7 @@ class RunTests(object):
             if i>0 :
                 replace_param=results[-1]['new_param']
                 get_targe_value(data,replace_param)
-            
+
             data = json.dumps(data)
             checks = cases_list['checks']
 

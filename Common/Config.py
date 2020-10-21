@@ -6,7 +6,7 @@ import base64
 SITEURL = "http://127.0.0.1:5000/"
 #SITEURL = "http://192.168.213.110:8000/"
 
-dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
+dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
 
 nav = ['自动化测试平台','UI自动化','接口自动化','设置']
 
@@ -193,3 +193,24 @@ def img_to_base64(imgurl):
         img=base64.b64encode(f.read())
         img='data:image/png;base64,'+str(img, encoding = "utf-8")
     return img
+
+# 删除案例时校验是否前置后置事务
+def delete_pre_next(cases,pre_next):
+    for case in cases:
+        if case in pre_next:
+            return True
+        else:
+            return False
+
+# 合并列表
+def getAllList(lists):
+    all_listss = []
+    for list in lists:
+        all_listss.extend(list)
+    all_listss_new = [i for i in all_listss if i !='']
+    return all_listss_new
+
+# 计算UiSet长度
+def getParaLen():
+    length=len(x.split('|')[1].split(','))
+    return length

@@ -28,8 +28,7 @@
   </div>
   <div class="form-group">
     <label for="name">名称</label>
-    <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称"
-      readonly unselectable="on" value={{ case['name'] }}>
+    <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称" value={{ case['name'] }}>
   </div>
   {% if case['type'] == '普通用例' %}
   <div class="form-group">
@@ -48,20 +47,27 @@
       placeholder="请输入前置事务" cols="300" rows="5">{{ case['pre_steps'] }}</textarea>
   </div>
   {% endif %}
-  <div class="form-group">
-    <label for="choice">操作步骤</label>
-    <input id="select" list="choice" class="form-control required" name="choice" maxlength="200" placeholder="请选择操作步骤"
-      onchange="getElements()">
-    <datalist id="choice">
+  <div id="getSelectValue" style="display: none;">
+    <input list="issue_names" id="issue_name" class="issue_names_list" name="issue_name" maxlength="200" placeholder="请选择用例步骤">
+    <datalist id="issue_names">
       {% for list_step in list_steps %}
       <option value="{{ list_step['keyword'] }}">
         {% endfor %}
     </datalist>
   </div>
+  <div id="getUisets" style="display: none;">
+    <input id="getUisets-input" name="getUisets" value="{{ list_steps }}">
+  </div>
+  <div class="form-group">
+    <label for="choice">操作步骤<span style="color:red">*</span></label>
+    <div class="form-control required issue_div" id="choice" name="choice" placeholder="请输入步骤">
+      <a href="#" onclick="makeIssue()">用例生成工具</a>
+    </div>
+  </div>
   <div class="form-group">
     <label for="steps"></label>
     <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤"
-      cols="30" rows="5">{{ case['steps'] }}</textarea>
+      cols="30" rows="10">{{ case['steps'] }}</textarea>
   </div>
   {% if case['type'] == '普通用例' %}
   <div class="form-group">
@@ -76,7 +82,7 @@
   </div>
   <div class="form-group">
     <label for="next-steps"></label>
-    <textarea class="form-control required" id="next-steps" name="next-steps" placeholder="请输入后置事务" cols="300" rows="5"></textarea>
+    <textarea class="form-control required" id="next-steps" name="next-steps" placeholder="请输入后置事务" cols="300" rows="5">{{ case['next_steps'] }}</textarea>
   </div>
   {% endif %}
   <div class="form-group">
@@ -87,4 +93,22 @@
     <input type=submit value="修改" class="button">
   </div>
 </form>
+<table id="make_issue">
+  <thead>
+    <tr>
+      <th>用例步骤</th>
+      <th>参数1</th>
+      <th>参数2</th>
+      <th>参数3</th>
+      <th>参数4</th>
+      <th>参数5</th>
+      <th><a href="#" onclick="addElementTdone()" id="addElementTd" class="addElementTd">➕</a></th>
+      <th><a href="#" class="success" onclick="saveTable()"></a> <a href="#" class="failed" onclick="closeTable()"></a></th>
+    </tr>
+  </thead>
+  <tbody id="make_issue_tbody">
+
+  </tbody>
+</table>
+<div id="hidebg"></div>
 {% endblock %}

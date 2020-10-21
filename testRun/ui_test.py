@@ -44,6 +44,8 @@ class RunUiTests(object):
             else:
                 pre_steps = []
                 pre_names = cases['pre_steps'].split('\r\n')
+                while '' in pre_names:
+                    pre_names.remove('')
                 for pre_name in pre_names:
                     pre_step = selectone('SELECT steps FROM uicases WHERE name = %s',[pre_name])[0][0].split('\r\n')
                     pre_steps.extend(pre_step)
@@ -53,11 +55,15 @@ class RunUiTests(object):
             else:
                 next_steps = []
                 next_names = cases['next_steps'].split('\r\n')
+                while '' in next_names:
+                    next_names.remove('')
                 for next_name in next_names:
                     next_step = selectone('SELECT steps FROM uicases WHERE name = %s',[next_name])[0][0].split('\r\n')
                     next_steps.extend(next_step)
             
-            steps = pre_steps+cases['steps'].split('\r\n')+next_steps
+            steps = pre_steps+cases['steps'].split('\r\n')
+            while '' in steps:
+                steps.remove('')
 
             TestCase = Extend.Extend()
             
@@ -65,18 +71,23 @@ class RunUiTests(object):
 
             for step in steps:
                 action = cover(step)
+                LogUtility.logger.debug("执行步骤: {}".format(action))
                 eval('TestCase.'+action)
 
             result['status'] = "成功"
 
         except Exception as err:
-            TestCase.getScreenshot(Config.Screenshot+'/'+case_name+'_'+Screenshottime+'.png')
             LogUtility.logger.debug(
                 "Failed running test siutes, error message: {}".format(str(err)))
-            result['Screenshot'] = Config.img_to_base64(case_name+'_'+Screenshottime+'.png')
             result['status'] = '失败'
             result['error'] = str(err)
+            TestCase.getScreenshot(Config.Screenshot+'/'+case_name+'_'+Screenshottime+'.png')
+            result['Screenshot'] = Config.img_to_base64(case_name+'_'+Screenshottime+'.png')
         finally:
+            for next_step in next_steps:
+                action = cover(next_step)
+                LogUtility.logger.debug("执行步骤: {}".format(action))
+                eval('TestCase.'+action)
             TestCase.quit()
             endtime = Config.getCurrentTime()
             spenttime = Config.timeDiff(starttime,endtime)

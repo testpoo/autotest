@@ -77,6 +77,48 @@ class Extend(object):
             #LogUtility.log("No such element found %s:%s" % (str(type),str(value)))
         return element
 
+    def findElements(self,type,value):
+        '''
+        描述：查找元素, 例如：('id','username')
+
+        用法：self.findElement(type,value)
+        '''
+        try:
+            if type == "id" or type == "ID" or type=="Id":
+                elements = self.driver.find_elements_by_id(value)
+                #LogUtility.log("Find elements id:%s" % value)
+
+            elif type == "name" or type == "NAME" or type=="Name":
+                elements = self.driver.find_elements_by_name(value)
+                #LogUtility.log("Find element name:%s" % value)
+
+            elif type == "class" or type == "CLASS" or type=="Class":
+                elements = self.driver.find_elements_by_class_name(value)
+                #LogUtility.log("Find element class:%s" % value)
+
+            elif type == "link_text" or type == "LINK_TEXT" or type=="Link_text":
+                elements = self.driver.find_elements_by_link_text(value)
+                #LogUtility.log("Find element link text:%s" % value)
+                
+            elif type == "tag_name" or type == "TAG_NAME" or type=="Tag_name":
+                elements = self.driver.find_elements_by_tag_name(value)
+                #LogUtility.log("Find element tag_name:%s" % value)
+
+            elif type == "xpath" or type == "XPATH" or type=="Xpath":
+                elements = self.driver.find_elements_by_xpath(value)
+                #LogUtility.log("Find element xpath:%s" % value)
+
+            elif type == "css" or type == "CSS" or type=="Css":
+                elements = self.driver.find_elements_by_css_selector(value)
+                #LogUtility.log("Find element css:%s" % value)
+            else:
+                raise NameError("Please correct the type in function parameter")
+                #LogUtility.log("Please correct the type in function parameter")
+        except Exception:
+            raise ValueError("No such element found %s:%s" % (str(type),str(value)))
+            #LogUtility.log("No such element found %s:%s" % (str(type),str(value)))
+        return elements
+
     def implicitlyWwait(self, time):
         '''
         描述：隐式等待
@@ -99,6 +141,19 @@ class Extend(object):
         '''
         element = Select(self.findElement(type,value)).select_by_visible_text(text)
         return element
+
+    def assertSelectedOptions(self,type,value,*args):
+        '''
+        描述：校验下拉框已选择文本
+
+        用法：assertSelectedOptions(self,type,value,*args)
+        '''
+        element = Select(self.findElement(type,value))
+        optionslist=[]
+        for i in element.all_selected_options:
+            optionslist.append(i.text)
+
+        TestCase().assertListEqual(optionslist, list(args))
 
     def assertSelectOptions(self,type,value,*args):
         '''
@@ -395,3 +450,25 @@ class Extend(object):
         描述：上传文件
         '''
         self.findElement(type,value).send_keys(path)
+        
+    def checkOne(self,type,value):
+        element = self.findElement(type, value)
+        if not element.is_selected():
+            element.click()
+            
+    def decheckOne(self,type,value):
+        element = self.findElement(type, value)
+        if element.is_selected():
+            element.click()
+
+    def checkAll(self,type,value):
+        elements = self.findElements(type, value)
+        for element in elements:
+            if not element.is_selected():
+                element.click()
+    
+    def decheckAll(self,type,value):
+        elements = self.findElements(type, value)
+        for element in elements:
+            if element.is_selected():
+                element.click()  

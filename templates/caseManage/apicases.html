@@ -82,7 +82,11 @@
       <td>{{ case['product'] }}</td>
       <td>{{ case['model'] }}</td>
       <td>{{ case['name'] }}</td>
-      <td>{{ case['pre_steps'] }}</td>
+      <td>
+        {% for case_step in case['pre_steps'].split("\r\n") %}
+        {{ case_step }}<br />
+        {% endfor %}
+      </td>
       <td style="position: relative;">
         <span id="pack_{{ loop.index }}">
           {{ case['steps'].split("\r\n")[0] }}<br />
@@ -98,7 +102,11 @@
           style="display: none;"> ↑ </a>
         {% endif %}
       </td>
-      <td>{{ case['next_steps'] }}</td>
+      <td>
+        {% for case_step in case['next_steps'].split("\r\n") %}
+        {{ case_step }}<br />
+        {% endfor %}
+      </td>
       <td>{{ case['description'] }}</td>
       <td>{{ case['username'] }}</td>
       <td>{{ case['create_date'] }}</td>
