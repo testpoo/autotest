@@ -1,9 +1,9 @@
-{% extends "review/base_index.html" %}
+{% extends "caseManage/base_index.html" %}
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
-<form class="form-horizontal" id="review_uicases" action="{{ url_for('review_uicases',num=num) }}" method="post">
+<form class="form-horizontal" id="caseManage_uirecyclebin" action="{{ url_for('caseManage_uirecyclebin',num=num) }}" method="post">
   <div class="float-left">
     <label for="select-model" class="float-label">选择模块</label>
     <input list="select-models" class="form-control required" id="select-model" name="select-model" maxlength="200"
@@ -89,7 +89,8 @@
         </span>
         {% if case['steps'].split("\r\n")|length > 1 %}
         <a id="expand_more_{{ loop.index }}" class="expand_more_pack" onclick="more('{{ loop.index }}')"> ↓ </a>
-        <a id="expand_pack_{{ loop.index }}" class="expand_more_pack" onclick="pack('{{ loop.index }}')" style="display: none;"> ↑ </a>
+        <a id="expand_pack_{{ loop.index }}" class="expand_more_pack" onclick="pack('{{ loop.index }}')"
+          style="display: none;"> ↑ </a>
         {% endif %}
       </td>
       <td>{{ case['next_steps'] }}</td>
@@ -97,9 +98,9 @@
       <td>{{ case['zh_name'] }}</td>
       <td>{{ case['create_date'] }}</td>
       <td>
-        {% for opera,links in review_operation %}
-        <span class="opration"><a href="{{ SITEURL }}/review/uicase_{{ links }}/{{ case['id'] }}"
-            onclick="loading()">{{ opera }}</a></span>
+        {% for recycle,links in recyclebin %}
+        <span class="opration"><a href="{{ SITEURL }}/caseManage/uicase_recyclebin_{{ links }}/{{ case['id'] }}"
+            onclick="loading()">{{ recycle }}</a></span>
         {% endfor %}
       </td>
     </tr>
@@ -107,7 +108,7 @@
     <tr>
       <td colspan="13">
         {% for page in range(all_Page) %}
-        <span class="opration"><a href="{{ SITEURL }}/review/uicases/{{ page+1 }}">{{ page+1 }}</a></span>
+        <span class="opration"><a href="{{ SITEURL }}/caseManage/uirecyclebin/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>

@@ -6,7 +6,7 @@
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
 <form class="form-horizontal" id="caseManage_new_uicase" action="{{ url_for('caseManage_new_uicase') }}" method="post">
   <div class="form-group">
-    <label for="type">用例类型</label>
+    <label for="type">用例类型<span style="color:red">*</span></label>
     <input id="type" list="types" class="form-control required" name="type" maxlength="200"
       placeholder="请选择用例类型" onchange="delPreNext()">
     <datalist id="types">
@@ -15,7 +15,7 @@
     </datalist>
   </div>
   <div class="form-group">
-    <label for="product">所属产品</label>
+    <label for="product">所属产品<span style="color:red">*</span></label>
     <input id="model_oma" value="{{ model_oma }}" style="display: none;">
     <input id="model_sicap" value="{{ model_sicap }}" style="display: none;">
     <input id="product" list="products" class="form-control required" name="product" maxlength="200" placeholder="请选择产品" onchange="getModel(document.getElementById('model_oma').value,document.getElementById('model_sicap').value)">
@@ -26,7 +26,7 @@
     </datalist>
   </div>
   <div class="form-group">
-    <label for="version">用例版本</label>
+    <label for="version">用例版本<span style="color:red">*</span></label>
     <input id="version" list="versions" class="form-control required" name="version" maxlength="200" placeholder="请选择用例类型">
     <datalist id="versions">
       {% for version in versions %}
@@ -35,13 +35,13 @@
     </datalist>
   </div>
   <div class="form-group">
-    <label for="model">所属模块</label>
+    <label for="model">所属模块<span style="color:red">*</span></label>
     <input id="model" list="models" class="form-control required" name="model" maxlength="200" placeholder="请选择模块">
     <datalist id="models">
     </datalist>
   </div>
   <div class="form-group">
-    <label for="name">名称</label>
+    <label for="name">名称<span style="color:red">*</span></label>
     <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称">
   </div>
   <div class="form-group delPreNext">
@@ -59,7 +59,7 @@
     <textarea class="form-control required" id="pre-steps" name="pre-steps" placeholder="请输入前置事务" cols="300" rows="5"></textarea>
   </div>
   <div class="form-group">
-    <label for="choice">操作步骤</label>
+    <label for="choice">操作步骤<span style="color:red">*</span></label>
     <input id="choice" list="choices" class="form-control required" name="choice" maxlength="200" placeholder="请选择操作步骤"
       onchange="getElements()">
     <datalist id="choices">

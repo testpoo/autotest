@@ -4,6 +4,53 @@
 <div class="alert">{{ message }}</div>
 {% endfor %}
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+  <form class="form-horizontal" id="review_apicases" action="{{ url_for('review_apicases',num=num) }}" method="post">
+    <div class="float-left">
+      <label for="select-model" class="float-label">选择模块</label>
+      <input list="select-models" class="form-control reqapired" id="select-model" name="select-model" maxlength="200"
+        placeholder="请选择操作模块" onchange="getUsernames()">
+      <datalist id="select-models">
+        <option value="按名称">
+        <option value="按版本">
+        <option value="按模块">
+        <option value="按用户">
+      </datalist>
+    </div>
+    <div class="float-left" id="div-names">
+      <label for="query" class="float-label">查询值</label>
+      <input type="longtext" class="form-control" id="query-name" name="query-name" maxlength="500" placeholder="请输入查询值">
+    </div>
+    <div class="float-left apicase_list_query" id="div-usernames">
+      <label for="query" class="float-label">查询值</label>
+      <input type="longtext" class="form-control" id="query-username" name="query-username" maxlength="500" placeholder="请输入查询值" list="usernames">
+      <datalist id="usernames">
+        {% for username in usernames %}
+        <option value="{{ username['zh_name'] }}">
+        {% endfor %}
+      </datalist>
+    </div>
+    <div class="float-left apicase_list_query" id="div-versions">
+      <label for="query" class="float-label">查询值</label>
+      <input type="longtext" class="form-control" id="query-version" name="query-version" maxlength="500" placeholder="请输入查询值" list="versions">
+      <datalist id="versions">
+        {% for version in versions %}
+        <option value="{{ version['version'] }}">
+        {% endfor %}
+      </datalist>
+    </div>
+    <div class="float-left apicase_list_query" id="div-models">
+      <label for="query" class="float-label">查询值</label>
+      <input type="longtext" class="form-control" id="query-model" name="query-model" maxlength="500" placeholder="请输入查询值" list="models">
+      <datalist id="models">
+        {% for model in models %}
+        <option value="{{ model['model'] }}">
+        {% endfor %}
+      </datalist>
+    </div>
+    <div class="float-left">
+      <input type=submit value="查询" class="button">
+    </div>
+  </form>
 <table>
   <thead>
     <tr>
@@ -23,7 +70,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for case in apicases %}
+    {% for case in cases %}
     <tr>
       <td>{{ loop.index }}</td>
       <td>{{ case['type'] }}</td>

@@ -7,7 +7,7 @@
 <form class="form-horizontal" id="new_apicase" name="caseManage_new_apicase"
   action="{{ url_for('caseManage_new_apicase') }}" method="post">
   <div class="form-group">
-    <label for="type">用例类型</label>
+    <label for="type">用例类型<span style="color:red">*</span></label>
     <input id="type" list="types" class="form-control required" name="type" maxlength="200" placeholder="请选择用例类型"
       onchange="delPreNext()">
     <datalist id="types">
@@ -16,7 +16,7 @@
     </datalist>
   </div>
   <div class="form-group">
-    <label for="product">所属产品</label>
+    <label for="product">所属产品<span style="color:red">*</span></label>
     <input id="model_oma" value="{{ model_oma }}" style="display: none;">
     <input id="model_sicap" value="{{ model_sicap }}" style="display: none;">
     <input id="product" list="products" class="form-control required" name="product" maxlength="200"
@@ -28,7 +28,7 @@
     </datalist>
   </div>
   <div class="form-group">
-    <label for="version">用例版本</label>
+    <label for="version">用例版本<span style="color:red">*</span></label>
     <input id="version" list="versions" class="form-control required" name="version" maxlength="200"
       placeholder="请选择用例版本">
     <datalist id="versions">
@@ -38,13 +38,13 @@
     </datalist>
   </div>
   <div class="form-group">
-    <label for="model">所属模块</label>
+    <label for="model">所属模块<span style="color:red">*</span></label>
     <input id="model" list="models" class="form-control required" name="model" maxlength="200" placeholder="请选择模块">
     <datalist id="models" class="model_sicap">
     </datalist>
   </div>
   <div class="form-group">
-    <label for="name">名称</label>
+    <label for="name">名称<span style="color:red">*</span></label>
     <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称">
   </div>
   <div class="form-group">
@@ -67,7 +67,7 @@
       rows="5"></textarea>
   </div>
   <div class="form-group">
-    <label for="choice">操作步骤</label>
+    <label for="choice">操作步骤<span style="color:red">*</span></label>
     <input id="select" list="choice" class="form-control required" name="choice" maxlength="200" placeholder="请选择操作步骤"
       onchange="getElements()">
     <datalist id="choice">

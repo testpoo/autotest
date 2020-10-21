@@ -6,15 +6,15 @@
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
 <form class="form-horizontal" id="new_uiset" action="{{ url_for('new_uiset',id=id) }}" method="post">
     <div class="form-group">
-        <label for="keyword">步骤名称</label>
+        <label for="keyword">步骤名称<span style="color:red">*</span></label>
         <input type="text" class="form-control required" id="keyword" name="keyword" maxlength="200" placeholder="请输入用例名称">
     </div>
     <div class="form-group">
-        <label for="template">步骤模板</label>
+        <label for="template">步骤模板<span style="color:red">*</span></label>
         <input type="text" class="form-control required" id="template" name="template" maxlength="200" placeholder="请输入步骤模板">
     </div>
     <div class="form-group">
-        <label for="example">步骤样例</label>
+        <label for="example">步骤样例<span style="color:red">*</span></label>
         <input type="text" class="form-control required" id="example" name="example" maxlength="200" placeholder="请输入步骤样例">
     </div>
     <div class="form-group">

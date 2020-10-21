@@ -1,5 +1,9 @@
 {% extends "review/base_index.html" %}
 {% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
 <form action="{{ url_for('review_modify_passwd') }}" method=post>
   <div class="form-group">
     <label class="pwcha">当前密码<span style="color:red">*</span></label>

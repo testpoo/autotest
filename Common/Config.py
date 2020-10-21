@@ -16,16 +16,18 @@ sub_nav_api = [['测试用例','apicases'],['测试集','apisitues'],['测试报
 
 set_nav = [['注册','register'],['重置密码','reset_passwd']]
 
-operation = [['删除','delete'],['编辑','edit'],['查看','query'],['执行','exec']]
+operation = [['编辑','edit'],['查看','query'],['执行','exec'],['删除','delete']]
+
+recyclebin = [['恢复','restore'],['彻底删除','delete']]
 #==============================================================================================================
 # 案例管理
 #==============================================================================================================
 
 caseManage_nav = ['案例管理平台','UI自动化','接口自动化','设置']
 
-caseManage_sub_nav_ui = [['UI封装','uiset'],['测试用例','uicases']]
+caseManage_sub_nav_ui = [['UI封装','uiset'],['测试用例','uicases'],['测试用例回收站','uirecyclebin']]
 
-caseManage_sub_nav_api = [['接口集','apiset'],['测试用例','apicases']]
+caseManage_sub_nav_api = [['接口集','apiset'],['测试用例','apicases'], ['测试用例回收站','apirecyclebin']]
 
 caseManage_set_nav = [['版本号','versions']]
 
@@ -46,7 +48,7 @@ review_operation = [['审核','query'],['执行','exec']]
 #==============================================================================================================
 product = ['SiCAP','OMA']
 
-model_oma = '系统设置,信息管理,定时任务,审核复查,统计报表,基本运维,特殊运维,双人协助'
+model_oma = '首页,系统设置,信息管理,定时任务,审核复查,统计报表,基本运维,特殊运维,双人协助'
 
 model_sicap = '账号管理,资产管理,资产监控,自动化运维,运维中心,事件中心,流程中心,安全通报,等级保护,报表中心,系统设置'
 
@@ -166,7 +168,10 @@ def cn_to_uk(words):
 # 能否转成字典
 def is_dict(str):
     try:
-        eval(str)
+        if type(eval(str)) == dict:
+            return True
+        else:
+            return False
     except SyntaxError:
         return False
     return True
@@ -174,7 +179,17 @@ def is_dict(str):
 # 能否转成列表
 def is_list(str):
     try:
-        eval(str)
+        if type(eval(str)) == list:
+            return True
+        else:
+            return False
     except SyntaxError:
         return False
     return True
+
+# 图片转base64
+def img_to_base64(imgurl):
+    with open(Screenshot+'/'+imgurl,'rb') as f:
+        img=base64.b64encode(f.read())
+        img='data:image/png;base64,'+str(img, encoding = "utf-8")
+    return img

@@ -64,6 +64,8 @@ class RunTests(object):
         results = []
         finally_results = {'case_name': case_name, 'results': '',
                            'status': '', 'starttime': starttime, 'spenttime': '', 'error': ''}
+        false='false'
+        ture='true'
         status = '成功'
         for i in range(len(list_apis)):
             cases_cur = selectone('SELECT name, path, method, request, checks, parameter from apidates WHERE case_name=%s and name=%s', [
@@ -73,11 +75,12 @@ class RunTests(object):
             url = cases_list['path']
             method = cases_list['method']
             parameter = cases_list['parameter']
-            data = json.dumps(json.loads(cases['request']))
+            data = json.loads(cases_list['request'])
             if i>0 :
                 replace_param=results[-1]['new_param']
                 get_targe_value(data,replace_param)
             
+            data = json.dumps(data)
             checks = cases_list['checks']
 
             headers = para_headers

@@ -96,11 +96,39 @@ def uicases(num):
     if not session.get('logged_in'):
         abort(401)
     else:
+        error = None
         all_Count = selectall('SELECT count(1) FROM uicases where activity = "1"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
+        cur_usernames=selectall('SELECT b.zh_name FROM uicases a inner join user b ON a.username=b.username WHERE a.activity="1" GROUP BY a.username')
+        usernames=[dict(zh_name=row[0]) for row in cur_usernames]
+        cur_versions=selectall('SELECT version FROM uicases WHERE activity="1" group by version')
+        versions=[dict(version=row[0]) for row in cur_versions]
+        cur_models=selectall('SELECT model FROM uicases WHERE activity="1" group by model')
+        models=[dict(model=row[0]) for row in cur_models]
+        if request.method == 'POST':
+            if request.form['select-model'].strip() == '' or (request.form['query-name'].strip() == '' and request.form['query-version'].strip() == '' and request.form['query-model'].strip() == '' and request.form['query-username'].strip() == ''):
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="1" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('ui/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav,  operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按名称' and request.form['query-name'].strip() != '':
+                cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="1" and a.name like "%%%s%%" order by a.id desc LIMIT %s,%s' % (request.form['query-name'],(num-1)*page_Count,page_Count))
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('ui/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav,  operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')            
+            elif request.form['select-model'].strip() == '按版本' and request.form['query-version'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="1" and a.version=%s order by a.id desc LIMIT %s,%s',[request.form['query-version'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('ui/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases,nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按模块' and request.form['query-model'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="1" and a.model=%s order by a.id desc LIMIT %s,%s',[request.form['query-model'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('ui/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav,  operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按用户' and request.form['query-username'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="1" and b.zh_name=%s order by a.id desc LIMIT %s,%s',[request.form['query-username'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('ui/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases,nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav,  operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
         cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="1" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
-        return render_template('ui/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试用例')
+        return render_template('ui/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page,usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
 '''
 # UI CASE EDIT
 @app.route('/uicase_edit/<int:id>', methods=['GET', 'POST'])
@@ -150,9 +178,9 @@ def uicase_delete(id):
         if uicase_name in uisitues:
             error = "该用例被测试集引用，不能删除~！"
         else:
-            cur = addUpdateDel('delete from uicases where id=%s',[id])
+            cur = addUpdateDel('update uicases set activity = "2" where id=%s',[id])
 
-            cur_uicases_del= selectone("SELECT * FROM uicases where id=%s",[id])
+            cur_uicases_del= selectone("SELECT * FROM uicases where id=%s and activity !=2",[id])
             if cur_uicases_del == ():
                 flash('删除成功...')
             else:
@@ -210,7 +238,7 @@ def uisitues(num):
         all_Page = math.ceil(all_Count/page_Count)
         cur = selectone('SELECT a.id,a.name,a.exec_mode,a.steps,a.description,b.zh_name,a.create_date FROM uisitues a inner join user b on a.username=b.username order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         uisitues = [dict(id=row[0], name=row[1], exec_mode=row[2], steps=row[3], description=row[4], username=row[5], create_date=row[6]) for row in cur]
-        return render_template('ui/uisitues.html', SITEURL=SITEURL, username=session['username'], uisitues=uisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试集')
+        return render_template('ui/uisitues.html', SITEURL=SITEURL, username=session['username'], uisitues=uisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page,current="uisitues", pagename = '测试集')
 
 # UI SITUES EDIT
 @app.route('/uisitue_edit/<int:id>', methods=['GET', 'POST'])
@@ -328,7 +356,7 @@ def ui_report_list():
     else:
         for root,dirs,files in os.walk(path_ui):
             report_lists = files[::-1][0:18]
-        return render_template('report_list.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '测试报告列表',report_lists=report_lists,path = path_ui)
+        return render_template('report_list.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '测试报告列表',report_lists=report_lists,path = path_ui,current='ui_report_list')
 
 
 ###############################
@@ -344,7 +372,7 @@ def apisitues(num):
         all_Page = math.ceil(all_Count/page_Count)
         cur = selectone('SELECT a.id,a.name,a.exec_mode, a.steps,a.description,b.zh_name,a.create_date FROM apisitues a inner join user b on a.username=b.username order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apisitues = [dict(id=row[0], name=row[1], exec_mode=row[2], steps=row[3], description=row[4], username=row[5], create_date=row[6]) for row in cur]
-        return render_template('api/apisitues.html', SITEURL=SITEURL, username=session['username'], apisitues=apisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试集')
+        return render_template('api/apisitues.html', SITEURL=SITEURL, username=session['username'], apisitues=apisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试集',current='apisitues')
 
 # API SITUES EDIT
 @app.route('/apisitue_edit/<int:id>', methods=['GET', 'POST'])
@@ -466,7 +494,7 @@ def api_report_list():
     else:
         for root,dirs,files in os.walk(path_api):
             report_lists = files[::-1][0:18]
-        return render_template('report_list.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '测试报告列表',report_lists=report_lists,path = path_api)
+        return render_template('report_list.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '测试报告列表',report_lists=report_lists,path = path_api,current='api_report_list')
 
 # API CASE
 @app.route('/apicases/<int:num>', methods=['GET', 'POST'])
@@ -476,9 +504,36 @@ def apicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apicases where activity="1"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
+        cur_usernames=selectall('SELECT b.zh_name FROM apicases a inner join user b ON a.username=b.username WHERE a.activity="1" GROUP BY a.username')
+        usernames=[dict(zh_name=row[0]) for row in cur_usernames]
+        cur_versions=selectall('SELECT version FROM apicases WHERE activity="1" group by version')
+        versions=[dict(version=row[0]) for row in cur_versions]
+        cur_models=selectall('SELECT model FROM apicases WHERE activity="1" group by model')
+        models=[dict(model=row[0]) for row in cur_models]
+        if request.method == 'POST':
+            if request.form['select-model'].strip() == '' or (request.form['query-name'].strip() == '' and request.form['query-version'].strip() == '' and request.form['query-model'].strip() == '' and request.form['query-username'].strip() == ''):
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="1" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('api/apicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按名称' and request.form['query-name'].strip() != '':
+                cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="1" and a.name like "%%%s%%" order by a.id desc LIMIT %s,%s' % (request.form['query-name'],(num-1)*page_Count,page_Count))
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('api/apicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')            
+            elif request.form['select-model'].strip() == '按版本' and request.form['query-version'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="1" and a.version=%s order by a.id desc LIMIT %s,%s',[request.form['query-version'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('api/apicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按模块' and request.form['query-model'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="1" and a.model=%s order by a.id desc LIMIT %s,%s',[request.form['query-model'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('api/apicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按用户' and request.form['query-username'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="1" and b.zh_name=%s order by a.id desc LIMIT %s,%s',[request.form['query-username'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('api/apicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')
         cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, a.steps,a.type, a.pre_steps,a.next_steps FROM apicases a inner join user b on a.username=b.username where activity="1" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
-        apicases = [dict(id=row[0], version=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8], type=row[9], pre_steps=row[10], next_steps=row[11]) for row in cur]
-        return render_template('api/apicases.html',SITEURL=SITEURL, username=session['username'], apicases=apicases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '接口测试用例')
+        cases = [dict(id=row[0], version=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8], type=row[9], pre_steps=row[10], next_steps=row[11]) for row in cur]
+        return render_template('api/apicases.html',SITEURL=SITEURL, username=session['username'], cases=cases, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page,usernames=usernames,versions=versions,models=models,num=num, pagename = '接口测试用例',current='apicases')
 '''
 # API CASE EDIT
 @app.route('/apicase_edit/<int:id>', methods=['GET', 'POST'])
@@ -527,12 +582,10 @@ def apicase_delete(id):
         if apicase_name in apisitues:
             error = "该用例被测试集引用，不能删除~！"
         else:
-            addUpdateDel('delete from apicases where id=%s',[id])
-            addUpdateDel('delete from apidates where case_name=%s',[apicase_name])
+            cur = addUpdateDel('update apicases set activity = "2" where id=%s',[id])
 
-            cur_apicases_del= selectone("SELECT * FROM apicases where id=%s",[id])
-            cur_apidates_del= selectone("SELECT * FROM apidates where case_name=%s",[apicase_name])
-            if cur_apidates_del == () and cur_apidates_del == ():
+            cur_apicases_del= selectone("SELECT * FROM apicases where id=%s and activity !=2",[id])
+            if cur_apicases_del == ():
                 flash('删除成功...')
             else:
                 flash('删除失败...')
@@ -626,7 +679,7 @@ def uiset(num):
         all_Page = math.ceil(all_Count/page_Count)
         cur = selectone('SELECT a.id,a.keyword,a.description,a.template,a.example,b.zh_name,a.create_date FROM uiset a inner join user b on a.username=b.username order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         uisets = [dict(id=row[0], keyword=row[1], description=row[2], template=row[3], example=row[4], username=row[5], create_date=row[6]) for row in cur]
-        return render_template('set/uiset.html',SITEURL=SITEURL, username=session['username'],  uisets=uisets, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = 'UI步骤说明')
+        return render_template('set/uiset.html',SITEURL=SITEURL, username=session['username'],  uisets=uisets, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, current='uiset',pagename = 'UI封装')
 
 # UI SET EDIT
 @app.route('/caseManage/uiset_edit/<int:id>', methods=['GET', 'POST'])
@@ -707,7 +760,7 @@ def new_uiset():
                 flash('创建失败...')
 
             return redirect(url_for('uiset',num=1))
-    return render_template('set/new_uiset.html', SITEURL=SITEURL, username=session['username'], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, pagename = '新建UI步骤说明',error=error)
+    return render_template('set/new_uiset.html', SITEURL=SITEURL, username=session['username'], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, pagename = '新建UI封装',error=error)
 
 # API SET
 @app.route('/caseManage/apiset/<int:num>', methods=['GET', 'POST'])
@@ -719,7 +772,7 @@ def apiset(num):
         all_Page = math.ceil(all_Count/page_Count)
         cur = selectone('SELECT a.id,a.name,a.path,a.method,a.request,a.checks,a.description,b.zh_name,a.create_date FROM apiset a inner join user b on a.username=b.username order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apisets = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=row[4], checks=row[5], description=row[6], username=row[7], create_date=row[8]) for row in cur]
-        return render_template('set/apiset.html',SITEURL=SITEURL, username=session['username'], apisets=apisets, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = '全部接口')
+        return render_template('set/apiset.html',SITEURL=SITEURL, username=session['username'], apisets=apisets, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, current='apiset',pagename = '全部接口')
 
 # API SET EDIT
 @app.route('/caseManage/apiset_edit/<int:id>', methods=['GET', 'POST'])
@@ -877,7 +930,7 @@ def versions(num):
         all_Page = math.ceil(all_Count/page_Count)
         cur = selectone('SELECT a.id,a.version,b.zh_name,a.create_date FROM versions a inner join user b on a.username=b.username order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         versions = [dict(id=row[0], version=row[1], username=row[2], create_date=row[3]) for row in cur]
-        return render_template('version/versions.html', SITEURL=SITEURL, username=session['username'], versions=versions, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = '版本号')
+        return render_template('version/versions.html', SITEURL=SITEURL, username=session['username'], versions=versions, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page,current='versions', pagename = '版本号')
 
 ##############################
 #         caseManage
@@ -928,6 +981,7 @@ def caseManage_index(current_user):
         return redirect(url_for('caseManage_login'))
 
 # caseManage UI CASES
+'''
 @app.route('/caseManage/uicases/<int:num>', methods=['GET', 'POST'])
 def caseManage_uicases(num):
     if not session.get('logged_in'):
@@ -937,7 +991,47 @@ def caseManage_uicases(num):
         all_Page = math.ceil(all_Count/page_Count)
         cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
-        return render_template('caseManage/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = '测试用例')
+        return render_template('caseManage/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, num=num,pagename = '测试用例')
+'''
+# caseManage UI CASES list query
+@app.route('/caseManage/uicases/<int:num>', methods=['GET', 'POST'])
+def caseManage_uicases(num):
+    if not session.get('logged_in'):
+        abort(401)
+    else:
+        error = None
+        all_Count = selectall('SELECT count(1) FROM uicases where activity="0"')[0][0]
+        all_Page = math.ceil(all_Count/page_Count)
+        cur_usernames=selectall('SELECT b.zh_name FROM uicases a inner join user b ON a.username=b.username WHERE a.activity="0" GROUP BY a.username')
+        usernames=[dict(zh_name=row[0]) for row in cur_usernames]
+        cur_versions=selectall('SELECT version FROM uicases WHERE activity="0" group by version')
+        versions=[dict(version=row[0]) for row in cur_versions]
+        cur_models=selectall('SELECT model FROM uicases WHERE activity="0" group by model')
+        models=[dict(model=row[0]) for row in cur_models]
+        if request.method == 'POST':
+            if request.form['select-model'].strip() == '' or (request.form['query-name'].strip() == '' and request.form['query-version'].strip() == '' and request.form['query-model'].strip() == '' and request.form['query-username'].strip() == ''):
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按名称' and request.form['query-name'].strip() != '':
+                cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" and a.name like "%%%s%%" order by a.id desc LIMIT %s,%s' % (request.form['query-name'],(num-1)*page_Count,page_Count))
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')            
+            elif request.form['select-model'].strip() == '按版本' and request.form['query-version'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" and a.version=%s order by a.id desc LIMIT %s,%s',[request.form['query-version'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按模块' and request.form['query-model'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" and a.model=%s order by a.id desc LIMIT %s,%s',[request.form['query-model'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按用户' and request.form['query-username'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" and b.zh_name=%s order by a.id desc LIMIT %s,%s',[request.form['query-username'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
+        cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" and a.username=%s order by a.id desc LIMIT %s,%s',[session['username'],(num-1)*page_Count,page_Count])
+        cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+        return render_template('caseManage/uicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, num=num,usernames=usernames,versions=versions,models=models,current='uicases',pagename = '测试用例')
 
 # caseManage UI CASE EDIT
 @app.route('/caseManage/uicase_edit/<int:id>', methods=['GET', 'POST'])
@@ -946,7 +1040,7 @@ def caseManage_uicase_edit(id):
     if not session.get('logged_in'):
         abort(401)
     else:
-        issuetype = selectall('select name from uicases where type="公共用例"')
+        issuetype = selectall('select name from uicases')
         issuetypes = [dict(name=row[0]) for row in issuetype]
 
         cur = selectall('SELECT keyword FROM uiset')
@@ -1014,9 +1108,9 @@ def caseManage_uicase_delete(id):
         if uicase_name in uisitues:
             error = "该用例被测试集引用，不能删除~！"
         else:
-            cur = addUpdateDel('delete from uicases where id=%s',[id])
+            cur = addUpdateDel('update uicases set activity = "2" where id=%s',[id])
 
-            cur_uicases_del= selectone("SELECT * FROM uicases where id=%s",[id])
+            cur_uicases_del= selectone("SELECT * FROM uicases where id=%s and activity !=2",[id])
             if cur_uicases_del == ():
                 flash('删除成功...')
             else:
@@ -1035,6 +1129,82 @@ def caseManage_uicase_exec(id):
         res = newrun.getTestCases()
         return render_template('caseManage/uicase_exec.html',res=res,SITEURL=SITEURL, username=session['username'], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, pagename = '用例执行结果')
 
+# caseManage UI CASES recyclebin
+@app.route('/caseManage/uirecyclebin/<int:num>', methods=['GET', 'POST'])
+def caseManage_uirecyclebin(num):
+    if not session.get('logged_in'):
+        abort(401)
+    else:
+        error = None
+        all_Count = selectall('SELECT count(1) FROM uicases where activity="2"')[0][0]
+        all_Page = math.ceil(all_Count/page_Count)
+        cur_usernames=selectall('SELECT b.zh_name FROM uicases a inner join user b ON a.username=b.username WHERE a.activity="2" GROUP BY a.username')
+        usernames=[dict(zh_name=row[0]) for row in cur_usernames]
+        cur_versions=selectall('SELECT version FROM uicases WHERE activity="2" group by version')
+        versions=[dict(version=row[0]) for row in cur_versions]
+        cur_models=selectall('SELECT model FROM uicases WHERE activity="2" group by model')
+        models=[dict(model=row[0]) for row in cur_models]
+        if request.method == 'POST':
+            if request.form['select-model'].strip() == '' or (request.form['query-name'].strip() == '' and request.form['query-version'].strip() == '' and request.form['query-model'].strip() == '' and request.form['query-username'].strip() == ''):
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="2" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/uicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uirecyclebin', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按名称' and request.form['query-name'].strip() != '':
+                cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="2" and a.name like "%%%s%%" order by a.id desc LIMIT %s,%s' % (request.form['query-name'],(num-1)*page_Count,page_Count))
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/uicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uirecyclebin', pagename = '测试用例回收站')            
+            elif request.form['select-model'].strip() == '按版本' and request.form['query-version'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="2" and a.version=%s order by a.id desc LIMIT %s,%s',[request.form['query-version'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/uicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uirecyclebin', pagename = '测试用例回收站')
+            elif request.form['select-model'].strip() == '按模块' and request.form['query-model'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="2" and a.model=%s order by a.id desc LIMIT %s,%s',[request.form['query-model'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/uicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uirecyclebin', pagename = '测试用例回收站')
+            elif request.form['select-model'].strip() == '按用户' and request.form['query-username'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="2" and b.zh_name=%s order by a.id desc LIMIT %s,%s',[request.form['query-username'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/uicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uirecyclebin', pagename = '测试用例回收站')
+        cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="2" and a.username=%s order by a.id desc LIMIT %s,%s',[session['username'],(num-1)*page_Count,page_Count])
+        cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+        return render_template('caseManage/uicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page, num=num,usernames=usernames,versions=versions,models=models,current='uirecyclebin',pagename = '测试用例回收站')
+
+# caseManage UI CASE DELETE forever
+@app.route('/caseManage/uicase_recyclebin_delete/<int:id>', methods=['GET', 'POST'])
+def caseManage_uicase_recyclebin_delete(id):
+    if not session.get('logged_in'):
+        abort(401)
+    else:
+        uicase = selectone('select name from uicases where id=%s',[id])
+        uicases = [dict(name=row[0]) for row in uicase]
+        uicase_name = uicases[0]['name']
+        
+        cur = addUpdateDel('delete from uicases where id=%s and activity=2',[id])
+
+        cur_uicases_del= selectone("SELECT * FROM uicases where id=%s and activity=2",[id])
+        if cur_uicases_del == ():
+            flash('删除成功...')
+        else:
+            flash('删除失败...')
+
+        return redirect(url_for('caseManage_uirecyclebin',num=1))
+
+# caseManage UI CASE DELETE restore
+@app.route('/caseManage/uicase_recyclebin_restore/<int:id>', methods=['GET', 'POST'])
+def caseManage_uicase_recyclebin_restore(id):
+    if not session.get('logged_in'):
+        abort(401)
+    else:
+        cur = addUpdateDel('update uicases set activity=0 where id=%s and activity=2',[id])
+
+        cur_uicases_del= selectone("SELECT * FROM uicases where id=%s and activity not in (2,1)",[id])
+        if cur_uicases_del == ():
+            flash('恢复成功...')
+        else:
+            flash('恢复失败...')
+
+        return redirect(url_for('caseManage_uirecyclebin',num=1))
+
 # caseManage NEW UI CASE
 @app.route('/caseManage/new_uicase', methods=['GET', 'POST'])
 def caseManage_new_uicase():
@@ -1046,7 +1216,7 @@ def caseManage_new_uicase():
     versions = [dict(version=row[0]) for row in version]
     versions = [version['version'] for version in versions]
 
-    issuetype = selectall('select name from uicases where type="公共用例"')
+    issuetype = selectall('select name from uicases')
     issuetypes = [dict(name=row[0]) for row in issuetype]
 
     cur = selectall('SELECT keyword FROM uiset')
@@ -1060,6 +1230,8 @@ def caseManage_new_uicase():
             error = '必输项不能为空'
         elif request.form['name'].strip() in uinames:
             error = "该用例已经存在"
+        elif request.form['version'].strip() not in versions:
+            error = "请选择正确的版本号"
         else:
             addUpdateDel('insert into uicases (type,version, model, product, name, pre_steps,steps,next_steps, description,activity, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
                          [request.form['type'],request.form['version'], request.form['model'], request.form['product'], request.form['name'],request.form['pre-steps'], cn_to_uk(request.form['steps']),request.form['next-steps'], request.form['description'], '0', session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
@@ -1073,17 +1245,45 @@ def caseManage_new_uicase():
             return redirect(url_for('caseManage_uicases',num=1))
     return render_template('caseManage/new_uicase.html', list_steps=list_steps, SITEURL=SITEURL, username=session['username'], versions=versions, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, pagename = '新增测试用例', product=product, model_oma=model_oma, model_sicap=model_sicap, issuetypes=issuetypes, error=error)
 
-# caseManage API CASE
+# caseManage api CASES list query
 @app.route('/caseManage/apicases/<int:num>', methods=['GET', 'POST'])
 def caseManage_apicases(num):
     if not session.get('logged_in'):
         abort(401)
     else:
+        error = None
         all_Count = selectall('SELECT count(1) FROM apicases where activity="0"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        cur = selectone('SELECT a.id,a.type,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, a.steps,a.pre_steps,a.next_steps FROM apicases a inner join user b on a.username=b.username where activity="0" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
-        apicases = [dict(id=row[0], type=row[1],version=row[2], product=row[3], model=row[4], name=row[5], description=row[6], username=row[7], create_date=row[8], steps=row[9], pre_steps=row[10], next_steps=row[11]) for row in cur]
-        return render_template('caseManage/apicases.html',SITEURL=SITEURL, username=session['username'], apicases=apicases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, pagename = '接口测试用例')
+        cur_usernames=selectall('SELECT b.zh_name FROM apicases a inner join user b ON a.username=b.username WHERE a.activity="0" GROUP BY a.username')
+        usernames=[dict(zh_name=row[0]) for row in cur_usernames]
+        cur_versions=selectall('SELECT version FROM apicases WHERE activity="0" group by version')
+        versions=[dict(version=row[0]) for row in cur_versions]
+        cur_models=selectall('SELECT model FROM apicases WHERE activity="0" group by model')
+        models=[dict(model=row[0]) for row in cur_models]
+        if request.method == 'POST':
+            if request.form['select-model'].strip() == '' or (request.form['query-name'].strip() == '' and request.form['query-version'].strip() == '' and request.form['query-model'].strip() == '' and request.form['query-username'].strip() == ''):
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="0" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/apicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按名称' and request.form['query-name'].strip() != '':
+                cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="0" and a.name like "%%%s%%" order by a.id desc LIMIT %s,%s' % (request.form['query-name'],(num-1)*page_Count,page_Count))
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/apicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')            
+            elif request.form['select-model'].strip() == '按版本' and request.form['query-version'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="0" and a.version=%s order by a.id desc LIMIT %s,%s',[request.form['query-version'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/apicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按模块' and request.form['query-model'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="0" and a.model=%s order by a.id desc LIMIT %s,%s',[request.form['query-model'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/apicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按用户' and request.form['query-username'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="0" and b.zh_name=%s order by a.id desc LIMIT %s,%s',[request.form['query-username'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/apicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')
+        cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="0" and a.username=%s order by a.id desc LIMIT %s,%s',[session['username'],(num-1)*page_Count,page_Count])
+        cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+        return render_template('caseManage/apicases.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, num=num,usernames=usernames,versions=versions,models=models,current='apicases',pagename = '测试用例')
 
 # caseManage API CASE EDIT
 @app.route('/caseManage/apicase_edit/<int:id>', methods=['GET', 'POST'])
@@ -1115,25 +1315,31 @@ def caseManage_apicase_query(id):
             case_details.append(case_detail[0])
         return render_template('caseManage/apicase_query.html',SITEURL=SITEURL, username=session['username'], case_details=case_details, case=cases[0], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, pagename = '接口查看')
 
-# caseManage API CASE DELETE
+# caseManage api CASE DELETE
 @app.route('/caseManage/apicase_delete/<int:id>', methods=['GET', 'POST'])
 def caseManage_apicase_delete(id):
     if not session.get('logged_in'):
         abort(401)
     else:
+        apisitue = selectall('select steps from apisitues')
+        apisitues = [dict(steps=row[0]) for row in apisitue]
+        apisitues = [apisitue['steps'] for apisitue in apisitues]
+
         apicase = selectone('select name from apicases where id=%s',[id])
         apicases = [dict(name=row[0]) for row in apicase]
         apicase_name = apicases[0]['name']
         
-        addUpdateDel('delete from apicases where id=%s',[id])
-        addUpdateDel('delete from apidates where case_name=%s',[apicase_name])
-
-        cur_apicases_del= selectone("SELECT * FROM apicases where id=%s",[id])
-        cur_apidates_del= selectone("SELECT * FROM apidates where case_name=%s",[apicase_name])
-        if cur_apicases_del == () and cur_apidates_del == ():
-            flash('删除成功...')
+        if apicase_name in apisitues:
+            error = "该用例被测试集引用，不能删除~！"
         else:
-            flash('删除失败...')
+            cur = addUpdateDel('update apicases set activity = "2" where id=%s',[id])
+
+            cur_apicases_del= selectone("SELECT * FROM apicases where id=%s and activity !=2",[id])
+            if cur_apicases_del == ():
+                flash('删除成功...')
+            else:
+                flash('删除失败...')
+
         return redirect(url_for('caseManage_apicases',num=1))
 
 # caseManage API CASE EXEC
@@ -1148,6 +1354,84 @@ def caseManage_apicase_exec(id):
 
         return render_template('caseManage/apicase_exec.html',SITEURL=SITEURL, username=session['username'], res=res,caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, pagename = '接口执行结果')
 
+# caseManage API CASES recyclebin
+@app.route('/caseManage/apirecyclebin/<int:num>', methods=['GET', 'POST'])
+def caseManage_apirecyclebin(num):
+    if not session.get('logged_in'):
+        abort(401)
+    else:
+        error = None
+        all_Count = selectall('SELECT count(1) FROM apicases where activity="2"')[0][0]
+        all_Page = math.ceil(all_Count/page_Count)
+        cur_usernames=selectall('SELECT b.zh_name FROM apicases a inner join user b ON a.username=b.username WHERE a.activity="2" GROUP BY a.username')
+        usernames=[dict(zh_name=row[0]) for row in cur_usernames]
+        cur_versions=selectall('SELECT version FROM apicases WHERE activity="2" group by version')
+        versions=[dict(version=row[0]) for row in cur_versions]
+        cur_models=selectall('SELECT model FROM apicases WHERE activity="2" group by model')
+        models=[dict(model=row[0]) for row in cur_models]
+        if request.method == 'POST':
+            if request.form['select-model'].strip() == '' or (request.form['query-name'].strip() == '' and request.form['query-version'].strip() == '' and request.form['query-model'].strip() == '' and request.form['query-username'].strip() == ''):
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="2" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/apicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apirecyclebin', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按名称' and request.form['query-name'].strip() != '':
+                cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="2" and a.name like "%%%s%%" order by a.id desc LIMIT %s,%s' % (request.form['query-name'],(num-1)*page_Count,page_Count))
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/apicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apirecyclebin', pagename = '测试用例回收站')            
+            elif request.form['select-model'].strip() == '按版本' and request.form['query-version'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="2" and a.version=%s order by a.id desc LIMIT %s,%s',[request.form['query-version'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/apicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apirecyclebin', pagename = '测试用例回收站')
+            elif request.form['select-model'].strip() == '按模块' and request.form['query-model'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="2" and a.model=%s order by a.id desc LIMIT %s,%s',[request.form['query-model'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/apicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apirecyclebin', pagename = '测试用例回收站')
+            elif request.form['select-model'].strip() == '按用户' and request.form['query-username'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="2" and b.zh_name=%s order by a.id desc LIMIT %s,%s',[request.form['query-username'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('caseManage/apicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apirecyclebin', pagename = '测试用例回收站')
+        cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="2" and a.username=%s order by a.id desc LIMIT %s,%s',[session['username'],(num-1)*page_Count,page_Count])
+        cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+        return render_template('caseManage/apicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page, num=num,usernames=usernames,versions=versions,models=models,current='apirecyclebin',pagename = '测试用例回收站')
+
+# caseManage api CASE DELETE forever
+@app.route('/caseManage/apicase_recyclebin_delete/<int:id>', methods=['GET', 'POST'])
+def caseManage_apicase_recyclebin_delete(id):
+    if not session.get('logged_in'):
+        abort(401)
+    else:
+        apicase = selectone('select name from apicases where id=%s',[id])
+        apicases = [dict(name=row[0]) for row in apicase]
+        apicase_name = apicases[0]['name']
+        
+        addUpdateDel('delete from apicases where id=%s and activity=2',[id])
+        addUpdateDel('delete from apidates where case_name=%s',[apicase_name])
+
+        cur_apidates_del= selectone("SELECT * FROM apidates where case_name=%s",[apicase_name])
+        cur_apicases_del= selectone("SELECT * FROM apicases where id=%s and activity=2",[id])
+        if cur_apidates_del == () and cur_apidates_del == ():
+            flash('删除成功...')
+        else:
+            flash('删除失败...')
+
+        return redirect(url_for('caseManage_apirecyclebin',num=1))
+
+# caseManage api CASE DELETE restore
+@app.route('/caseManage/apicase_recyclebin_restore/<int:id>', methods=['GET', 'POST'])
+def caseManage_apicase_recyclebin_restore(id):
+    if not session.get('logged_in'):
+        abort(401)
+    else:
+        cur = addUpdateDel('update apicases set activity=0 where id=%s and activity=2',[id])
+
+        cur_apicases_del= selectone("SELECT * FROM apicases where id=%s and activity not in (2,1)",[id])
+        if cur_apicases_del == ():
+            flash('恢复成功...')
+        else:
+            flash('恢复失败...')
+
+        return redirect(url_for('caseManage_apirecyclebin',num=1))
+
 # caseManage NEW API CASE
 @app.route('/caseManage/new_apicase', methods=['GET', 'POST'])
 def caseManage_new_apicase():
@@ -1161,7 +1445,7 @@ def caseManage_new_apicase():
     versions = [dict(version=row[0]) for row in version]
     versions = [version['version'] for version in versions]
 
-    issuetype = selectall('select name from apicases where type="公共用例"')
+    issuetype = selectall('select name from apicases')
     issuetypes = [dict(name=row[0]) for row in issuetype]
 
     if request.method == 'POST':
@@ -1173,6 +1457,8 @@ def caseManage_new_apicase():
             error = '必输项不能为空'
         elif request.form['name'].strip() in apinames:
             error = "该用例已经存在"
+        elif request.form['version'].strip() not in versions:
+            error = "请选择正确的版本号"
         else:
             addUpdateDel('insert into apicases (type, version, model, product, name, pre_steps, steps, next_steps, description,activity, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
                          [request.form['type'], request.form['version'], request.form['model'], request.form['product'], request.form['name'], request.form['pre-steps'], request.form['steps'], request.form['next-steps'], request.form['description'], '0', session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
@@ -1253,7 +1539,7 @@ def caseManage_modify_passwd():
     error = None
     if request.method == 'POST':
         cur = selectone('select password from user where username = %s',(session['username'],))
-        pw = cur.fetchone()[0]
+        pw = cur[0][0]
         if request.form['pw_old'].strip() == '' or request.form['pw_new_o'].strip() == '' or request.form['pw_new_t'].strip() == '':
             error = '请输入密码'
         elif request.form['pw_old'].strip() != decrypt(pw):
@@ -1326,9 +1612,36 @@ def review_uicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM uicases where activity = "0"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
+        cur_usernames=selectall('SELECT b.zh_name FROM uicases a inner join user b ON a.username=b.username WHERE a.activity="0" GROUP BY a.username')
+        usernames=[dict(zh_name=row[0]) for row in cur_usernames]
+        cur_versions=selectall('SELECT version FROM uicases WHERE activity="0" group by version')
+        versions=[dict(version=row[0]) for row in cur_versions]
+        cur_models=selectall('SELECT model FROM uicases WHERE activity="0" group by model')
+        models=[dict(model=row[0]) for row in cur_models]
+        if request.method == 'POST':
+            if request.form['select-model'].strip() == '' or (request.form['query-name'].strip() == '' and request.form['query-version'].strip() == '' and request.form['query-model'].strip() == '' and request.form['query-username'].strip() == ''):
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('review/uireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按名称' and request.form['query-name'].strip() != '':
+                cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" and a.name like "%%%s%%" order by a.id desc LIMIT %s,%s' % (request.form['query-name'],(num-1)*page_Count,page_Count))
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('review/uireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')            
+            elif request.form['select-model'].strip() == '按版本' and request.form['query-version'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" and a.version=%s order by a.id desc LIMIT %s,%s',[request.form['query-version'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('review/uireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按模块' and request.form['query-model'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" and a.model=%s order by a.id desc LIMIT %s,%s',[request.form['query-model'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('review/uireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按用户' and request.form['query-username'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" and b.zh_name=%s order by a.id desc LIMIT %s,%s',[request.form['query-username'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('review/uireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
         cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="0" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
-        return render_template('review/uireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, pagename = '测试用例')
+        return render_template('review/uireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page,usernames=usernames,versions=versions,models=models,num=num,current='uicases', pagename = '测试用例')
 
 # REVIEW UI CASE QUERY
 @app.route('/review/uicase_query/<int:id>', methods=['GET', 'POST'])
@@ -1375,9 +1688,36 @@ def review_apicases(num):
     else:
         all_Count = selectall('SELECT count(1) FROM apicases where activity="0"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
+        cur_usernames=selectall('SELECT b.zh_name FROM apicases a inner join user b ON a.username=b.username WHERE a.activity="0" GROUP BY a.username')
+        usernames=[dict(zh_name=row[0]) for row in cur_usernames]
+        cur_versions=selectall('SELECT version FROM apicases WHERE activity="0" group by version')
+        versions=[dict(version=row[0]) for row in cur_versions]
+        cur_models=selectall('SELECT model FROM apicases WHERE activity="0" group by model')
+        models=[dict(model=row[0]) for row in cur_models]
+        if request.method == 'POST':
+            if request.form['select-model'].strip() == '' or (request.form['query-name'].strip() == '' and request.form['query-version'].strip() == '' and request.form['query-model'].strip() == '' and request.form['query-username'].strip() == ''):
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="0" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('review/apireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按名称' and request.form['query-name'].strip() != '':
+                cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="0" and a.name like "%%%s%%" order by a.id desc LIMIT %s,%s' % (request.form['query-name'],(num-1)*page_Count,page_Count))
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('review/apireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')            
+            elif request.form['select-model'].strip() == '按版本' and request.form['query-version'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="0" and a.version=%s order by a.id desc LIMIT %s,%s',[request.form['query-version'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('review/apireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按模块' and request.form['query-model'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="0" and a.model=%s order by a.id desc LIMIT %s,%s',[request.form['query-model'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('review/apireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')
+            elif request.form['select-model'].strip() == '按用户' and request.form['query-username'].strip() != '':
+                cur = selectone('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="0" and b.zh_name=%s order by a.id desc LIMIT %s,%s',[request.form['query-username'],(num-1)*page_Count,page_Count])
+                cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], zh_name=row[10], create_date=row[11]) for row in cur]
+                return render_template('review/apireview.html', SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num,current='apicases', pagename = '测试用例')
         cur = selectone('SELECT a.id,a.version,a.product,a.model,a.name,a.description,b.zh_name,a.create_date, steps,pre_steps,next_steps,type FROM apicases a inner join user b on a.username=b.username where activity="0" order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
-        apicases = [dict(id=row[0], version=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8], pre_steps=row[9], next_steps=row[10], type=row[11]) for row in cur]
-        return render_template('review/apireview.html',SITEURL=SITEURL, username=session['username'], apicases=apicases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, pagename = '用例审核')
+        cases = [dict(id=row[0], version=row[1], product=row[2], model=row[3], name=row[4], description=row[5], username=row[6], create_date=row[7], steps=row[8], pre_steps=row[9], next_steps=row[10], type=row[11]) for row in cur]
+        return render_template('review/apireview.html',SITEURL=SITEURL, username=session['username'], cases=cases, review_nav=review_nav, review_sub_nav_ui = review_sub_nav_ui, review_sub_nav_api = review_sub_nav_api, review_operation=review_operation, all_Page=all_Page, usernames=usernames,versions=versions,models=models,num=num, current='apicases',pagename = '用例审核')
 
 # REVIEW API CASE QUERY
 @app.route('/review/apicase_query/<int:id>', methods=['GET', 'POST'])
@@ -1389,7 +1729,6 @@ def review_apicase_query(id):
         cases = [dict(type=row[0], version=row[1], name=row[2], product=row[3], model=row[4], pre_steps=row[5], steps=row[6], next_steps=row[7], description=row[8]) for row in cur]
         steps = cases[0]['steps'].split('\r\n')
         case_name = cases[0]['name']
-        print(case_name)
         case_details = []
         for i in range(len(steps)):
             cur = selectone('select name,path,method,request,checks,parameter from apidates where case_name=%s and name=%s',[case_name,str(i)+'_'+steps[i]])
@@ -1433,7 +1772,7 @@ def review_modify_passwd():
     error = None
     if request.method == 'POST':
         cur = selectone('select password from user where username = %s',(session['username'],))
-        pw = cur.fetchone()[0]
+        pw = cur[0][0]
         if request.form['pw_old'].strip() == '' or request.form['pw_new_o'].strip() == '' or request.form['pw_new_t'].strip() == '':
             error = '请输入密码'
         elif request.form['pw_old'].strip() != decrypt(pw):
@@ -1512,8 +1851,8 @@ def modify_passwd():
         abort(401)
     error = None
     if request.method == 'POST':
-        cur = selectone('select password from user where username = %s',(session['username'],))
-        pw = cur.fetchone()[0]
+        cur = selectone('select password from user where username = %s',(session['username']))
+        pw = cur[0][0]
         if request.form['pw_old'].strip() == '' or request.form['pw_new_o'].strip() == '' or request.form['pw_new_t'].strip() == '':
             error = '请输入密码'
         elif request.form['pw_old'].strip() != decrypt(pw):

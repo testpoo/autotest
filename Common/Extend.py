@@ -314,8 +314,6 @@ class Extend(object):
         描述：验证当前页中title是否在给定得字符串中
         用法：self.assert_title()
         """
-        print(self.driver.title)
-        print(type(self.driver.title))
         TestCase().assertIn(text, self.driver.title)
    
     def assertText(self,type,value,text):

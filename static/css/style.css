@@ -363,3 +363,28 @@ a.addElement {
     line-height: 25px;
     cursor:pointer;
 }
+
+.float-left {
+    float: left;
+    height: 42px;
+    margin: 10px;
+    color: #676a6c;
+}
+
+.float-left .button {
+    width: 100px;
+    color: #676a6c;
+}
+
+.float-label {
+    width:200px;
+}
+
+.uicase_list_query,.apicase_list_query {
+    display: none;
+}
+
+.current {
+    font-weight: bold;
+    color: steelblue;
+}

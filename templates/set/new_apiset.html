@@ -6,7 +6,7 @@
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
 <form class="form-horizontal" id="new_apiset" action="{{ url_for('new_apiset',id=id) }}" method="post">
     <div class="form-group">
-        <label for="name">名称</label>
+        <label for="name">名称<span style="color:red">*</span></label>
         <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称">
     </div>
     <div class="form-group">
@@ -15,11 +15,11 @@
             placeholder="请输入用例描述">
     </div>
     <div class="form-group">
-        <label for="path">路径</label>
+        <label for="path">路径<span style="color:red">*</span></label>
         <input type="text" class="form-control required" id="path" name="path" maxlength="200" placeholder="请输入路径">
     </div>
     <div class="form-group">
-        <label for="method">http方法</label>
+        <label for="method">http方法<span style="color:red">*</span></label>
         <input id="select" list="method" class="form-control required" name="method" maxlength="200"
             placeholder="请选择http方法">
         <datalist id="method">
@@ -29,7 +29,7 @@
         </datalist>
     </div>
     <div class="form-group">
-        <label for="request">请求</label>
+        <label for="request">请求<span style="color:red">*</span></label>
         <textarea class="form-control required" id="request" name="request" placeholder="请输入请求" cols="30"
             rows="5"></textarea>
     </div>

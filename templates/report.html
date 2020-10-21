@@ -7437,7 +7437,8 @@
 									<div class="form-group">
 										<label class="col-sm-2 control-label text-navy">用例通过:</label>
 										<div class="col-sm-5">
-											<span class="form-control" id="testPass">{{ content['testPass_count'] }}</span>
+											<span class="form-control"
+												id="testPass">{{ content['testPass_count'] }}</span>
 										</div>
 									</div>
 									<div class="form-group">
@@ -7529,7 +7530,14 @@
 									<td>{{ case_report['spenttime'] }}</td>
 									<td>{{ case_report['status'] }}</td>
 									<td>{{ case_report['error'] }}</td>
-									<td>展开</td>
+									<td><a onclick="screenshot()" id="screenshot">截图</a> <a onclick="expandImg()" id="pickup" style="display: none;">收起</a></td>
+								</tr>
+								<tr id="expandImg" style="display: none;">
+									{% if case_report['Screenshot'] and case_report['Screenshot'] != '' %}
+									<td colspan="7">
+										<img src="{{ case_report['Screenshot'] }}">
+										{% endif %}
+									</td>
 								</tr>
 								{% endfor %}
 							</tbody>
@@ -7746,7 +7754,7 @@
 		var testSkip = Number(document.getElementById("testSkip").innerText);
 
 		var chartData = [[testPass, "#2dc6c8", "通过用例"], [testFail, "#b6a2dd", "失败用例"], [testSkip, "#5ab1ee", "跳过用例"]];
-        
+
 		//chartData[0][0] = Number(document.getElementById("testPass").innerText);
 		//chartData[1][0] = Number(document.getElementById("testFail").innerText);
 		//chartData[2][0] = Number(document.getElementById("testSkip").innerText);
@@ -7754,6 +7762,19 @@
 		goChart(chartData);
 
 
+	</script>
+	<script type="text/javascript">
+		// 截图弹窗
+		function screenshot() {
+			document.getElementById("expandImg").style.display = "contents";
+			document.getElementById("pickup").style.display = "block";
+			document.getElementById("screenshot").style.display = "none";
+		}
+		function expandImg() {
+			document.getElementById("expandImg").style.display = "none";
+			document.getElementById("pickup").style.display = "none";
+			document.getElementById("screenshot").style.display = "block";
+		}
 	</script>
 </body>
 

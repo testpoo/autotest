@@ -42,37 +42,37 @@ function loading() {
 
 // 公共案例去掉前置后置事件
 function delPreNext() {
-  if (document.getElementById("type").value == '公共用例'){
-    for (var i=0;i<4;i++){
+  if (document.getElementById("type").value == '公共用例') {
+    for (var i = 0; i < 4; i++) {
       document.getElementsByClassName("delPreNext")[i].style.display = "none";
     }
   }
   else {
-    for (var i=0;i<4;i++){
+    for (var i = 0; i < 4; i++) {
       document.getElementsByClassName("delPreNext")[i].style.display = "block";
     }
   }
 }
 
 // 获取模块
-function getModel(model_oma,model_sicap) {
+function getModel(model_oma, model_sicap) {
   model_oma = model_oma.split(",");
   model_sicap = model_sicap.split(",");
   if (document.getElementById("product").value == 'SiCAP') {
     parent = document.getElementById("models");
     parent.innerHTML = "";
-    for (var i=0;i<model_sicap.length;i++) {
-      var option=document.createElement('option');
-      option.value=model_sicap[i];
+    for (var i = 0; i < model_sicap.length; i++) {
+      var option = document.createElement('option');
+      option.value = model_sicap[i];
       parent.appendChild(option);
     }
   }
   else {
     parent = document.getElementById("models");
     parent.innerHTML = "";
-    for (var i=0;i<model_oma.length;i++) {
-      var option=document.createElement('option');
-      option.value=model_oma[i];
+    for (var i = 0; i < model_oma.length; i++) {
+      var option = document.createElement('option');
+      option.value = model_oma[i];
       parent.appendChild(option);
     }
   }
@@ -80,7 +80,7 @@ function getModel(model_oma,model_sicap) {
 
 // 执行模式
 function getExecMode() {
-  if (document.getElementById("exec-mode").value == '按用例'){
+  if (document.getElementById("exec-mode").value == '按用例') {
     document.getElementById("select-issue-mode").style.display = "block";
     document.getElementById("select-model-mode").style.display = "none";
     document.getElementById("select-version-mode").style.display = "none";
@@ -137,17 +137,45 @@ function getVersionModes() {
   }
 }
 
+// 使用用户查询案例时，显示用户列表
+function getUsernames() {
+  if (document.getElementById("select-model").value == '按名称') {
+    document.getElementById("div-usernames").style.display = "none";
+    document.getElementById("div-names").style.display = "block";
+    document.getElementById("div-models").style.display = "none";
+    document.getElementById("div-versions").style.display = "none";
+  }
+  else if (document.getElementById("select-model").value == '按用户') {
+    document.getElementById("div-usernames").style.display = "block";
+    document.getElementById("div-names").style.display = "none";
+    document.getElementById("div-models").style.display = "none";
+    document.getElementById("div-versions").style.display = "none";
+  }
+  else if (document.getElementById("select-model").value == '按版本') {
+    document.getElementById("div-usernames").style.display = "none";
+    document.getElementById("div-names").style.display = "none";
+    document.getElementById("div-models").style.display = "none";
+    document.getElementById("div-versions").style.display = "block";
+  }
+  else if (document.getElementById("select-model").value == '按模块') {
+    document.getElementById("div-usernames").style.display = "none";
+    document.getElementById("div-names").style.display = "none";
+    document.getElementById("div-models").style.display = "block";
+    document.getElementById("div-versions").style.display = "none";
+  }
+}
+
 // 隐藏表格步骤过长的部分
 function more(id) {
-  document.getElementById('pack_'+id).style.display = "none";
-  document.getElementById('more_'+id).style.display = "block";
-  document.getElementById("expand_more_"+id).style.display = "none";
-  document.getElementById("expand_pack_"+id).style.display = "block";
+  document.getElementById('pack_' + id).style.display = "none";
+  document.getElementById('more_' + id).style.display = "block";
+  document.getElementById("expand_more_" + id).style.display = "none";
+  document.getElementById("expand_pack_" + id).style.display = "block";
 }
 
 function pack(id) {
-  document.getElementById('more_'+id).style.display = "none";
-  document.getElementById('pack_'+id).style.display = "block";
-  document.getElementById("expand_more_"+id).style.display = "block";
-  document.getElementById("expand_pack_"+id).style.display = "none";
+  document.getElementById('more_' + id).style.display = "none";
+  document.getElementById('pack_' + id).style.display = "block";
+  document.getElementById("expand_more_" + id).style.display = "block";
+  document.getElementById("expand_pack_" + id).style.display = "none";
 }
