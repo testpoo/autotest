@@ -41,8 +41,10 @@
       <td>{{ apisitue['create_date'] }}</td>
       <td>
         {% for opera,links in operation %}
+        {% if opera != '提交' %}
         <span class="opration"><a href="{{ SITEURL }}/apisitue_{{ links }}/{{ apisitue['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
+        {% endif %}
         {% endfor %}
       </td>
     </tr>

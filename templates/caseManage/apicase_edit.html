@@ -33,22 +33,18 @@
     <input type="text" class="form-control required" id="model" name="model" maxlength="200" placeholder="请输入用例模块"
         readonly unselectable="on" value={{ case['model'] }}>
 </div>
-{% if case['type'] == '普通用例' %}
 <div class="form-group">
     <label for="pre-steps">前置事务</label>
     <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入前置事务">{{ case['pre_steps'] }}</div>
 </div>
-{% endif %}
 <div class="form-group">
     <label for="steps">操作步骤</label>
     <div class="form-control required textarea" id="steps" name="steps" placeholder="请输入步骤">{{ case['steps'] }}</div>
 </div>
-{% if case['type'] == '普通用例' %}
 <div class="form-group">
     <label for="next-steps">后置事务</label>
     <div class="form-control required textarea" id="next-steps" name="next-steps" placeholder="请输入后置事务">{{ case['next_steps'] }}</div>
 </div>
-{% endif %}
 <div class="new">
     <ul>
         <li>

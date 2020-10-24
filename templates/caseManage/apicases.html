@@ -4,7 +4,7 @@
 <div class="alert">{{ message }}</div>
 {% endfor %}
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
-<form class="form-horizontal" id="caseManage_apicases" action="{{ url_for('caseManage_apicases',num=num) }}"
+<form class="form-horizontal" id="caseManage_apicases" action="{{ url_for('caseManage_apicases',category=category,value=value,num=num) }}"
   method="post">
   <div class="float-left">
     <label for="select-model" class="float-label">选择模块</label>
@@ -68,6 +68,7 @@
       <th>操作步骤</th>
       <th>后置事件</th>
       <th>描述</th>
+      <th>执行结果</th>
       <th>创建者</th>
       <th>创建时间</th>
       <th>操作</th>
@@ -108,7 +109,8 @@
         {% endfor %}
       </td>
       <td>{{ case['description'] }}</td>
-      <td>{{ case['username'] }}</td>
+      <td>{{ case['exec_result'] }}</td>
+      <td>{{ case['zh_name'] }}</td>
       <td>{{ case['create_date'] }}</td>
       <td>
         {% for opera,links in operation %}
@@ -119,9 +121,9 @@
     </tr>
     {% endfor %}
     <tr>
-      <td colspan="13">
+      <td colspan="14">
         {% for page in range(all_Page) %}
-        <span class="opration"><a href="{{ SITEURL }}/caseManage/apicases/{{ page+1 }}">{{ page+1 }}</a></span>
+        <span class="opration"><a href="{{ SITEURL }}/caseManage/apicases/{{ category }}/{{ value }}/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>

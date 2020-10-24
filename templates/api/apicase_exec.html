@@ -27,7 +27,7 @@
 <div class="form-group">
   <label for="error">错误日志</label>
   <input type="text" class="form-control required" id="error" name="error" maxlength="200" placeholder="请输入错误日志" readonly
-      unselectable="on" value={{ res['error'] }}>
+      unselectable="on" value={{ res['error'][0] if res['error'] !=[] else '' }}>
 </div>
 <table>
   <thead>
@@ -47,7 +47,7 @@
       <td>{{ r['case_name'] }}</td>
       <td>{{ r['name'] }}</td>
       <td>{{ r['status'] }}</td>
-      <td>{{ r['error'] }}</td>
+      <td>{{ r['error'][0] if r['error'] !=[] else '' }}</td>
       <td><span class="opration">展开</span></td>
     </tr>
     {% endfor %}

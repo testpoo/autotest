@@ -75,8 +75,8 @@
     <input id="next-choice" list="next-choices" class="form-control required" name="next-choice" maxlength="200" placeholder="请选择后置事务"
       onchange="getNexts()">
     <datalist id="next-choices">
-      {% for issuetype in issuetypes %}
-      <option value="{{ issuetype['name'] }}">
+      {% for nexttype in nexttypes %}
+      <option value="{{ nexttype['name'] }}">
         {% endfor %}
     </datalist>
   </div>

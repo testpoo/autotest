@@ -2,18 +2,26 @@
 {% block login %}
 <div id=nav>
     {% for n in caseManage_nav %}
-    <li class="nav"><a class="color" href="{{ SITEURL }}/caseManage/{{ username }}">{{ n }}</a>
+    <li class="nav" id="title"><a class="color" href="{{ SITEURL }}/caseManage/{{ username }}">{{ n }}</a>
         {% if n == 'UI自动化' %}
         <ul id="submenu">
             {% for sub,slink in caseManage_sub_nav_ui %}
+            {% if sub in ('测试用例','测试用例回收站') %}
+            <li><a href="{{ SITEURL }}/caseManage/{{ slink }}/a.username/{{ username }}/1" class="{{ 'current' if slink == current else '' }}">{{ sub }}</a></li>
+            {% else %}
             <li><a href="{{ SITEURL }}/caseManage/{{ slink }}/1" class="{{ 'current' if slink == current else '' }}">{{ sub }}</a></li>
+            {% endif %}
             {% endfor %}
         </ul>
         {% endif %}
         {% if n == '接口自动化' %}
         <ul id="submenu">
             {% for sub,slink in caseManage_sub_nav_api %}
+            {% if sub in ('测试用例','测试用例回收站') %}
+            <li><a href="{{ SITEURL }}/caseManage/{{ slink }}/a.username/{{ username }}/1" class="{{ 'current' if slink == current else '' }}">{{ sub }}</a></li>
+            {% else %}
             <li><a href="{{ SITEURL }}/caseManage/{{ slink }}/1" class="{{ 'current' if slink == current else '' }}">{{ sub }}</a></li>
+            {% endif %}
             {% endfor %}
         </ul>
         {% endif %}

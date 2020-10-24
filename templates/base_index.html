@@ -3,18 +3,26 @@
 <div id=nav>
     {% if username == 'admin' %}
     {% for n in nav %}
-    <li class="nav"><a class="color" href="{{ SITEURL }}/{{ username }}">{{ n }}</a>
+    <li class="nav" id="title"><a class="color" href="{{ SITEURL }}/{{ username }}">{{ n }}</a>
         {% if n == 'UI自动化' %}
         <ul id="submenu">
             {% for sub,slink in sub_nav_ui %}
+            {% if sub == '测试用例' %}
+            <li><a href="{{ SITEURL }}/{{ slink }}/a.username/{{ username }}/1" class="{{ 'current' if slink == current else '' }}">{{ sub }}</a></li>
+            {% else %}
             <li><a href="{{ SITEURL }}/{{ slink }}/1">{{ sub }}</a></li>
+            {% endif %}
             {% endfor %}
         </ul>
         {% endif %}
         {% if n == '接口自动化' %}
         <ul id="submenu">
             {% for sub,slink in sub_nav_api %}
+            {% if sub == '测试用例' %}
+            <li><a href="{{ SITEURL }}/{{ slink }}/a.username/{{ username }}/1" class="{{ 'current' if slink == current else '' }}">{{ sub }}</a></li>
+            {% else %}
             <li><a href="{{ SITEURL }}/{{ slink }}/1">{{ sub }}</a></li>
+            {% endif %}
             {% endfor %}
         </ul>
         {% endif %}
@@ -33,14 +41,22 @@
         {% if n == 'UI自动化' %}
         <ul id="submenu">
             {% for sub,slink in sub_nav_ui %}
+            {% if sub == '测试用例' %}
+            <li><a href="{{ SITEURL }}/{{ slink }}/a.username/{{ username }}/1" class="{{ 'current' if slink == current else '' }}">{{ sub }}</a></li>
+            {% else %}
             <li><a href="{{ SITEURL }}/{{ slink }}/1" class="{{ 'current' if slink == current else '' }}">{{ sub }}</a></li>
+            {% endif %}
             {% endfor %}
         </ul>
         {% endif %}
         {% if n == '接口自动化' %}
         <ul id="submenu">
             {% for sub,slink in sub_nav_api %}
+            {% if sub == '测试用例' %}
+            <li><a href="{{ SITEURL }}/{{ slink }}/a.username/{{ username }}/1" class="{{ 'current' if slink == current else '' }}">{{ sub }}</a></li>
+            {% else %}
             <li><a href="{{ SITEURL }}/{{ slink }}/1" class="{{ 'current' if slink == current else '' }}">{{ sub }}</a></li>
+            {% endif %}
             {% endfor %}
         </ul>
         {% endif %}

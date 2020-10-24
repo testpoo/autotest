@@ -63,7 +63,7 @@ class RunTests(object):
         list_apis = [list_api['name'] for list_api in list_apis]
         results = []
         finally_results = {'case_name': case_name, 'results': '',
-                           'status': '', 'starttime': starttime, 'spenttime': '', 'error': ''}
+                           'status': '', 'starttime': starttime, 'spenttime': '', 'error': []}
         false='false'
         ture='true'
         status = '成功'
@@ -86,7 +86,7 @@ class RunTests(object):
             headers = para_headers
             err = ''
             result = {'case_name': case_name, 'name': name, 'url': url,
-                      'method': method, 'error': '', 'status': '失败','new_param':''}
+                      'method': method, 'error': [], 'status': '失败','new_param':''}
 
             try:
                 true=True
@@ -107,22 +107,23 @@ class RunTests(object):
                     result['status'] = "成功"
                 else:
                     result['status'] = "失败"
-                    result['error'] = "断言失败"
+                    result['error'].append("断言失败")
                     status = '失败'
-                    finally_results['error'] = result['error']
                     break
             except Exception as api_err:
                 LogUtility.logger.debug(
                     "Failed running test siutes, error message: {}".format(str(err)))
                 result['status'] = "失败"
-                result['error'] = str(api_err)
+                result['error'].append(str(api_err))
                 status = '失败'
                 break
             finally:
+                addUpdateDel('update apicases set exec_result=%s where id=%s',[status,self.id])
                 results.append(result)
 
         endtime = Config.getCurrentTime()
         spenttime = Config.timeDiff(starttime, endtime)
+        finally_results['error'] = result['error']
         finally_results['results'] = results
         finally_results['status'] = status
         finally_results['spenttime'] = spenttime
@@ -168,7 +169,7 @@ class RunTests(object):
                 self.id = str(ids[0])
                 res = self.getTestCases()
                 addUpdateDel('insert into report (case_name,type,product,status,spenttime,error,username,create_date) values (%s,%s,%s,%s,%s,%s,%s,%s)', [
-                             res['case_name'], 'api', str(ids[1]), res['status'], res['spenttime'], res['error'], self.username, time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+                             res['case_name'], 'api', str(ids[1]), res['status'], res['spenttime'], str(res['error']), self.username, time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
         except Exception as err:
             LogUtility.logger.debug(
                 "Failed running test siutes, error message: {}".format(str(err)))
@@ -182,7 +183,7 @@ class RunTests(object):
             testSkip_count = count-testPass_count-testFail_count
             cur = selectone(
                 'select case_name,type,product,status,spenttime,error,username from report where type="api" and username=%s', [self.username])
-            cases_report = [dict(case_name=row[0], type=row[1], product=row[2],status=row[3], spenttime=row[4], error=row[5], username=row[6]) for row in cur]
+            cases_report = [dict(case_name=row[0], type=row[1], product=row[2],status=row[3], spenttime=row[4], error=eval(row[5]), username=row[6]) for row in cur]
             content = {'cases_name': cases_name, 'count': count, 'testPass_count': testPass_count, 'testFail_count': testFail_count,
                        'testSkip_count': testSkip_count, 'starttime': starttime, 'spenttime': spenttime, 'cases_report': cases_report}
             report(cases_name, content, Config.path_api)

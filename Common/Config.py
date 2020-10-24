@@ -6,7 +6,7 @@ import base64
 SITEURL = "http://127.0.0.1:5000/"
 #SITEURL = "http://192.168.213.110:8000/"
 
-dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
+dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
 
 nav = ['自动化测试平台','UI自动化','接口自动化','设置']
 
@@ -16,7 +16,9 @@ sub_nav_api = [['测试用例','apicases'],['测试集','apisitues'],['测试报
 
 set_nav = [['注册','register'],['重置密码','reset_passwd']]
 
-operation = [['编辑','edit'],['查看','query'],['执行','exec'],['删除','delete']]
+operation = [['编辑','edit'],['查看','query'],['执行','exec'],['删除','delete'],['提交','submit']]
+
+operation_exec = [['查看','query'],['执行','exec'],['驳回','reject'],['删除','delete']]
 
 recyclebin = [['恢复','restore'],['彻底删除','delete']]
 #==============================================================================================================
@@ -54,7 +56,7 @@ model_sicap = '账号管理,资产管理,资产监控,自动化运维,运维中�
 
 http_methods = ['delete','get','patch','post','put']
 
-page_Count = 15
+page_Count = 5
 
 path_log = 'TestLog'
 
@@ -201,14 +203,6 @@ def delete_pre_next(cases,pre_next):
             return True
         else:
             return False
-
-# 合并列表
-def getAllList(lists):
-    all_listss = []
-    for list in lists:
-        all_listss.extend(list)
-    all_listss_new = [i for i in all_listss if i !='']
-    return all_listss_new
 
 # 计算UiSet长度
 def getParaLen():

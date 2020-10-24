@@ -7394,6 +7394,9 @@
 				font-size: 12px
 			}
 		}
+		img {
+			width: 1600px;
+		}
 	</style>
 </head>
 
@@ -7529,13 +7532,17 @@
 									<td>{{ case_report['product'] }}</td>
 									<td>{{ case_report['spenttime'] }}</td>
 									<td>{{ case_report['status'] }}</td>
-									<td>{{ case_report['error'] }}</td>
-									<td><a onclick="screenshot()" id="screenshot">截图</a> <a onclick="expandImg()" id="pickup" style="display: none;">收起</a></td>
+									<td>{% if case_report['error']|length==0 %}{{ '' }}{% elif case_report['error']|length==1 %}{{ case_report['error'][0] }}{% else %}{{ case_report['error'][0] }}<br />{{case_report['error'][1] }}{% endif %}
+									</td>
+									<td><a onclick="screenshot()" class="screenshot">截图</a> <a onclick="expandImg()"
+											class="pickup" style="display: none;">收起</a></td>
 								</tr>
-								<tr id="expandImg" style="display: none;">
-									{% if case_report['Screenshot'] and case_report['Screenshot'] != '' %}
+								<tr class="expandImg" style="display: none;">
+									{% if case_report['Screenshot'] and case_report['Screenshot'] != '[]' %}
 									<td colspan="7">
-										<img src="{{ case_report['Screenshot'] }}">
+										{% for case_report in case_report['Screenshot'] %}
+										<img src="{{ case_report }}">
+										{% endfor %}
 										{% endif %}
 									</td>
 								</tr>
@@ -7766,14 +7773,24 @@
 	<script type="text/javascript">
 		// 截图弹窗
 		function screenshot() {
-			document.getElementById("expandImg").style.display = "contents";
-			document.getElementById("pickup").style.display = "block";
-			document.getElementById("screenshot").style.display = "none";
+			var e = e || window.event;
+			var target = e.target || e.srcElement;
+			if (target.parentNode.tagName.toLowerCase() == "td") {
+				rowIndex = target.parentNode.parentNode.rowIndex;
+			}
+			document.getElementsByClassName("expandImg")[parseInt(rowIndex/2)].style.display = "contents";
+			document.getElementsByClassName("pickup")[parseInt(rowIndex/2)].style.display = "block";
+			document.getElementsByClassName("screenshot")[parseInt(rowIndex/2)].style.display = "none";
 		}
 		function expandImg() {
-			document.getElementById("expandImg").style.display = "none";
-			document.getElementById("pickup").style.display = "none";
-			document.getElementById("screenshot").style.display = "block";
+			var e = e || window.event;
+			var target = e.target || e.srcElement;
+			if (target.parentNode.tagName.toLowerCase() == "td") {
+				rowIndex = target.parentNode.parentNode.rowIndex;
+			}
+			document.getElementsByClassName("expandImg")[parseInt(rowIndex/2)].style.display = "none";
+			document.getElementsByClassName("pickup")[parseInt(rowIndex/2)].style.display = "none";
+			document.getElementsByClassName("screenshot")[parseInt(rowIndex/2)].style.display = "block";
 		}
 	</script>
 </body>

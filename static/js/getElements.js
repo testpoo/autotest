@@ -184,7 +184,9 @@ function pack(id) {
 function makeIssue() {
   document.getElementById("make_issue").style.display = "block";
   document.getElementById("hidebg").style.display = "block";
-  document.getElementById("hidebg").style.height = document.documentElement.scrollHeight + "px";
+  document.getElementById("hidebg").style.height = document.body.clientHeight + "px";
+  document.getElementById("content").style.height = document.body.clientHeight + "px";
+  document.getElementById("content").style.overflow = "hidden";
   getSteps()
 }
 
@@ -238,6 +240,7 @@ function minusElementTd() {
 function closeTable() {
   document.getElementById("make_issue").style.display = "none";
   document.getElementById("hidebg").style.display = "none";
+  document.getElementById("content").style.overflow = "scroll";
 }
 
 // 补齐UiSet
@@ -298,7 +301,6 @@ function getSteps() {
 
 // 保存数据
 function saveTable() {
-  document.getElementById("steps").value = '';
   var stepText = []
   var list = document.getElementsByClassName("make_issue_td");
   for (var i = 0; i < list.length; i++) {
@@ -316,6 +318,9 @@ function saveTable() {
   for (i = 0; i < stepUiSet.length; i++) {
     arr_x = stepUiSet[i].split('|');
     word_x = arr_x[0];
+    if (word_x == '') {
+      alert('不能有空行~！')
+    }
     word_y = arr_x[1];
     word_y_len = word_y.replace(/^\"|\"$/g, '').split(',').length;
     last_word = '';
@@ -336,11 +341,12 @@ function saveTable() {
       last_words += word_x + "|(" + last_word + ")\r\n";
     }
   }
-  var old = document.getElementById("steps").value;
+  document.getElementById("steps").value = '';
   last_words = last_words.substr(0, last_words.length - 2);
-  document.getElementById("steps").value = old + last_words;
+  document.getElementById("steps").value = last_words;
   document.getElementById("make_issue").style.display = "none";
   document.getElementById("hidebg").style.display = "none";
+  document.getElementById("content").style.overflow = "scroll";
 }
 // 数组平均分割
 function chunk(array, size) {

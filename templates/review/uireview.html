@@ -3,7 +3,7 @@
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
-<form class="form-horizontal" id="review_uicases" action="{{ url_for('review_uicases',num=num) }}" method="post">
+<form class="form-horizontal" id="review_uicases" action="{{ url_for('review_uicases',category=category,value=value,num=num) }}" method="post">
   <div class="float-left">
     <label for="select-model" class="float-label">选择模块</label>
     <input list="select-models" class="form-control required" id="select-model" name="select-model" maxlength="200"
@@ -63,6 +63,7 @@
       <th>操作步骤</th>
       <th>后置事件</th>
       <th>描述</th>
+      <th>执行结果</th>
       <th>创建者</th>
       <th>创建时间</th>
       <th>操作</th>
@@ -102,6 +103,7 @@
         {% endfor %}
       </td>
       <td>{{ case['description'] }}</td>
+      <td>{{ case['exec_result'] }}</td>
       <td>{{ case['zh_name'] }}</td>
       <td>{{ case['create_date'] }}</td>
       <td>
@@ -115,7 +117,7 @@
     <tr>
       <td colspan="13">
         {% for page in range(all_Page) %}
-        <span class="opration"><a href="{{ SITEURL }}/review/uicases/{{ page+1 }}">{{ page+1 }}</a></span>
+        <span class="opration"><a href="{{ SITEURL }}/review/uicases/{{ category }}/{{ value }}/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>

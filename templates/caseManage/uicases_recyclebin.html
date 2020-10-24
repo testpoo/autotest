@@ -3,7 +3,7 @@
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
-<form class="form-horizontal" id="caseManage_uirecyclebin" action="{{ url_for('caseManage_uirecyclebin',num=num) }}" method="post">
+<form class="form-horizontal" id="caseManage_uirecyclebin" action="{{ url_for('caseManage_uirecyclebin',category=category,value=value,num=num) }}" method="post">
   <div class="float-left">
     <label for="select-model" class="float-label">选择模块</label>
     <input list="select-models" class="form-control required" id="select-model" name="select-model" maxlength="200"
@@ -108,7 +108,7 @@
     <tr>
       <td colspan="13">
         {% for page in range(all_Page) %}
-        <span class="opration"><a href="{{ SITEURL }}/caseManage/uirecyclebin/{{ page+1 }}">{{ page+1 }}</a></span>
+        <span class="opration"><a href="{{ SITEURL }}/caseManage/uirecyclebin/{{ category }}/{{ value }}/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>
