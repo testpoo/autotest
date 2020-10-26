@@ -30,8 +30,10 @@
       <td>{{ apiset['create_date'] }}</td>
       <td>
         {% for opera,links in operation %}
+        {% if links not in ('submit') %}
         <span class="opration"><a href="{{ SITEURL }}/caseManage/apiset_{{ links }}/{{ apiset['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
+        {% endif %}
         {% endfor %}
       </td>
     </tr>
@@ -39,7 +41,7 @@
     <tr>
       <td colspan="8">
         {% for page in range(all_Page) %}
-        <span class="opration"><a href="{{ SITEURL }}/caseManage/apiset/{{ page+1 }}">{{ page+1 }}</a></span>
+        <span class="opration {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/caseManage/apiset/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>

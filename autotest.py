@@ -362,7 +362,7 @@ def apisitues(num):
         all_Page = math.ceil(all_Count/page_Count)
         cur = selectone('SELECT a.id,a.name,a.exec_mode, a.steps,a.description,b.zh_name,a.create_date FROM apisitues a inner join user b on a.username=b.username order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apisitues = [dict(id=row[0], name=row[1], exec_mode=row[2], steps=row[3], description=row[4], username=row[5], create_date=row[6]) for row in cur]
-        return render_template('api/apisitues.html', SITEURL=SITEURL, username=session['username'], apisitues=apisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, pagename = '测试集',current='apisitues')
+        return render_template('api/apisitues.html', SITEURL=SITEURL, username=session['username'], apisitues=apisitues, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, operation=operation, all_Page=all_Page, num=num,pagename = '测试集',current='apisitues')
 
 # API SITUES EDIT
 @app.route('/apisitue_edit/<int:id>', methods=['GET', 'POST'])
@@ -634,7 +634,7 @@ def uiset(num):
         all_Page = math.ceil(all_Count/page_Count)
         cur = selectone('SELECT a.id,a.keyword,a.description,a.template,a.example,b.zh_name,a.create_date FROM uiset a inner join user b on a.username=b.username order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         uisets = [dict(id=row[0], keyword=row[1], description=row[2], template=row[3], example=row[4], username=row[5], create_date=row[6]) for row in cur]
-        return render_template('set/uiset.html',SITEURL=SITEURL, username=session['username'],  uisets=uisets, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, current='uiset',pagename = 'UI封装')
+        return render_template('set/uiset.html',SITEURL=SITEURL, username=session['username'],  uisets=uisets, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page,num=num, current='uiset',pagename = 'UI封装')
 
 # UI SET EDIT
 @app.route('/caseManage/uiset_edit/<int:id>', methods=['GET', 'POST'])
@@ -727,7 +727,7 @@ def apiset(num):
         all_Page = math.ceil(all_Count/page_Count)
         cur = selectone('SELECT a.id,a.name,a.path,a.method,a.request,a.checks,a.description,b.zh_name,a.create_date FROM apiset a inner join user b on a.username=b.username order by a.id desc LIMIT %s,%s',[(num-1)*page_Count,page_Count])
         apisets = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=row[4], checks=row[5], description=row[6], username=row[7], create_date=row[8]) for row in cur]
-        return render_template('set/apiset.html',SITEURL=SITEURL, username=session['username'], apisets=apisets, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, current='apiset',pagename = '全部接口')
+        return render_template('set/apiset.html',SITEURL=SITEURL, username=session['username'], apisets=apisets, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page, num=num, current='apiset',pagename = '全部接口')
 
 # API SET EDIT
 @app.route('/caseManage/apiset_edit/<int:id>', methods=['GET', 'POST'])

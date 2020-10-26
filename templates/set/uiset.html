@@ -30,7 +30,7 @@
       <td>{{ uiset['create_date'] }}</td>
       <td>
         {% for opera,links in operation %}
-        {% if links != 'exec' %}
+        {% if links not in ('exec','submit') %}
         <span class="opration"><a href="{{ SITEURL }}/caseManage/uiset_{{ links }}/{{ uiset['id'] }}">{{ opera }}</a></span>
         {% endif %}
         {% endfor %}
@@ -40,7 +40,7 @@
     <tr>
       <td colspan="8">
         {% for page in range(all_Page) %}
-        <span class="opration"><a href="{{ SITEURL }}/caseManage/uiset/{{ page+1 }}">{{ page+1 }}</a></span>
+        <span class="opration {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/caseManage/uiset/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>
