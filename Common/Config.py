@@ -6,7 +6,7 @@ import base64
 SITEURL = "http://127.0.0.1:5000/"
 #SITEURL = "http://192.168.213.110:8000/"
 
-dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
+dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
 
 nav = ['自动化测试平台','UI自动化','接口自动化','设置']
 
@@ -56,7 +56,7 @@ model_sicap = '账号管理,资产管理,资产监控,自动化运维,运维中�
 
 http_methods = ['delete','get','patch','post','put']
 
-page_Count = 5
+page_Count = 15
 
 path_log = 'TestLog'
 

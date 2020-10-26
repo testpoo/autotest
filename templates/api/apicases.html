@@ -118,7 +118,7 @@
     <tr>
       <td colspan="14">
         {% for page in range(all_Page) %}
-        <span class="opration"><a href="{{ SITEURL }}/apicases/{{ category }}/{{ value }}/{{ page+1 }}">{{ page+1 }}</a></span>
+        <span class="opration {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/apicases/{{ category }}/{{ value }}/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>

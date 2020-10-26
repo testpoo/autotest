@@ -496,3 +496,7 @@ a.addElement {
     background-color: #ebeef5;
     line-height: 42px;
 }
+
+#content .page a {
+    color: #ff9023;
+}
