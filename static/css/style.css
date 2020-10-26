@@ -212,6 +212,10 @@ body {
     border-bottom: 5px solid #ff9023;
 }
 
+#nav .nav:first-child a {
+    font-size: 1.5em;
+}
+
 /*#nav #title {
     font-size: 1.5em;
 }*/

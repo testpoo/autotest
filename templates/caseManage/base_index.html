@@ -2,7 +2,7 @@
 {% block login %}
 <div id=nav>
     {% for n in caseManage_nav %}
-    <li class="nav" id="title"><a class="color" href="{{ SITEURL }}/caseManage/{{ username }}">{{ n }}</a>
+    <li class="nav"><a class="color" href="{{ SITEURL }}/caseManage/{{ username }}">{{ n }}</a>
         {% if n == 'UI自动化' %}
         <ul id="submenu">
             {% for sub,slink in caseManage_sub_nav_ui %}
