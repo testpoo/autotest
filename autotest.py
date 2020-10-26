@@ -1030,7 +1030,7 @@ def caseManage_uicase_edit(id):
                 else:
                     flash('编辑失败...')
 
-                return redirect(url_for('caseManage_uicases',num=1))
+                return redirect(url_for('caseManage_uicases',category='a.username',value=session['username'],num=1))
             else:
                 addUpdateDel('update uicases set name=%s, pre_steps=%s, steps=%s, next_steps=%s, description=%s where id=%s',[request.form['name'], request.form['pre-steps'], request.form['steps'], request.form['next-steps'],request.form['description'],id])
 
@@ -1046,7 +1046,7 @@ def caseManage_uicase_edit(id):
                 else:
                     flash('编辑失败...')
 
-                return redirect(url_for('caseManage_uicases',num=1))
+                return redirect(url_for('caseManage_uicases',category='a.username',value=session['username'],num=1))
         return render_template('caseManage/uicase_edit.html',SITEURL=SITEURL, username=session['username'],list_steps=list_steps, case=cases[0], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation,issuetypes=issuetypes,nexttypes=nexttypes,current='uicases', pagename = '测试用例编辑',error=error,id=id)
 
 # caseManage UI CASE QUERY
@@ -1105,7 +1105,7 @@ def caseManage_uicase_delete(id):
             else:
                 flash('删除失败...')
 
-        return redirect(url_for('caseManage_uicases',num=1))
+        return redirect(url_for('caseManage_uicases',category='a.username',value=session['username'],num=1))
 
 # caseManage UI CASE EXEC
 @app.route('/caseManage/uicase_exec/<int:id>', methods=['GET', 'POST'])
@@ -1158,7 +1158,7 @@ def caseManage_uirecyclebin(category,value,num):
         else:
             cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description,a.exec_result, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="2" and '+category+'="'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], exec_result=row[10], zh_name=row[11], create_date=row[12]) for row in cur]
-        return render_template('caseManage/uicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page,category=category,value=value, num=num,usernames=usernames,versions=versions,models=models,current='uirecyclebin',error=error,pagename = '测试用例回收站')
+        return render_template('caseManage/uicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page,category=category,value=value, num=num,usernames=usernames,versions=versions,models=models,current='uirecyclebin',error=error,pagename = '测试用例回收站')
 
 # caseManage UI CASE DELETE forever
 @app.route('/caseManage/uicase_recyclebin_delete/<int:id>', methods=['GET', 'POST'])
@@ -1178,7 +1178,7 @@ def caseManage_uicase_recyclebin_delete(id):
         else:
             flash('删除失败...')
 
-        return redirect(url_for('caseManage_uirecyclebin',num=1))
+        return redirect(url_for('caseManage_uirecyclebin',category='a.username',value=session['username'],num=1))
 
 # caseManage UI CASE submmit
 @app.route('/caseManage/uicase_submit/<int:id>', methods=['GET', 'POST'])
@@ -1192,13 +1192,13 @@ def caseManage_uicase_submit(id):
         
         cur = addUpdateDel('update uicases set activity=3 where id=%s',[id])
 
-        cur_uicases_del= selectone("SELECT * FROM uicases where id=%s and activity=3",[id])
+        cur_uicases_submint= selectone("SELECT * FROM uicases where id=%s and activity=3",[id])
         if cur_uicases_submint == ():
             flash('提交成功...')
         else:
             flash('提交失败...')
 
-        return redirect(url_for('caseManage_uicases',num=1))
+        return redirect(url_for('caseManage_uicases',category='a.username',value=session['username'],num=1))
 
 # caseManage UI CASE DELETE restore
 @app.route('/caseManage/uicase_recyclebin_restore/<int:id>', methods=['GET', 'POST'])
@@ -1214,7 +1214,7 @@ def caseManage_uicase_recyclebin_restore(id):
         else:
             flash('恢复成功...')
 
-        return redirect(url_for('caseManage_uirecyclebin',num=1))
+        return redirect(url_for('caseManage_uirecyclebin',category='a.username',value=session['username'],num=1))
 
 # caseManage NEW UI CASE
 @app.route('/caseManage/new_uicase', methods=['GET', 'POST'])
@@ -1256,7 +1256,7 @@ def caseManage_new_uicase():
             else:
                 flash('创建失败...')
 
-            return redirect(url_for('caseManage_uicases',num=1))
+            return redirect(url_for('caseManage_uicases',category='a.username',value=session['username'],num=1))
     return render_template('caseManage/new_uicase.html', list_steps=list_steps, SITEURL=SITEURL, username=session['username'], versions=versions, caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav,current='uicases', pagename = '新增测试用例', product=product, model_oma=model_oma, model_sicap=model_sicap, issuetypes=issuetypes,nexttypes=nexttypes, error=error)
 
 # caseManage api CASES
@@ -1377,7 +1377,7 @@ def caseManage_apicase_delete(id):
             else:
                 flash('删除失败...')
 
-        return redirect(url_for('caseManage_apicases',num=1))
+        return redirect(url_for('caseManage_apicases',category='a.username',value=session['username'],num=1))
 
 # caseManage API CASE EXEC
 @app.route('/caseManage/apicase_exec/<int:id>', methods=['GET', 'POST'])
@@ -1431,7 +1431,7 @@ def caseManage_apirecyclebin(category,value,num):
         else:
             cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description,a.exec_result, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="2" and '+category+'="'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], exec_result=row[10], zh_name=row[11], create_date=row[12]) for row in cur]
-        return render_template('caseManage/apicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_set_nav=caseManage_set_nav, operation=operation, all_Page=all_Page,category=category,value=value, num=num,usernames=usernames,versions=versions,models=models,current='apirecyclebin',error=error,pagename = '测试用例回收站')
+        return render_template('caseManage/apicases_recyclebin.html', SITEURL=SITEURL, username=session['username'], cases=cases, caseManage_nav=caseManage_nav, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_set_nav=caseManage_set_nav, recyclebin=recyclebin, all_Page=all_Page,category=category,value=value, num=num,usernames=usernames,versions=versions,models=models,current='apirecyclebin',error=error,pagename = '测试用例回收站')
 
 # caseManage api CASE DELETE forever
 @app.route('/caseManage/apicase_recyclebin_delete/<int:id>', methods=['GET', 'POST'])
@@ -1453,7 +1453,7 @@ def caseManage_apicase_recyclebin_delete(id):
         else:
             flash('删除失败...')
 
-        return redirect(url_for('caseManage_apirecyclebin',num=1))
+        return redirect(url_for('caseManage_apirecyclebin',category='a.username',value=session['username'],num=1))
 
 # caseManage api CASE DELETE restore
 @app.route('/caseManage/apicase_recyclebin_restore/<int:id>', methods=['GET', 'POST'])
@@ -1469,7 +1469,7 @@ def caseManage_apicase_recyclebin_restore(id):
         else:
             flash('恢复成功...')
 
-        return redirect(url_for('caseManage_apirecyclebin',num=1))
+        return redirect(url_for('caseManage_apirecyclebin',category='a.username',value=session['username'],num=1))
 
 # caseManage API CASE submmit
 @app.route('/caseManage/apicase_submit/<int:id>', methods=['GET', 'POST'])
@@ -1478,18 +1478,18 @@ def caseManage_apicase_submit(id):
         abort(401)
     else:
         apicase = selectone('select name from apicases where id=%s',[id])
-        apicases = [dict(name=row[0]) for row in uicase]
-        apicase_name = uicases[0]['name']
+        apicases = [dict(name=row[0]) for row in apicase]
+        apicase_name = apicases[0]['name']
         
         cur = addUpdateDel('update apicases set activity=3 where id=%s',[id])
 
-        cur_uicases_del= selectone("SELECT * FROM apicases where id=%s and activity=3",[id])
-        if cur_uicases_submint == ():
-            flash('提交成功...')
-        else:
+        cur_apicases_submint= selectone("SELECT * FROM apicases where id=%s and activity=3",[id])
+        if cur_apicases_submint == ():
             flash('提交失败...')
+        else:
+            flash('提交成功...')
 
-        return redirect(url_for('caseManage_apicases',num=1))
+        return redirect(url_for('caseManage_apicases',category='a.username',value=session['username'],num=1))
 
 # caseManage NEW API CASE
 @app.route('/caseManage/new_apicase', methods=['GET', 'POST'])
@@ -1737,7 +1737,7 @@ def uicase_review(id):
             flash('审核成功...')
         else:
             flash('审核失败...')
-        return redirect(url_for('review_uicases',num=1))
+        return redirect(url_for('review_uicases',category='a.username',value=session['username'],num=1))
 
 # UI CASE EXEC
 @app.route('/review/uicase_exec/<int:id>', methods=['GET', 'POST'])
@@ -1823,7 +1823,7 @@ def apicase_review(id):
         else:
             flash('审核失败...')
 
-        return redirect(url_for('review_apicases',num=1))
+        return redirect(url_for('review_apicases',category='a.username',value=session['username'],num=1))
 
 # API CASE EXEC
 @app.route('/review/apicase_exec/<int:id>', methods=['GET', 'POST'])
