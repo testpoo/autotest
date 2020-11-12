@@ -42,7 +42,7 @@ function loading() {
 
 // 公共案例去掉前置后置事件
 function delPreNext() {
-  if (document.getElementById("type").value == '公共用例') {
+  if (document.getElementById("type").value == '公共用例' || document.getElementById("type").value == '后置用例') {
     for (var i = 0; i < 4; i++) {
       document.getElementsByClassName("delPreNext")[i].style.display = "none";
     }
@@ -201,7 +201,7 @@ function addElementTdone() {
   var son = document.createElement("tr")
   son.setAttribute('class', 'make_issue_tr');
   var selectValue = getSelectValue();
-  son.innerHTML = '<td contentEditable="true">' + selectValue + '</td><td contentEditable="true" class="make_issue_td"></td><td contentEditable="true" class="make_issue_td"></td><td contentEditable="true" class="make_issue_td"></td><td contentEditable="true" class="make_issue_td"></td><td contentEditable="true" class="make_issue_td"></td><td><a href="#" onclick="addElementTd()" class="addElementTd">➕</a> <a href="#" onclick="minusElementTd()" class="minusElementTd">➖</a></td>'
+  son.innerHTML = '<td contenteditable="true">' + selectValue + '</td><td contenteditable="plaintext-only" class="make_issue_td"></td><td contenteditable="plaintext-only" class="make_issue_td"></td><td contenteditable="plaintext-only" class="make_issue_td"></td><td contenteditable="plaintext-only" class="make_issue_td"></td><td contenteditable="plaintext-only" class="make_issue_td"></td><td><a href="#" onclick="addElementTd()" class="addElementTd">➕</a> <a href="#" onclick="minusElementTd()" class="minusElementTd">➖</a></td>'
   parent.insertBefore(son, parent.childNodes[0]);
 }
 // 添加表格
@@ -215,7 +215,7 @@ function addElementTd() {
   var son = document.createElement("tr")
   son.setAttribute('class', 'make_issue_tr');
   var selectValue = getSelectValue();
-  son.innerHTML = '<td contentEditable="true">' + selectValue + '</td><td contentEditable="true" class="make_issue_td"></td><td contentEditable="true" class="make_issue_td"></td><td contentEditable="true" class="make_issue_td"></td><td contentEditable="true" class="make_issue_td"></td><td contentEditable="true" class="make_issue_td"></td><td><a href="#" onclick="addElementTd()" class="addElementTd">➕</a> <a href="#" onclick="minusElementTd()" class="minusElementTd">➖</a></td>'
+  son.innerHTML = '<td contenteditable="true">' + selectValue + '</td><td contenteditable="plaintext-only" class="make_issue_td"></td><td contenteditable="plaintext-only" class="make_issue_td"></td><td contenteditable="plaintext-only" class="make_issue_td"></td><td contenteditable="plaintext-only" class="make_issue_td"></td><td contenteditable="plaintext-only" class="make_issue_td"></td><td><a href="#" onclick="addElementTd()" class="addElementTd">➕</a> <a href="#" onclick="minusElementTd()" class="minusElementTd">➖</a></td>'
   //if (typeof rowIndex!="undefined") {
   parent.insertBefore(son, parent.childNodes[rowIndex]);
 }
@@ -267,9 +267,12 @@ function getSteps() {
   });
   num = steps.length;
   for (i = 0; i < num; i++) {
-    words = steps[i].split('|');
-    word_x = words[0];
-    word_y = words[1].replace(/^\"|\'|\(|\)|\"$/g, '').split(',');
+    words = steps[i].indexOf('|');
+    //words = steps[i].split('|');
+    word_x = steps[i].slice(0,words);
+    //word_y = steps[i].slice(words+1).replace(/^\"|\'|\"$/g, '').replace(/^\(/gi, '').replace(/\)$/gi, '').split(',');
+    word_y = eval(steps[i].slice(words+1).replace(/^\(/gi, '[').replace(/\)$/gi, ']'))
+    //word_y = words[1].replace(/^\"|\'|\(|\)|\"$/g, '').split(',');
     setpUiSet.push(word_x);
     stepText.push(word_y);
   }
@@ -280,7 +283,7 @@ function getSteps() {
     var son = document.createElement("tr")
     son.setAttribute('class', 'make_issue_tr');
     var selectValue = getSelectValue();
-    son.innerHTML = '<td contentEditable="true">' + selectValue + '</td><td contentEditable="true" class="make_issue_td"></td><td contentEditable="true" class="make_issue_td"></td><td contentEditable="true" class="make_issue_td"></td><td contentEditable="true" class="make_issue_td"></td><td contentEditable="true" class="make_issue_td"></td><td><a href="#" onclick="addElementTd()" class="addElementTd">➕</a> <a href="#" onclick="minusElementTd()" class="minusElementTd">➖</a></td>'
+    son.innerHTML = '<td contenteditable="true">' + selectValue + '</td><td contenteditable="plaintext-only" class="make_issue_td"></td><td contenteditable="plaintext-only" class="make_issue_td"></td><td contenteditable="plaintext-only" class="make_issue_td"></td><td contenteditable="plaintext-only" class="make_issue_td"></td><td contenteditable="plaintext-only" class="make_issue_td"></td><td><a href="#" onclick="addElementTd()" class="addElementTd">➕</a> <a href="#" onclick="minusElementTd()" class="minusElementTd">➖</a></td>'
     parent.appendChild(son);
   }
   for (i = 0; i < stepTexts.length; i++) {

@@ -344,8 +344,7 @@ def ui_report_list():
     if not session.get('logged_in'):
         abort(401)
     else:
-        for root,dirs,files in os.walk(path_ui):
-            report_lists = files[::-1][0:18]
+        report_lists = get_file_list(path_ui)[0:18]
         return render_template('report_list.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '测试报告列表',report_lists=report_lists,path = path_ui,current='ui_report_list')
 
 
@@ -482,8 +481,7 @@ def api_report_list():
     if not session.get('logged_in'):
         abort(401)
     else:
-        for root,dirs,files in os.walk(path_api):
-            report_lists = files[::-1][0:18]
+        report_lists = get_file_list(path_api)[0:18]
         return render_template('report_list.html',SITEURL=SITEURL, username=session['username'], nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav, pagename = '测试报告列表',report_lists=report_lists,path = path_api,current='api_report_list')
 
 # API CASE
@@ -945,7 +943,10 @@ def caseManage_login():
 @app.route('/caseManage/<current_user>/')
 def caseManage_index(current_user):
     if session.get('logged_in'):
-        return render_template('caseManage/index.html', username=session['username'],caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav,pagename = '主页')
+        counts = selectall('select count(1) from uicases where activity !="2"')[0][0]
+        versions = selectall('SELECT VERSION,COUNT(1) AS COUNT FROM uicases where activity !="2" GROUP BY VERSION ORDER BY COUNT DESC')
+        models = selectall('SELECT MODEl,COUNT(1) AS COUNT FROM uicases where activity !="2"  GROUP BY MODEl ORDER BY COUNT DESC')
+        return render_template('caseManage/index.html', username=session['username'],caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav,counts=counts,versions=versions,models=models,pagename = '主页')
     else:
         return redirect(url_for('caseManage_login'))
 
@@ -1017,7 +1018,7 @@ def caseManage_uicase_edit(id):
                 error = '必输项不能为空'
             elif request.form['name'].strip() in uinames:
                 error = "该用例已经存在"
-            elif request.form['type'].strip() == '公共用例':
+            elif request.form['type'].strip() in ('公共用例','后置用例'):
                 addUpdateDel('update uicases set name=%s, steps=%s, description=%s where id=%s',[request.form['name'], request.form['steps'], request.form['description'],id])
 
                 cur_edit= selectone("SELECT name,steps,description FROM uicases WHERE id = %s",[id])
@@ -1116,7 +1117,7 @@ def caseManage_uicase_exec(id):
         error = None
         newrun = RunUiTests(id,session['username'])
         res = newrun.getTestCases()
-        return render_template('caseManage/uicase_exec.html',res=res,SITEURL=SITEURL, username=session['username'], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation, pagename = '用例执行结果')
+        return render_template('caseManage/uicase_exec.html',res=res,SITEURL=SITEURL, username=session['username'], caseManage_nav=caseManage_nav, caseManage_sub_nav_ui = caseManage_sub_nav_ui, caseManage_sub_nav_api = caseManage_sub_nav_api, caseManage_set_nav=caseManage_set_nav, operation=operation,current='uicases', pagename = '用例执行结果')
 
 # caseManage UI CASES recyclebin
 @app.route('/caseManage/uirecyclebin/<category>/<value>/<int:num>', methods=['GET', 'POST'])

@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from unittest.case import TestCase
 import time
+from Common import LogUtility
 
 class Extend(object):
     # 安装webdriver
@@ -70,10 +71,12 @@ class Extend(object):
                 element = self.driver.find_element_by_css_selector(value)
                 #LogUtility.log("Find element css:%s" % value)
             else:
-                raise NameError("Please correct the type in function parameter")
+                raise NameError("tpye:%s不正确，请输入正确的type"%(str(type)))
                 #LogUtility.log("Please correct the type in function parameter")
+        except NameError:
+            raise
         except Exception:
-            raise ValueError("No such element found %s:%s" % (str(type),str(value)))
+            raise ValueError("element对象没有找到，%s:%s" % (str(type),str(value)))
             #LogUtility.log("No such element found %s:%s" % (str(type),str(value)))
         return element
 
@@ -81,7 +84,7 @@ class Extend(object):
         '''
         描述：查找元素, 例如：('id','username')
 
-        用法：self.findElement(type,value)
+        用法：self.findElements(type,value)
         '''
         try:
             if type == "id" or type == "ID" or type=="Id":
@@ -112,10 +115,16 @@ class Extend(object):
                 elements = self.driver.find_elements_by_css_selector(value)
                 #LogUtility.log("Find element css:%s" % value)
             else:
-                raise NameError("Please correct the type in function parameter")
+                raise NameError("tpye:%s不正确，请输入正确的type"%(str(type)))
                 #LogUtility.log("Please correct the type in function parameter")
-        except Exception:
-            raise ValueError("No such element found %s:%s" % (str(type),str(value)))
+            if len(elements) == 0:
+                raise ValueError('elements没有取到元素对象，%s:%s' % (str(type),str(value)))
+        except NameError:
+            raise
+        except ValueError:
+            raise 
+        except Exception as e:
+            print(e)
             #LogUtility.log("No such element found %s:%s" % (str(type),str(value)))
         return elements
 
@@ -142,32 +151,33 @@ class Extend(object):
         element = Select(self.findElement(type,value)).select_by_visible_text(text)
         return element
 
-    def assertSelectedOptions(self,type,value,*args):
+    def assertSelectedOptions(self,type,value,texts):
         '''
         描述：校验下拉框已选择文本
 
-        用法：assertSelectedOptions(self,type,value,*args)
+        用法：assertSelectedOptions(self,type,value,texts)
         '''
         element = Select(self.findElement(type,value))
-        optionslist=[]
+        optionsset=set()
+        textslist = texts.split(',')
         for i in element.all_selected_options:
-            optionslist.append(i.text)
+            optionsset.add(i.text.strip())
+        LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(textslist),optionsset))
+        TestCase().assertSetEqual(optionsset, set(textslist))
 
-        TestCase().assertListEqual(optionslist, list(args))
-
-    def assertSelectOptions(self,type,value,*args):
+    def assertSelectOptions(self,type,value,texts):
         '''
         描述：校验下拉框文本
 
-        用法：assertSelectOptions(self,type,value,*args)
+        用法：assertSelectOptions(self,type,value,texts)
         '''
         element = Select(self.findElement(type,value))
-        optionslist=[]
-
+        optionsset=set()
+        textslist = texts.split(',')
         for i in element.options:
-            optionslist.append(i.text)
-
-        TestCase().assertListEqual(optionslist, list(args))
+            optionsset.add(i.text.strip())
+        LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(textslist),optionsset))
+        TestCase().assertSetEqual(optionsset, set(textslist))
 
     def open(self,url):
         '''
@@ -185,10 +195,21 @@ class Extend(object):
         '''
         描述：操作input元素
 
-        用法：self.type(element,text)
+        用法：self.type(type,value,text)
         '''
         element =self.findElement(type,value)
         element.send_keys(text)
+    
+    def clearType(self,type,value,text):
+        '''
+        描述：清空并填写文本
+        
+        用法：self.clearType(type,value,text)
+        '''
+        element = self.findElement(type, value)
+        element.clear()
+        time.sleep(1)
+        element.send_keys(text)       
 
     def enter(self,type,value):
         '''
@@ -208,11 +229,12 @@ class Extend(object):
         element =self.findElement(type,value)
         element.send_keys(Keys.TAB)
 
-    def submit(self,element):
+    def submit(self,type,value):
         '''
         描述：提交表单
         用法：self.submit(element)
         '''
+        element = self.findElement(type, value)
         element.submit()
 
     def click(self,type,value):
@@ -343,12 +365,14 @@ class Extend(object):
         '''
         self.driver.switch_to.default_content()
 
-    def switchToWindow(self, handle):
+    def switchToWindow(self,windowindex):
         '''
         描述：切换到窗口
-        用法：self.switchToWindow()
+        用法：self.switchToWindow(windowindex)
         '''
-        self.driver.switch_to_window(handle)
+        currenthandle = self.driver.current_window_handle
+        handleslist = self.driver.window_handles
+        self.driver.switch_to_window(handleslist[int(windowindex)-1])
 
     def currentWindowHandle(self):
         '''
@@ -369,7 +393,10 @@ class Extend(object):
         描述：验证当前页中title是否在给定得字符串中
         用法：self.assert_title()
         """
-        TestCase().assertIn(text, self.driver.title)
+
+        title = str(self.driver.title)
+        LogUtility.logger.debug('text:%s\ntitle:%s'%(text,title))
+        TestCase().assertEqual(text, title)
    
     def assertText(self,type,value,text):
         '''
@@ -377,29 +404,65 @@ class Extend(object):
         用法：self.assert_text()
         '''
         element = self.findElement(type, value)
-        TestCase().assertIn(text, element.text) 
-    
-    def assertAttribute(self,type,value,attribute,text):
+        LogUtility.logger.debug('text:%s\n页面文本:%s'%(text,element.text.strip()))
+        TestCase().assertEqual(text, element.text.strip())
         
-        element = self.findElement(type, value)
-        TestCase().assertIn(text, element.get_attribute(attribute))
+    def assertTexts(self,type,value,texts,order='False'): 
+        '''
+        描述：验证当前页中既定得元素是否在给定得字符串中
+        用法：self.assertTexts(type,value,texts,order='False')
+        '''
+        if order == 'True':
+            s = []
+            textslist = texts.split(',')
+            elements = self.findElements(type, value)
+            for element in elements:
+                s.append(element.text.strip())
+            LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(textslist,s))
+            TestCase().assertListEqual(textslist, s)
+        elif order == 'False':
+            s= set()
+            textslist = texts.split(',')
+            elements = self.findElements(type, value)
+            for element in elements:
+                s.add(element.text.strip())
+            LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(textslist),s))
+            TestCase().assertSetEqual(set(textslist), s)
+
+    def assertAttribute(self,type,value,attribute,texts):
+        s = set()
+        textslist = texts.split(',')
+        elements = self.findElements(type, value)
+        for element in elements:
+            if not element.get_attribute(attribute):
+                raise AttributeError('element对象没有'+attribute+'属性')
+            s.add(element.get_attribute(attribute).strip())
+        
+        LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(textslist),s))
+        TestCase().assertSetEqual(set(textslist), s)
         
     def switchToAlert(self):
         '''
         切换到弹窗
         '''
+        WebDriverWait(self.driver,30).until(EC.alert_is_present())
+        time.sleep(1)
         self.driver.switch_to.alert
         
     def acceptAlert(self):
         '''
         弹窗确认
         '''
+        WebDriverWait(self.driver,30).until(EC.alert_is_present())
+        time.sleep(1)
         self.driver.switch_to.alert.accept()
         
     def dismissAlert(self):
         '''
         弹窗取消
         '''
+        WebDriverWait(self.driver,30).until(EC.alert_is_present())
+        time.sleep(1)
         self.driver.switch_to.alert.dismiss()
         
     def textAlert(self):
@@ -412,14 +475,18 @@ class Extend(object):
         '''
         验证弹窗信息
         '''
+        WebDriverWait(self.driver,30).until(EC.alert_is_present())
+        time.sleep(1)
         realtext = self.driver.switch_to.alert.text
-        print('打印:',realtext)
+        LogUtility.logger.debug('text:%s\n页面文本集：%s'%(text,realtext))
         TestCase().assertIn(text,realtext)
         
     def tpyeAlert(self,text):
         '''
         弹窗填写
         '''
+        WebDriverWait(self.driver,30).until(EC.alert_is_present())
+        time.sleep(1)
         self.driver.switch_to.alert.send_keys(text)
         
     def setWindowSize(self,width,height,windowHandle='current'):
@@ -472,3 +539,295 @@ class Extend(object):
         for element in elements:
             if element.is_selected():
                 element.click()  
+
+    def assertChecked(self,type,value,result = 'True'):
+        '''
+        描述：验证元素勾选
+        用法：self.assertchecked(type,value)
+        参数：result默认为True,验证元素被勾选，
+        result=False,验证元素为被勾选
+        '''
+        element = self.findElement(type, value)
+        print(str(element.is_selected()))
+        TestCase().assertEqual(str(element.is_selected()), result)
+
+    def tableClick(self,type,value,column,columntext,attributevalue):
+        table = self.findElement(type, value )
+        trlist = table.find_elements_by_tag_name('tr')
+        textlist = []
+        titlelist = []        
+        for row in trlist:
+            tdlist = row.find_elements_by_tag_name('td')
+            
+            if tdlist[int(column)-1].text.strip() == columntext:  
+                textlist.append(tdlist[int(column)-1].text)            
+                print('tdlistcell:',tdlist[int(column)-1].text)
+                element = tdlist[-1]   
+                elements = element.find_elements_by_xpath('./a')
+                for i in elements:
+                    if i.get_attribute('title') == attributevalue:
+                        titlelist.append(i.get_attribute('title'))
+                        i.click()
+                        break
+                break            
+        if textlist == []:   
+            raise NameError('没有匹配到文本：%s'%(columntext))
+        elif titlelist == []:
+            raise NameError('没有找到"%s"'%(attributevalue)) 
+
+    def tableOperate(self,type,value,matchparas,descolumn,text=None):
+        table = self.findElement(type, value)
+        trlist = table.find_elements_by_tag_name('tr')
+        matchparaslist = matchparas.split(',')
+        columns = []
+        columntexts = []
+        matchlist = []
+        textlist = []
+        titlelist = []
+        
+        for i in range(len(matchparaslist)):
+            if i%2 == 0: 
+                columns.append(matchparaslist[i])
+            else:
+                columntexts.append(matchparaslist[i])
+        
+        for row in trlist:
+            tdlist = row.find_elements_by_tag_name('td')
+            if len(columns) == 1:
+                if tdlist[int(columns[0])-1].text.strip() == columntexts[0]:
+                    matchlist.append(tdlist[int(columns[0])-1].text.strip())
+                    LogUtility.logger.debug('texts:%s\n页面文本：%s'%(columntexts[0],tdlist[int(columns[0])-1].text.strip()))
+                    if int(descolumn) == 1:
+                        checkelement = tdlist[int(descolumn)-1].find_element_by_xpath('./input')
+                        checkelement.click()                                              
+                        break
+
+                    
+                    elif int(descolumn) == len(tdlist):
+                        element = tdlist[-1]
+                        elements = element.find_elements_by_xpath('./a')
+                        for i in elements: 
+                            if i.get_attribute('title').strip() == str(text):
+                                titlelist.append(i.get_attribute('title'))
+                                LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
+                                i.click()
+                                break
+                            if i.text.strip() == str(text):
+                                textlist.append(i.text.strip())
+                                LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.text.strip(),str(text)))   
+                                i.click()
+                                break
+                    else:
+                        element = tdlist[int(descolumn)-1]
+                        elements = element.find_elements_by_xpath('./a')
+                        for i in elements:
+                            if i.text.strip() == str(text):
+                                textlist.append(i.text.strip())
+                                LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.text.strip(),str(text)))
+                                print(i.text.strip())
+                                i.click()
+                                break
+                    break
+            else:               
+                if tdlist[int(columns[0])-1].text.strip() == columntexts[0] and tdlist[int(columns[1])-1].text.strip() == columntexts[1]:
+                    matchlist.append(tdlist[int(columns[1])-1].text.strip())
+                    LogUtility.logger.debug('texts:%s,%s\n页面文本：%s,%s'%(columntexts[0],columntexts[1],tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip()))
+                    if int(descolumn) == 1:
+                        checkelement = tdlist[int(descolumn)-1].find_element_by_xpath('./input')
+                        checkelement.click()                                              
+                        break
+                    
+                    elif int(descolumn) == len(tdlist):
+                        element = tdlist[-1]
+                        elements = element.find_elements_by_xpath('./a')
+                        for i in elements: 
+                            if i.get_attribute('title').strip() == str(text):
+                                titlelist.append(i.get_attribute('title'))
+                                LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))   
+                                i.click()
+                                break
+                            if i.text.strip() == str(text): 
+                                textlist.append(i.text.strip())
+                                LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.text.strip(),str(text)))   
+                                i.click()
+                                break
+                    else:
+                        element = tdlist[int(descolumn)-1]
+                        print('element',element)
+                        elements = element.find_elements_by_xpath('./a')
+                        for i in elements:
+                            if i.text.strip() == str(text):
+                                textlist.append(i.text.strip())
+                                LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.text.strip(),str(text)))
+                                i.click()
+                                break
+                    break
+        if int(descolumn) == 1: 
+            if not checkelement:
+                raise NameError('没有找到勾选项')
+        elif int(descolumn) != len(tdlist):
+            if matchlist == []:   
+                raise NameError('没有匹配到文本：%s'%(matchparas))
+            if textlist == []:   
+                raise NameError('没有找到文本%s'%(text))
+        else:    
+            if textlist == [] and titlelist == []:
+                raise NameError('操作列没有找到文本或属性%s'%(text))
+	
+    def assertTableOp(self,type,value,column,columntext,texts):
+        table = self.findElement(type, value )
+        trlist = table.find_elements_by_tag_name('tr')
+        if len(trlist)==0:
+            raise NameError('表格行数为0，%s:%s,没有定位到正确的表格'%(type,value))
+        s = set()
+        textslist = texts.split(',')
+        matchlist = []
+        for row in trlist:
+            tdlist = row.find_elements_by_tag_name('td')
+            if tdlist[int(column)-1].text.strip() == columntext:
+                matchlist.append(tdlist[int(column)-1])
+                element = tdlist[-1]
+                elements = element.find_elements_by_xpath('./a')
+                for i in elements:
+                    s.add(i.get_attribute('title'))
+        LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(textslist),s))
+        if matchlist == []:
+            raise NameError('没有找到匹配项,输入文本%s'%(tdlist[int(column)-1].text,columntext))
+        TestCase().assertSetEqual(s, set(textslist))
+        
+    def assertTableAttribute(self,type,value,matchparas,descolumn,values):
+        table = self.findElement(type, value)
+        trlist = table.find_elements_by_tag_name('tr')
+        if len(trlist)==0:
+            raise NameError('表格行数为0，%s:%s,没有定位到正确的表格'%(type,value))
+        matchparaslist = matchparas.split(',')
+        valueslist = values.split(',')
+        columns = []
+        columntexts = []
+        matchlist = []
+        s = set()
+        j=50    
+        #控制row循环次数
+        for i in range(len(matchparaslist)):
+            if i%2 == 0: 
+                columns.append(matchparaslist[i])
+            else:
+                columntexts.append(matchparaslist[i])
+                
+        for row in trlist:
+            tdlist = row.find_elements_by_tag_name('td')
+            j -=1
+            if j > 0:
+                if len(columns) == 1:
+                    LogUtility.logger.debug('页面文本:%s'%(tdlist[int(columns[0])-1].text.strip()))
+                    if tdlist[int(columns[0])-1].text.strip() == columntexts[0]:
+                        matchlist.append(tdlist[int(columns[0])-1].text.strip())
+                        LogUtility.logger.debug('texts:%s\n页面文本:%s'%(columntexts[0],tdlist[int(columns[0])-1].text.strip()))
+                        element = tdlist[int(descolumn)-1]
+                        break
+                else:
+                    LogUtility.logger.debug('页面文本：%s,%s'%(tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip()))
+                    if tdlist[int(columns[0])-1].text.strip() == columntexts[0] and tdlist[int(columns[1])-1].text.strip() == columntexts[1]:
+                        matchlist.append(tdlist[int(columns[1])-1].text.strip())
+                        LogUtility.logger.debug('texts:%s,%s\n页面文本：%s,%s'%(columntexts[0],columntexts[1],tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip()))
+                        element = tdlist[int(descolumn)-1]
+                        break
+        if matchlist == []:
+            if len(columns) == 1:
+                raise NameError('没有找到匹配项，输入文本%s'%(columntexts[0]))
+            else:
+                raise NameError('没有找到匹配项，输入文本%s,%s'%(columntexts[0],columntexts[1]))
+                
+        LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(valueslist),s))
+        TestCase().assertSetEqual(set(valueslist), s)
+        
+    def assertTableText(self,type,value,matchparas,descolumn,text):
+        table = self.findElement(type, value)
+        trlist = table.find_elements_by_tag_name('tr')
+        if len(trlist)==0:
+            raise NameError('表格行数为0，%s:%s,没有定位到正确的表格'%(type,value))
+        matchparaslist = matchparas.split(',')
+        columns = []
+        columntexts = []
+        matchlist = []
+        j=50    
+        #控制row循环次数
+        for i in range(len(matchparaslist)):
+            if i%2 == 0: 
+                columns.append(matchparaslist[i])
+            else:
+                columntexts.append(matchparaslist[i])
+        
+        for row in trlist:
+            tdlist = row.find_elements_by_tag_name('td')
+            j -=1
+            if j > 0:
+                if len(columns) == 1:
+                    if tdlist[int(columns[0])-1].text.strip() == columntexts[0]:
+                        matchlist.append(tdlist[int(columns[0])-1].text.strip())
+                        LogUtility.logger.debug('texts:%s\n页面文本:%s'%(columntexts[0],tdlist[int(columns[0])-1].text.strip()))
+                        element = tdlist[int(descolumn)-1]
+                        break                      
+                else:               
+                    if tdlist[int(columns[0])-1].text.strip() == columntexts[0] and tdlist[int(columns[1])-1].text.strip() == columntexts[1]:
+                        matchlist.append(tdlist[int(columns[1])-1].text.strip())
+                        LogUtility.logger.debug('texts:%s,%s\n页面文本：%s,%s'%(columntexts[0],columntexts[1],tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip()))
+                        element = tdlist[int(descolumn)-1]
+                        break        
+        if matchlist == []:
+            if len(columns) == 1:
+                raise NameError('没有找到匹配项，输入文本%s'%(columntexts[0]))
+            else:
+                raise NameError('没有找到匹配项，输入文本%s,%s'%(columntexts[0],columntexts[1]))
+        LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(text,element.text.strip()))
+        TestCase().assertEqual(text, element.text.strip())
+        
+    def assertTableTexts(self,type,value,matchparas,descolumn,texts):
+        table = self.findElement(type, value)
+        trlist = table.find_elements_by_tag_name('tr')
+        if len(trlist)==0:
+            raise NameError('表格行数为0，%s:%s,没有定位到正确的表格'%(type,value))
+        matchparaslist = matchparas.split(',')
+        textslist = texts.split(',')
+        columns = []
+        columntexts = []
+        matchlist = []
+        s = set()
+        j=50    
+        #控制row循环次数
+        for i in range(len(matchparaslist)):
+            if i%2 == 0: 
+                columns.append(matchparaslist[i])
+            else:
+                columntexts.append(matchparaslist[i])
+        
+        for row in trlist:
+            tdlist = row.find_elements_by_tag_name('td')
+            j -=1
+            print(j)
+            if j > 0:
+                if len(columns) == 1:
+                    if tdlist[int(columns[0])-1].text.strip() == columntexts[0]:
+                        matchlist.append(tdlist[int(columns[0])-1].text.strip())
+                        LogUtility.logger.debug('texts:%s\n页面文本:%s'%(columntexts[0],tdlist[int(columns[0])-1].text.strip()))
+                        element = tdlist[int(descolumn)-1]
+                        elements = element.find_elements_by_xpath('./a')
+                        for i in elements:
+                            s.add(i.text().strip())
+                        break                     
+                else:               
+                    if tdlist[int(columns[0])-1].text.strip() == columntexts[0] and tdlist[int(columns[1])-1].text.strip() == columntexts[1]:
+                        matchlist.append(tdlist[int(columns[1])-1].text.strip())
+                        LogUtility.logger.debug('texts:%s,%s\n页面文本：%s,%s'%(columntexts[0],columntexts[1],tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip()))
+                        element = tdlist[int(descolumn)-1]
+                        elements = element.find_elements_by_xpath('./a')
+                        for i in elements:
+                            s.add(i.text().strip())
+                        break       
+        if matchlist == []:
+            if len(columns) == 1:
+                raise NameError('没有找到匹配项，输入文本%s'%(columntexts[0]))
+            else:
+                raise NameError('没有找到匹配项，输入文本%s,%s'%(columntexts[0],columntexts[1]))
+        LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(textslist),s))
+        TestCase().assertSetEqual(set(textslist),s)

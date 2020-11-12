@@ -72,6 +72,7 @@ input, button, select, textarea {
 
 .textarea {
     line-height: 20px;
+    min-height: 42px;
     padding: 11px 10px;
     border-radius: 5px;
     border: 1px solid #ebeef5;
@@ -267,6 +268,10 @@ body {
     position:relative;
 }
 
+#content .new {
+    float: right;
+}
+
 #content .new ul li a {
     display: block;
     height: 42px;
@@ -358,7 +363,7 @@ a.addElement {
 .suninfo {
     height: 600px;
     line-height: 600px;
-    font-size: 300px;
+    font-size: 600px;
     color: #ddd;
     font-family: 'Times New Roman', Times, serif;
 }
@@ -499,4 +504,21 @@ a.addElement {
 
 #content .page a {
     color: #ff9023;
+}
+
+.statistics {
+    float: left;
+    margin-right: 20px;
+}
+
+.statistics .count {
+    width: 300px;
+}
+
+.statistics .count th,.statistics .count td{
+    width: 150px;
+}
+
+.statistics .count td a {
+    color: #199FED;
 }

@@ -71,6 +71,7 @@ class RunUiTests(object):
 
             for step in steps:
                 action = cover(step)
+                time.sleep(0.5)
                 LogUtility.logger.debug("执行步骤: {}".format(action))
                 eval('TestCase.'+action)
 
@@ -88,6 +89,7 @@ class RunUiTests(object):
                 if next_steps != []:
                     for next_step in next_steps:
                         action = cover(next_step)
+                        time.sleep(0.5)
                         LogUtility.logger.debug("执行步骤: {}".format(action))
                         eval('TestCase.'+action)
             except Exception as next_err:
@@ -159,4 +161,3 @@ class RunUiTests(object):
 
 if __name__ == "__main__":
     newrun = RunUiTests('5','puyawei')
-    print(newrun.getTestCases())
