@@ -209,7 +209,17 @@ class Extend(object):
         element = self.findElement(type, value)
         element.clear()
         time.sleep(1)
-        element.send_keys(text)       
+        element.send_keys(text)   
+
+    def clearTypetime(self,value,clock):
+       
+        js = "document.getElementById('"+value+"').removeAttribute('readonly')"
+        LogUtility.logger.debug('js语句：%s'%(js))
+        time.sleep(1.5)
+        self.driver.execute_script(js)
+        element = self.driver.find_element_by_id(value)
+        element.clear()
+        element.send_keys(clock)    
 
     def enter(self,type,value):
         '''
@@ -219,6 +229,16 @@ class Extend(object):
         '''
         element =self.findElement(type,value)
         element.send_keys(Keys.ENTER)
+		
+    def backSpace(self,type,value):
+        '''
+        描述：删除键
+
+        用法：self.backSpace(type,value)
+        '''
+        element =self.findElement(type,value)
+        element.clear()
+        element.send_keys(Keys.BACK_SPACE)
         
     def table(self,type,value):
         '''
@@ -397,6 +417,21 @@ class Extend(object):
         title = str(self.driver.title)
         LogUtility.logger.debug('text:%s\ntitle:%s'%(text,title))
         TestCase().assertEqual(text, title)
+		
+    def assertTextExist(self,type,value,exist = 'True'):
+        element = self.findElement(type, value)
+        if exist == 'True':
+            if element.text == "":
+                LogUtility.logger.debug('元素对象的文本为空')
+            else:
+                raise NameError('元素对象的文本:%s,不为空'%(element.text))
+        elif exist == 'False':
+            if element.text != "":
+                LogUtility.logger.debug('元素对象的文本:%s,不为空'%(element.text))
+            else:
+                raise NameError('元素对象的文本为空')
+        else:
+            raise TypeError('输入的参数exist:%s格式不正确'%(exist))
    
     def assertText(self,type,value,text):
         '''
@@ -430,13 +465,13 @@ class Extend(object):
             TestCase().assertSetEqual(set(textslist), s)
 
     def assertAttribute(self,type,value,attribute,texts):
-        s = set()
+        s =set()
         textslist = texts.split(',')
         elements = self.findElements(type, value)
         for element in elements:
             if not element.get_attribute(attribute):
                 raise AttributeError('element对象没有'+attribute+'属性')
-            s.add(element.get_attribute(attribute).strip())
+            s =set.union(s,set(element.get_attribute(attribute).strip().split(',')))
         
         LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(textslist),s))
         TestCase().assertSetEqual(set(textslist), s)
@@ -512,6 +547,10 @@ class Extend(object):
         print(js)
         self.driver.execute_script(js)
         
+    def focus(self,type,value):
+        target = self.findElement(type, value)
+        self.driver.execute_script("arguments[0].scrollIntoView();", target)
+        
     def uploadFile(self,type,value,path):
         '''
         描述：上传文件
@@ -574,6 +613,61 @@ class Extend(object):
             raise NameError('没有匹配到文本：%s'%(columntext))
         elif titlelist == []:
             raise NameError('没有找到"%s"'%(attributevalue)) 
+
+    def tableCheck(self,type,value,matchparas,descolumn,result = 'True'):
+        table = self.findElement(type, value)
+        trlist = table.find_elements_by_tag_name('tr')
+        matchparaslist = matchparas.split(',')
+        columns = []
+        columntexts = []
+        matchlist = []
+        
+        for i in range(len(matchparaslist)):
+            if i%2 == 0: 
+                columns.append(matchparaslist[i])
+            else:
+                columntexts.append(matchparaslist[i])
+                
+        for row in trlist:
+            tdlist = row.find_elements_by_tag_name('td')
+            if len(columns) == 1:
+                if tdlist[int(columns[0])-1].text.strip() == columntexts[0]:
+                    matchlist.append(tdlist[int(columns[0])-1].text.strip())
+                    LogUtility.logger.debug('texts:%s\n页面文本：%s'%(columntexts[0],tdlist[int(columns[0])-1].text.strip()))
+                    checkelement = tdlist[int(descolumn)-1].find_element_by_xpath('./input')
+                    if result == 'True':
+                        if checkelement.is_selected():                                         
+                            break
+                        if not checkelement.is_selected():
+                            checkelement.click()                                              
+                            break
+                    elif result == 'False':
+                        if checkelement.is_selected():
+                            checkelement.click()                                              
+                            break
+                        if not checkelement.is_selected():                                            
+                            break
+                    else:
+                        raise TypeError('descolumn=1时，result只能输入True或False')
+            else:               
+                if tdlist[int(columns[0])-1].text.strip() == columntexts[0] and tdlist[int(columns[1])-1].text.strip() == columntexts[1]:
+                    matchlist.append(tdlist[int(columns[1])-1].text.strip())
+                    LogUtility.logger.debug('texts:%s,%s\n页面文本：%s,%s'%(columntexts[0],columntexts[1],tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip()))
+                    checkelement = tdlist[int(descolumn)-1].find_element_by_xpath('./input')
+                    if result == 'True':
+                        if checkelement.is_selected():                                         
+                            break
+                        if not checkelement.is_selected():
+                            checkelement.click()                                              
+                            break
+                    elif result == 'False':
+                        if checkelement.is_selected():
+                            checkelement.click()                                              
+                            break
+                        if not checkelement.is_selected():                                            
+                            break
+                    else:
+                        raise TypeError('descolumn=1时，result只能输入True或False')
 
     def tableOperate(self,type,value,matchparas,descolumn,text=None):
         table = self.findElement(type, value)
@@ -701,11 +795,9 @@ class Extend(object):
         if len(trlist)==0:
             raise NameError('表格行数为0，%s:%s,没有定位到正确的表格'%(type,value))
         matchparaslist = matchparas.split(',')
-        valueslist = values.split(',')
         columns = []
         columntexts = []
         matchlist = []
-        s = set()
         j=50    
         #控制row循环次数
         for i in range(len(matchparaslist)):
@@ -738,10 +830,52 @@ class Extend(object):
             else:
                 raise NameError('没有找到匹配项，输入文本%s,%s'%(columntexts[0],columntexts[1]))
                 
-        LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(valueslist),s))
-        TestCase().assertSetEqual(set(valueslist), s)
+        LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(values,element.get_attribute('title').strip()))
+        TestCase().assertEqual(values, element.get_attribute('title').strip())
         
     def assertTableText(self,type,value,matchparas,descolumn,text):
+        table = self.findElement(type, value)
+        trlist = table.find_elements_by_tag_name('tr')
+        if len(trlist)==0:
+            raise NameError('表格行数为0，%s:%s,没有定位到正确的表格'%(type,value))
+        matchparaslist = matchparas.split(',')
+        columns = []
+        columntexts = []
+        matchlist = []
+        j=len(trlist)
+        #控制row循环次数
+        for i in range(len(matchparaslist)):
+            if i%2 == 0: 
+                columns.append(matchparaslist[i])
+            else:
+                columntexts.append(matchparaslist[i])
+        for row in trlist:
+            tdlist = row.find_elements_by_tag_name('td')
+            j -=1
+            if j >= 0:
+                print(len(columns))
+                if len(columns) == 1:
+                    print(tdlist[int(columns[0])-1].text.strip())
+                    if tdlist[int(columns[0])-1].text.strip() == columntexts[0]:
+                        matchlist.append(tdlist[int(columns[0])-1].text.strip())
+                        LogUtility.logger.debug('texts:%s\n页面文本:%s'%(columntexts[0],tdlist[int(columns[0])-1].text.strip()))
+                        element = tdlist[int(descolumn)-1]
+                        break                      
+                else:               
+                    if tdlist[int(columns[0])-1].text.strip() == columntexts[0] and tdlist[int(columns[1])-1].text.strip() == columntexts[1]:
+                        matchlist.append(tdlist[int(columns[1])-1].text.strip())
+                        LogUtility.logger.debug('texts:%s,%s\n页面文本：%s,%s'%(columntexts[0],columntexts[1],tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip()))
+                        element = tdlist[int(descolumn)-1]
+                        break      
+        if matchlist == []:
+            if len(columns) == 1:
+                raise NameError('没有找到匹配项，输入文本%s'%(columntexts[0]))
+            else:
+                raise NameError('没有找到匹配项，输入文本%s,%s'%(columntexts[0],columntexts[1]))
+        LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(text,element.text.strip()))
+        TestCase().assertEqual(text, element.text.strip())
+    
+    def assertTableChecked(self,type,value,matchparas,descolumn,result = 'True'):
         table = self.findElement(type, value)
         trlist = table.find_elements_by_tag_name('tr')
         if len(trlist)==0:
@@ -766,22 +900,24 @@ class Extend(object):
                     if tdlist[int(columns[0])-1].text.strip() == columntexts[0]:
                         matchlist.append(tdlist[int(columns[0])-1].text.strip())
                         LogUtility.logger.debug('texts:%s\n页面文本:%s'%(columntexts[0],tdlist[int(columns[0])-1].text.strip()))
-                        element = tdlist[int(descolumn)-1]
-                        break                      
+                        checkelement = tdlist[int(descolumn)-1].find_element_by_xpath('./input')
+                        break
                 else:               
                     if tdlist[int(columns[0])-1].text.strip() == columntexts[0] and tdlist[int(columns[1])-1].text.strip() == columntexts[1]:
                         matchlist.append(tdlist[int(columns[1])-1].text.strip())
                         LogUtility.logger.debug('texts:%s,%s\n页面文本：%s,%s'%(columntexts[0],columntexts[1],tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip()))
-                        element = tdlist[int(descolumn)-1]
-                        break        
+                        checkelement = tdlist[int(descolumn)-1].find_element_by_xpath('./input')
+                        break 
+        if not checkelement:
+            raise NameError('没有找到勾选项')                 
         if matchlist == []:
             if len(columns) == 1:
                 raise NameError('没有找到匹配项，输入文本%s'%(columntexts[0]))
             else:
                 raise NameError('没有找到匹配项，输入文本%s,%s'%(columntexts[0],columntexts[1]))
-        LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(text,element.text.strip()))
-        TestCase().assertEqual(text, element.text.strip())
-        
+        LogUtility.logger.debug('result:%s\n页面文本集：%s'%(result,str(checkelement.is_selected())))
+        TestCase().assertEqual(str(checkelement.is_selected()), result)
+	
     def assertTableTexts(self,type,value,matchparas,descolumn,texts):
         table = self.findElement(type, value)
         trlist = table.find_elements_by_tag_name('tr')

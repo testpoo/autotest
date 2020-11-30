@@ -2,11 +2,12 @@
 
 from datetime import datetime
 import base64
+import os
 
 SITEURL = "http://127.0.0.1:5000/"
 #SITEURL = "http://192.168.213.110:8000/"
 
-dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
+dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
 
 nav = ['自动化测试平台','UI自动化','接口自动化','设置']
 
@@ -52,7 +53,7 @@ product = ['SiCAP','OMA']
 
 model_oma = '首页,系统设置,信息管理,定时任务,审核复查,统计报表,基本运维,特殊运维,双人协助'
 
-model_sicap = '账号管理,资产管理,资产监控,自动化运维,运维中心,事件中心,流程中心,安全通报,等级保护,报表中心,系统设置'
+model_sicap = '首页,账号管理,资产管理,资产监控,自动化运维,运维中心,事件中心,流程中心,安全通报,等级保护,报表中心,系统设置'
 
 http_methods = ['delete','get','patch','post','put']
 
@@ -208,3 +209,13 @@ def delete_pre_next(cases,pre_next):
 def getParaLen():
     length=len(x.split('|')[1].split(','))
     return length
+
+# 报表安装创建时间排序
+def get_file_list(file_path):
+
+    dir_list = os.listdir(file_path)
+    if not dir_list:
+        return
+    else:
+        dir_list = sorted(dir_list, key=lambda x: os.path.getctime(os.path.join(file_path, x)),reverse=True)
+        return dir_list
