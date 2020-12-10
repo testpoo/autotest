@@ -19,6 +19,7 @@
       <input list="exec-modes"  class="form-control required" id="exec-mode" name="exec-mode" maxlength="200" placeholder="请选择执行模式" onchange="getExecMode()">
       <datalist id="exec-modes">
         <option value="按用例">
+        <option value="按用户">
         <option value="按模块">
         <option value="按版本">
       </datalist>
@@ -29,6 +30,15 @@
         <datalist id="select-issues">
           {% for uisitue_issue in uisitues_issue %}
           <option value="{{ uisitue_issue['name'] }}">
+            {% endfor %}
+        </datalist>
+      </div>
+      <div class="form-group" id="select-username-mode">
+        <label for="select-user">选择用户</label>
+        <input list="select-users"  class="form-control required" id="select-user" name="select-user" maxlength="200" placeholder="请选择操作用户" onchange="getUserModes()">
+        <datalist id="select-users">
+          {% for uisitue_name in uisitues_name %}
+          <option value="{{ uisitue_name['username'] }}">
             {% endfor %}
         </datalist>
       </div>

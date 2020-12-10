@@ -82,18 +82,28 @@ function getModel(model_oma, model_sicap) {
 function getExecMode() {
   if (document.getElementById("exec-mode").value == '按用例') {
     document.getElementById("select-issue-mode").style.display = "block";
+    document.getElementById("select-username-mode").style.display = "none";
+    document.getElementById("select-model-mode").style.display = "none";
+    document.getElementById("select-version-mode").style.display = "none";
+    document.getElementById("steps").value = '';
+  }
+  else if (document.getElementById("exec-mode").value == '按用户') {
+    document.getElementById("select-issue-mode").style.display = "none";
+    document.getElementById("select-username-mode").style.display = "block";
     document.getElementById("select-model-mode").style.display = "none";
     document.getElementById("select-version-mode").style.display = "none";
     document.getElementById("steps").value = '';
   }
   else if (document.getElementById("exec-mode").value == '按模块') {
     document.getElementById("select-issue-mode").style.display = "none";
+    document.getElementById("select-username-mode").style.display = "none";
     document.getElementById("select-model-mode").style.display = "block";
     document.getElementById("select-version-mode").style.display = "none";
     document.getElementById("steps").value = '';
   }
   else if (document.getElementById("exec-mode").value == '按版本') {
     document.getElementById("select-issue-mode").style.display = "none";
+    document.getElementById("select-username-mode").style.display = "none";
     document.getElementById("select-model-mode").style.display = "none";
     document.getElementById("select-version-mode").style.display = "block";
     document.getElementById("steps").value = '';
@@ -105,6 +115,18 @@ function getIssueModes() {
   var xstep = document.getElementById("select-issue").value;
   var old = document.getElementById("steps").value;
   document.getElementById("select-issue").value = '';
+  if (old == '') {
+    document.getElementById("steps").value = xstep;
+  }
+  else {
+    document.getElementById("steps").value = old + "\n" + xstep;
+  }
+}
+
+function getUserModes() {
+  var xstep = document.getElementById("select-user").value;
+  var old = document.getElementById("steps").value;
+  document.getElementById("select-user").value = '';
   if (old == '') {
     document.getElementById("steps").value = xstep;
   }

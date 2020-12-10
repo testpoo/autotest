@@ -55,12 +55,13 @@ class RunUiTests(object):
             else:
                 next_steps = []
                 next_names = cases['next_steps'].split('\r\n')
+
                 while '' in next_names:
                     next_names.remove('')
                 for next_name in next_names:
                     next_step = selectone('SELECT steps FROM uicases WHERE name = %s',[next_name])[0][0].split('\r\n')
                     next_steps.extend(next_step)
-            
+                    
             steps = pre_steps+cases['steps'].split('\r\n')
             while '' in steps:
                 steps.remove('')
@@ -94,10 +95,13 @@ class RunUiTests(object):
                         eval('TestCase.'+action)
             except Exception as next_err:
                 LogUtility.logger.debug("后置事务执行出错: {}".format(str(next_err)))
-                result['status'] = '失败'
-                result['error'].append("后置错误："+str(next_err))
-                TestCase.getScreenshot(Config.Screenshot+'/'+case_name+'_next_'+Screenshottime+'.png')
-                result['Screenshot'].append(Config.img_to_base64(case_name+'_next_'+Screenshottime+'.png'))
+                try:
+                    result['status'] = '失败'
+                    result['error'].append("后置错误："+str(next_err))
+                    TestCase.getScreenshot(Config.Screenshot+'/'+case_name+'_next_'+Screenshottime+'.png')
+                    result['Screenshot'].append(Config.img_to_base64(case_name+'_next_'+Screenshottime+'.png'))
+                except Exception as next_err:
+                    LogUtility.logger.debug("后置事务执行出错: {}".format(str(next_err)))
             TestCase.quit()
             endtime = Config.getCurrentTime()
             spenttime = Config.timeDiff(starttime,endtime)
@@ -118,6 +122,13 @@ class RunUiTests(object):
             
             if exec_mode == '按用例':
                 steps_case = cases_step
+            elif exec_mode == '按用户':
+                steps_case = []
+                for case_step in cases_step:
+                    cur_name= selectone("SELECT name FROM uicases WHERE username = %s and activity='1'",[cases_step])
+                    cases_dict = [dict(name=row[0]) for row in cur_name]
+                    case_step_list = [case['name'] for case in cases_dict]
+                    steps_case.extend(case_step_list)
             elif exec_mode == '按模块':
                 steps_case = []
                 for case_step in cases_step:

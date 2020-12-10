@@ -10,6 +10,7 @@ from selenium.webdriver.common.keys import Keys
 from unittest.case import TestCase
 import time
 from Common import LogUtility
+from Common import db_config
 
 class Extend(object):
     # 安装webdriver
@@ -967,3 +968,18 @@ class Extend(object):
                 raise NameError('没有找到匹配项，输入文本%s,%s'%(columntexts[0],columntexts[1]))
         LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(textslist),s))
         TestCase().assertSetEqual(set(textslist),s)
+
+    # 数据库删除，无奈之举，擅用
+    def delDevice(self,device_name,device_ip):
+        db_config.uDelete('UPDATE t_device_info a SET STATUS = "4" WHERE a.device_name = "'+device_name+'" AND a.device_ip = "'+device_ip+'"')
+        LogUtility.logger.debug('删除设备执行完毕')
+    
+    # 数据库删除，无奈之举，擅用
+    def delDevices(self,devices_name):
+        db_config.uDelete('UPDATE t_device_group_info a SET STATUS = "4" WHERE a.device_group_name = "'+devices_name+'"')
+        LogUtility.logger.debug('删除设备组完毕')
+    
+    # 数据库删除，无奈之举，擅用
+    def delPlace(self,place_name):
+        db_config.uDelete('UPDATE t_place_info a SET STATUS = "4" WHERE a.place_name like "'+place_name+'%"')
+        LogUtility.logger.debug('删除存放地完毕')

@@ -317,6 +317,10 @@ def new_uisitue():
 
     cur_version = selectall('SELECT version FROM uicases where activity="1" group by version')
     uisitues_version = [dict(version=row[0]) for row in cur_version]
+
+    cur_name = selectall('SELECT zh_name FROM user WHERE username != "admin"')
+    uisitues_name = [dict(username=row[0]) for row in cur_name]
+
     if request.method == 'POST':
         uiname = selectall('select name from uisitues')
         uinames = [dict(name=row[0]) for row in uiname]
@@ -336,7 +340,7 @@ def new_uisitue():
             else:
                 flash('创建失败...')
             return redirect(url_for('uisitues',num=1))
-    return render_template('ui/new_uisitue.html',SITEURL=SITEURL, username=session['username'], uisitues_issue=uisitues_issue, uisitues_model=uisitues_model, uisitues_version=uisitues_version, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav,current="uisitues", pagename = '新增测试集',error=error)
+    return render_template('ui/new_uisitue.html',SITEURL=SITEURL, username=session['username'], uisitues_issue=uisitues_issue, uisitues_name=uisitues_name, uisitues_model=uisitues_model, uisitues_version=uisitues_version, nav=nav, sub_nav_ui = sub_nav_ui, sub_nav_api = sub_nav_api, set_nav=set_nav,current="uisitues", pagename = '新增测试集',error=error)
 
 # UI SIUTE REPORT
 @app.route('/ui_report_list/1', methods=['GET', 'POST'])
@@ -1951,5 +1955,5 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run()
-    #app.run(host='192.168.213.110',port=8000)
+    #app.run()
+    app.run(host='192.168.213.110',port=8000)

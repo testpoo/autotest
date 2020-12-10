@@ -381,7 +381,7 @@ a.addElement {
     bottom: 0;
 }
 
-#select-issue-mode,#select-model-mode,#select-version-mode {
+#select-issue-mode,#select-model-mode,#select-version-mode,#select-username-mode {
     display: none;
 }
 

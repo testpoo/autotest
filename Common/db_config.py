@@ -75,3 +75,20 @@ def sDelte(sql):
         LogUtility.logger.debug("事务处理成功")
     #关闭数据库
     db.close()
+
+def uDelete(sql):
+    try:
+        #连接MySQL数据库
+        db = pymysql.connect(host = '192.168.213.105',port = 13507,user = 'oma_admin',password = 'ca@OmaLK*&67',database = 'oma_dbmodel',charset = 'utf8')
+        #使用cursor()方法获取操作游标
+        cursor = db.cursor()
+        #使用execute()方法执行sql语句
+        cursor.execute(sql)
+    except Exception as err:
+        db.rollback()
+        LogUtility.logger.debug("事务处理失败: {}".format(str(err)))
+    else:
+        db.commit()
+        LogUtility.logger.debug("事务处理成功")
+    #关闭数据库
+    db.close()

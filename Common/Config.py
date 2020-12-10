@@ -1,13 +1,13 @@
-﻿# coding=UTF-8 
+# coding=UTF-8 
 
 from datetime import datetime
 import base64
 import os
 
-SITEURL = "http://127.0.0.1:5000/"
-#SITEURL = "http://192.168.213.110:8000/"
+#SITEURL = "http://127.0.0.1:5000/"
+SITEURL = "http://192.168.213.110:8000/"
 
-dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
+dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
 
 nav = ['自动化测试平台','UI自动化','接口自动化','设置']
 
@@ -84,6 +84,10 @@ para_headers = {
 	"Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
 	"Cookie": "SICAP_SESSIONID=1745f260-bf03-4720-b180-8aa48e309fca"
 }
+
+# 案例状态
+# 0：初始状态 1：提交状态 2：删除状态 3：审核状态
+
 #==============================================================================================================
 #change time to str
 def getCurrentTime():
