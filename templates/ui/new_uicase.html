@@ -1,10 +1,10 @@
-{% extends "caseManage/base_index.html" %}
+{% extends "base_index.html" %}
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
-<form class="form-horizontal" id="caseManage_new_uicase" action="{{ url_for('caseManage_new_uicase') }}" method="post">
+<form class="form-horizontal" id="new_uicase" action="{{ url_for('new_uicase',status=status) }}" method="post">
   <div class="form-group">
     <label for="type">用例类型<span style="color:red">*</span></label>
     <input id="type" list="types" class="form-control required" name="type" maxlength="200" placeholder="请选择用例类型"

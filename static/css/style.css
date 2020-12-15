@@ -13,7 +13,7 @@ html,body{
 
 a {
     text-decoration:none;
-    color: #676a6c;
+    color: #444;
 }
 
 li{
@@ -22,13 +22,13 @@ li{
 
 table {
     width: 100%;
-    border: 1px solid #ebeef5;
+    border: 1px solid #d3f6f3;
     border-collapse: collapse;
     border-radius: 5px;
 }
 
 th,tr,td {
-    border: 1px solid #ebeef5;
+    border: 1px solid #F5F7FA;
     height: 42px;
     line-height: 42px;
     padding: 0 5px;
@@ -41,14 +41,14 @@ td {
 }
 
 th {
-    background-color: #ebeef5;
+    background-color: #F5F7FA;
     border: 1px solid #fff;
 }
 
 select,input {
     height: 42px;
     border-radius: 5px;
-    border: 1px solid #ebeef5;
+    border: 1px solid #F5F7FA;
     padding: 0px 10px;
     color: #676a6c;
     outline:none;
@@ -56,6 +56,7 @@ select,input {
 
 label {
     height: 42px;
+    font-weight: bold;
 }
 
 textarea {
@@ -124,8 +125,8 @@ body {
     text-align: right;
     width: 100%;
     line-height: 42px;
-    border-bottom: 5px solid rgb(255, 144, 35);
-    background: background linear-gradient(90deg,#414d5f,#414d5f);
+    border-bottom: 5px solid #42e6a4;
+    background: background linear-gradient(90deg,#018383,#018383);
     padding-left: 150px;
     font-weight: bold;
     color: #fff;
@@ -156,13 +157,14 @@ body {
 #footer {
     position: fixed;
     bottom: 0px;
-    height: 60px;
+    height: 42px;
     margin: 0 auto;
     text-align: center;
     width: 100%;
     margin-left: -150px;
-    border-top: 1px solid #ddd;
-    background-color: #f7f7f8;
+    border-top: 2px solid #42e6a4;
+/*    background-color: #d3f6f3;*/
+    background-color: #F5F7FA;
     color: #000;
     z-index: 3;
 }
@@ -172,7 +174,7 @@ body {
 }
 
 #footer li {
-    line-height: 30px;
+    line-height: 42px;
 }
 
 /* base2 */
@@ -183,14 +185,31 @@ body {
     left: 0px;
     width:150px;
     text-align: left;
-    background-color: #ebeef5;
+    background-color: #F5F7FA;
     height: 100%;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     font-weight: bold;
     z-index: 2;
+    overflow-y:auto
 }
+
+#nav::-webkit-scrollbar {/*滚动条整体样式*/
+    width: 5px;     /*高宽分别对应横竖滚动条的尺寸*/
+    height: 1px;
+}
+#nav::-webkit-scrollbar-thumb {/*滚动条里面小方块*/
+    border-radius: 10px;
+     -webkit-box-shadow: inset 0 0 5px #F5F7FA;
+    background: #02a8a8;
+}
+#nav::-webkit-scrollbar-track {/*滚动条里面轨道*/
+    -webkit-box-shadow: inset 0 0 5px #F5F7FA;
+    border-radius: 10px;
+    background: #EDEDED;
+}
+
 
 #nav li {
     line-height: 42px;
@@ -201,7 +220,7 @@ body {
 }
 
 #nav a.color {
-    background: #596275;
+    background: #02a8a8;
     display: block;
     height: 42px;
     line-height: 42px;
@@ -210,11 +229,16 @@ body {
 }
 
 #nav .nav:first-child {
-    border-bottom: 5px solid #ff9023;
+    border-bottom: 5px solid #42e6a4;
 }
 
 #nav .nav:first-child a {
     font-size: 1.2em;
+}
+
+/* 占位 */
+#seat {
+    height: 44px;
 }
 
 /* login */
@@ -222,7 +246,9 @@ body {
     height: 60px;
     text-align: center;
     line-height: 60px;
-    border-bottom: 1px solid #ebeef5;
+    border-bottom: 5px solid #42e6a4;
+    background-color: #018383;
+    color: #fff;
     font-size: 28px;
     font-weight: bold;
 }
@@ -242,7 +268,7 @@ body {
 }
 
 #login .login .button {
-    background: #ff9023;
+    background: #02a8a8;
     color: #ffffff;
 }
 
@@ -250,7 +276,7 @@ body {
 #content {
     text-align: center;
     padding: 67px 20px 0px 20px;
-    padding-bottom: 80px;
+    padding-bottom: 60px;
     z-index: 0;
 }
 
@@ -259,7 +285,7 @@ body {
 }
 
 #content th {
-    color: rgba(0, 0, 0, 0.85);
+    color:#444;
 }
 
 /* new_uitest */
@@ -277,7 +303,7 @@ body {
     height: 42px;
     width: 100px;
     border-radius: 5px;
-    background-color: #ff9023;
+    background-color: #02a8a8;
     margin: 10px;
     color: #fff;
     line-height: 42px;
@@ -318,7 +344,7 @@ body {
 
 #content .form-group .button {
     width: 100px;
-    background: #ff9023;
+    background: #02a8a8;
     color: #ffffff;
     outline:none;
 }
@@ -343,7 +369,7 @@ a.addElement {
     height: 42px;
     line-height: 42px;
     margin-right:5px;
-    background-color: #ff9023;
+    background-color: #02a8a8;
     border-radius: 5px;
     text-align: center;
 }
@@ -403,7 +429,7 @@ a.addElement {
 
 .float-left .button {
     width: 100px;
-    background: #ff9023;
+    background: #02a8a8;
     color: #ffffff;
     outline:none;
 }
@@ -418,7 +444,7 @@ a.addElement {
 
 .current {
     font-weight: bold;
-    color: #ff9023;
+    color: #02a8a8;
 }
 
 #make_issue {
@@ -503,7 +529,7 @@ a.addElement {
 }
 
 #content .page a {
-    color: #ff9023;
+    color: #02a8a8;
 }
 
 .statistics {

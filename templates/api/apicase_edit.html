@@ -1,4 +1,4 @@
-{% extends "caseManage/base_index.html" %}
+{% extends "base_index.html" %}
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
@@ -48,7 +48,7 @@
 <div class="new">
     <ul>
         <li>
-            <a href="{{ SITEURL }}/caseManage/apidate_edit_cases_query/{{ case['name'] }}">编辑数据</a>
+            <a href="{{ SITEURL }}/apidate_edit_cases_query/{{ case['name'] }}">编辑数据</a>
         </li>
     </ul>
 </div>

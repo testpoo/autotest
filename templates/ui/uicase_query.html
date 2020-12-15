@@ -45,4 +45,13 @@
   <label for="description">描述</label>
   <div class="form-control required textarea" id="description" name="description" maxlength="500" placeholder="请输入描述">{{ case['description'] }}</div>
 </div>
+{% if status == 1 %}
+<div class="new">
+  <ul>
+      <li>
+          <a href="{{ SITEURL }}/uicase_review/{{ status }}/{{ id }}">审核</a>
+      </li>
+  </ul>
+</div>
+{% endif %}
 {% endblock %}

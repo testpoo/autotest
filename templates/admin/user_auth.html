@@ -1,0 +1,47 @@
+{% extends "base_index.html" %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+  <form class="form-horizontal" id="apicases"
+  action="{{ url_for('user_auth') }}" method="post">
+  <div class="float-left">
+    <label for="select-user" class="float-label">选择用户</label>
+    <input list="select-users" class="form-control reqapired" id="select-user" name="select-user" maxlength="200"
+      placeholder="请选择用户">
+    <datalist id="select-users">
+      {% for auth_zero,auth_first,auth_sec in user_auths %}
+      <option value="{{ auth_first }}">
+      {% endfor %}
+    </datalist>
+  </div>
+  <div class="float-left" id="div-names">
+    <label for="auth" class="float-label">默认值（默认全部）</label>
+    <input type="longtext" class="form-control" id="auth" name="auth" maxlength="500" placeholder="请输入查询值" value="审核|普通|执行|管理">
+  </div>
+  <div class="float-left">
+    <input type=submit value="保存" class="button">
+  </div>
+</form>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>用户名</th>
+      <th>中文名</th>
+      <th>用户权限</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user_auth in user_auths %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ user_auth[0] }}</td>
+      <td>{{ user_auth[1] }}</td>
+      <td>{{ user_auth[2] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

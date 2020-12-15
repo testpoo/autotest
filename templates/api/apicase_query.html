@@ -75,4 +75,13 @@
     <div class="form-control required textarea" id="case_parameter" name="case_parameter" placeholder="请输入响应">{{ case_detail['parameter'] }}</div>
 </div>
 {% endfor %}
+{% if status == 1 %}
+<div class="new">
+  <ul>
+      <li>
+          <a href="{{ SITEURL }}/apicase_review/{{ status }}/{{ id }}">审核</a>
+      </li>
+  </ul>
+</div>
+{% endif %}
 {% endblock %}

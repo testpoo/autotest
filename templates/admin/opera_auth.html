@@ -1,0 +1,47 @@
+{% extends "base_index.html" %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+  <form class="form-horizontal" id="apicases"
+  action="{{ url_for('opera_auth') }}" method="post">
+  <div class="float-left">
+    <label for="select-page" class="float-label">选择页面</label>
+    <input list="select-pages" class="form-control reqapired" id="select-page" name="select-page" maxlength="200"
+      placeholder="请选择页面">
+    <datalist id="select-pages">
+      {% for opera_zero,opera_first,opera_sec in opera_auths %}
+      <option value="{{ opera_zero+'-'+opera_first }}">
+      {% endfor %}
+    </datalist>
+  </div>
+  <div class="float-left" id="div-names">
+    <label for="operation" class="float-label">默认值（默认全部）</label>
+    <input type="longtext" class="form-control" id="operation" name="operation" maxlength="500" placeholder="请输入查询值" value="编辑-edit|查看-query|审核-query|驳回-reject|执行-exec|删除-delete|提交-submit|恢复-restore|彻底删除-redelete">
+  </div>
+  <div class="float-left">
+    <input type=submit value="保存" class="button">
+  </div>
+</form>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>导航菜单</th>
+      <th>菜单名称</th>
+      <th>操作权限</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for opera_auth in opera_auths %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ opera_auth[0] }}</td>
+      <td>{{ opera_auth[1] }}</td>
+      <td>{{ opera_auth[2] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

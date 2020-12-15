@@ -7,7 +7,7 @@
 <form class="form-horizontal" id="reset_passwd" action="{{ url_for('reset_passwd') }}" method="post">
   <div class="form-group">
     <label class="pwcha">用户名<span style="color:red">*</span></label>
-    <input id="select" list="usernames" class="form-control required" id="username" name="username" maxlength="20"
+    <input id="username" list="usernames" class="form-control required" id="username" name="username" maxlength="20"
       placeholder="请选择用户">
     <datalist id="usernames">
       {% for username in usernames %}

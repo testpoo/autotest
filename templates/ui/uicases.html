@@ -3,7 +3,7 @@
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
-<form class="form-horizontal" id="uicases" action="{{ url_for('uicases',category=category,value=value,num=num) }}" method="post">
+<form class="form-horizontal" id="uicases" action="{{ url_for('uicases',category=category,value=value,status=status,num=num) }}" method="post">
   <div class="float-left">
     <label for="select-model" class="float-label">选择模块</label>
     <input list="select-models" class="form-control required" id="select-model" name="select-model" maxlength="200"
@@ -50,6 +50,15 @@
     <input type=submit value="查询" class="button">
   </div>
 </form>
+{% if status == 0 %}
+<div class="new">
+  <ul>
+    <li>
+      <a href="{{ SITEURL }}/new_uicase/{{ status }}">新建</a>
+    </li>
+  </ul>
+</div>
+{% endif %}
 <table>
   <thead>
     <tr>
@@ -107,17 +116,34 @@
       <td>{{ case['zh_name'] }}</td>
       <td>{{ case['create_date'] }}</td>
       <td>
-        {% for opera,links in operation_exec %}
-        <span class="opration"><a href="{{ SITEURL }}/uicase_{{ links }}/{{ case['id'] }}"
+        {% if status == 0 %}
+        {% for opera,links in operation('用例编写') %}
+        <span class="opration"><a href="{{ SITEURL }}/uicase_{{ links }}/{{ status }}/{{ case['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
         {% endfor %}
+        {% elif status == 1 %}
+        {% for opera,links in operation('用例审核') %}
+        <span class="opration"><a href="{{ SITEURL }}/uicase_{{ links }}/{{ status }}/{{ case['id'] }}"
+            onclick="loading()">{{ opera }}</a></span>
+        {% endfor %}
+        {% elif status == 3 %}
+        {% for opera,links in operation('用例执行') %}
+        <span class="opration"><a href="{{ SITEURL }}/uicase_{{ links }}/{{ status }}/{{ case['id'] }}"
+            onclick="loading()">{{ opera }}</a></span>
+        {% endfor %}
+        {% elif status == 2 %}
+        {% for opera,links in operation('回收站') %}
+        <span class="opration"><a href="{{ SITEURL }}/uicase_{{ links }}/{{ status }}/{{ case['id'] }}"
+            onclick="loading()">{{ opera }}</a></span>
+        {% endfor %}
+        {% endif %}
       </td>
     </tr>
     {% endfor %}
     <tr>
       <td colspan="14">
         {% for page in range(all_Page) %}
-        <span class="opration {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/uicases/{{ category }}/{{ value }}/{{ page+1 }}">{{ page+1 }}</a></span>
+        <span class="opration {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/uicases/{{ category }}/{{ value }}/{{ status }}/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>

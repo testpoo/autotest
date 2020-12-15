@@ -22,6 +22,7 @@ function getPres() {
     document.getElementById("pre-steps").value = old + "\n" + xstep;
   }
 }
+
 // 后置事件
 function getNexts() {
   var xstep = document.getElementById("next-choice").value;

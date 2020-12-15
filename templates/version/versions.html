@@ -1,9 +1,32 @@
-{% extends "caseManage/base_index.html" %}
+{% extends "base_index.html" %}
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+<form class="form-horizontal" id="uiset" action="{{ url_for('versions',version=version,value=value,num=num) }}"
+  method="post">
+  <div class="float-left">
+    <label for="select-version" class="float-label">选择版本号</label>
+    <input list="select-versions" class="form-control reqapired" id="select-version" name="select-version"
+      maxlength="200" placeholder="请选择查询的版本号">
+    <datalist id="select-versions">
+      {% for version in version_list %}
+      <option value="{{ version[0] }}">
+        {% endfor %}
+    </datalist>
+  </div>
+  <div class="float-left">
+    <input type=submit value="查询" class="button">
+  </div>
+</form>
+<div class="new">
+  <ul>
+    <li>
+      <a href="{{ SITEURL }}/caseManage/new_version">新建</a>
+    </li>
+  </ul>
+</div>
 <table>
   <thead>
     <tr>
@@ -22,11 +45,9 @@
       <td>{{ version['username'] }}</td>
       <td>{{ version['create_date'] }}</td>
       <td>
-        {% for opera,links in operation %}
-        {% if opera == '删除' %}
-        <span class="opration"><a href="{{ SITEURL }}/caseManage/version_{{ links }}/{{ version['id'] }}"
-            onclick="loading()">{{ opera }}</a></span>
-        {% endif %}
+        {% for opera,links in operation('版本号') %}
+        <span class="opration"><a href="{{ SITEURL }}/version_{{ links }}/{{ version['id'] }}" onclick="loading()">{{
+            opera }}</a></span>
         {% endfor %}
       </td>
     </tr>
@@ -34,18 +55,11 @@
     <tr>
       <td colspan="10">
         {% for page in range(all_Page) %}
-        <span class="opration"><a href="{{ SITEURL }}/caseManage/versions/{{ page+1 }}">{{ page+1 }}</a></span>
+        <span class="opration"><a href="{{ SITEURL }}/versions/{{ version }}/{{ value }}/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>
   </tbody>
 </table>
 <div id="loadDiv"><img src="{{ SITEURL }}/static/img/loading.gif" /></div>
-<div class="new">
-  <ul>
-    <li>
-      <a href="{{ SITEURL }}/caseManage/new_version">新建</a>
-    </li>
-  </ul>
-</div>
 {% endblock %}

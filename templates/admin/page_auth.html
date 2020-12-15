@@ -1,0 +1,47 @@
+{% extends "base_index.html" %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+<form class="form-horizontal" id="apicases"
+  action="{{ url_for('page_auth') }}" method="post">
+  <div class="float-left">
+    <label for="select-page" class="float-label">选择页面</label>
+    <input list="select-pages" class="form-control reqapired" id="select-page" name="select-page" maxlength="200"
+      placeholder="请选择页面">
+    <datalist id="select-pages">
+      {% for auth_zero,auth_first,auth_sec in page_auths %}
+      <option value="{{ auth_zero+'-'+auth_first }}">
+      {% endfor %}
+    </datalist>
+  </div>
+  <div class="float-left" id="div-names">
+    <label for="auth" class="float-label">默认值（默认全部）</label>
+    <input type="longtext" class="form-control" id="auth" name="auth" maxlength="500" placeholder="请输入查询值" value="审核|普通|执行|管理">
+  </div>
+  <div class="float-left">
+    <input type=submit value="保存" class="button">
+  </div>
+</form>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>导航菜单</th>
+      <th>菜单名称</th>
+      <th>菜单权限</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for page_auth in page_auths %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ page_auth[0] }}</td>
+      <td>{{ page_auth[1] }}</td>
+      <td>{{ page_auth[2] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

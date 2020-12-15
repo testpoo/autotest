@@ -1,9 +1,31 @@
-{% extends "caseManage/base_index.html" %}
+{% extends "base_index.html" %}
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+<form class="form-horizontal" id="apiset" action="{{ url_for('apiset',name=name,value=value, num=num) }}" method="post">
+  <div class="float-left">
+    <label for="select-interface" class="float-label">选择接口</label>
+    <input list="select-interfaces" class="form-control reqapired" id="select-interface" name="select-interface"
+      maxlength="200" placeholder="请选择查询的接口">
+    <datalist id="select-interfaces">
+      {% for apiset in apiset_list %}
+      <option value="{{ apiset[0] }}">
+        {% endfor %}
+    </datalist>
+  </div>
+  <div class="float-left">
+    <input type=submit value="查询" class="button">
+  </div>
+</form>
+<div class="new">
+  <ul>
+    <li>
+      <a href="{{ SITEURL }}/new_apiset">新建</a>
+    </li>
+  </ul>
+</div>
 <table>
   <thead>
     <tr>
@@ -29,11 +51,9 @@
       <td>{{ apiset['username'] }}</td>
       <td>{{ apiset['create_date'] }}</td>
       <td>
-        {% for opera,links in operation %}
-        {% if links not in ('submit') %}
-        <span class="opration"><a href="{{ SITEURL }}/caseManage/apiset_{{ links }}/{{ apiset['id'] }}"
-            onclick="loading()">{{ opera }}</a></span>
-        {% endif %}
+        {% for opera,links in operation('接口集') %}
+        <span class="opration"><a href="{{ SITEURL }}/apiset_{{ links }}/{{ apiset['id'] }}" onclick="loading()">{{
+            opera }}</a></span>
         {% endfor %}
       </td>
     </tr>
@@ -41,18 +61,12 @@
     <tr>
       <td colspan="8">
         {% for page in range(all_Page) %}
-        <span class="opration {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/caseManage/apiset/{{ page+1 }}">{{ page+1 }}</a></span>
+        <span class="opration {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/apiset/{{ name }}/{{ value }}/{{ page+1 }}">{{
+            page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>
   </tbody>
 </table>
 <div id="loadDiv"><img src="{{ SITEURL }}/static/img/loading.gif" /></div>
-<div class="new">
-  <ul>
-    <li>
-      <a href="{{ SITEURL }}/caseManage/new_apiset">新建</a>
-    </li>
-  </ul>
-</div>
 {% endblock %}

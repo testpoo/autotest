@@ -4,49 +4,52 @@ from datetime import datetime
 import base64
 import os
 
-#SITEURL = "http://127.0.0.1:5000/"
-SITEURL = "http://192.168.213.110:8000/"
+SITEURL = "http://127.0.0.1:5000"
+#SITEURL = "http://192.168.213.110:8000"
 
-dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
+dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
+#dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
 
-nav = ['自动化测试平台','UI自动化','接口自动化','设置']
+#nav = ['自动化测试平台','UI自动化','接口自动化','设置']
 
-sub_nav_ui = [['测试用例','uicases'],['测试集','uisitues'],['测试报告','ui_report_list']]
+#sub_nav_ui = [['UI封装','uiset'],['测试用例','uicases'],['测试集','uisitues'],['测试报告','ui_report_list'],['测试用例回收站','uirecyclebin']]
 
-sub_nav_api = [['测试用例','apicases'],['测试集','apisitues'],['测试报告','api_report_list']]
+#sub_nav_api = [['接口集','apiset'],['测试用例','apicases'],['测试集','apisitues'],['测试报告','api_report_list'], ['测试用例回收站','apirecyclebin']]
 
-set_nav = [['注册','register'],['重置密码','reset_passwd']]
+#set_nav = [['注册','register'],['重置密码','reset_passwd']]
 
-operation = [['编辑','edit'],['查看','query'],['执行','exec'],['删除','delete'],['提交','submit']]
+#operation = [['编辑','edit'],['查看','query'],['执行','exec'],['删除','delete'],['提交','submit']]
 
-operation_exec = [['查看','query'],['执行','exec'],['驳回','reject'],['删除','delete']]
+#operation = [['编辑','edit'],['查看','query'],['执行','exec'],['删除','delete'],['提交','submit']]
 
-recyclebin = [['恢复','restore'],['彻底删除','delete']]
+#operation_exec = [['查看','query'],['执行','exec'],['驳回','reject'],['删除','delete']]
+
+#recyclebin = [['恢复','restore'],['彻底删除','delete']]
 #==============================================================================================================
 # 案例管理
 #==============================================================================================================
 
-caseManage_nav = ['案例管理平台','UI自动化','接口自动化','设置']
+#caseManage_nav = ['案例管理平台','UI自动化','接口自动化','设置']
 
-caseManage_sub_nav_ui = [['UI封装','uiset'],['测试用例','uicases'],['测试用例回收站','uirecyclebin']]
+#caseManage_sub_nav_ui = [['UI封装','uiset'],['测试用例','uicases'],['测试用例回收站','uirecyclebin']]
 
-caseManage_sub_nav_api = [['接口集','apiset'],['测试用例','apicases'], ['测试用例回收站','apirecyclebin']]
+#caseManage_sub_nav_api = [['接口集','apiset'],['测试用例','apicases'], ['测试用例回收站','apirecyclebin']]
 
-caseManage_set_nav = [['版本号','versions']]
+#caseManage_set_nav = [['版本号','versions']]
 
 #==============================================================================================================
 # 案例审核
 #==============================================================================================================
 
-review_nav = ['案例审核平台','UI自动化','接口自动化']
+#review_nav = ['案例审核平台','UI自动化','接口自动化']
 
-review_sub_nav_ui = [['测试用例','uicases']]
+#review_sub_nav_ui = [['测试用例','uicases']]
 
-review_sub_nav_api = [['测试用例','apicases']]
+#review_sub_nav_api = [['测试用例','apicases']]
 
-review_user = ['puyawei','lvhao']
+#review_user = ['puyawei','lvhao']
 
-review_operation = [['审核','query'],['执行','exec']]
+#review_operation = [['审核','query'],['执行','exec']]
 
 #==============================================================================================================
 product = ['SiCAP','OMA']
@@ -214,12 +217,12 @@ def getParaLen():
     length=len(x.split('|')[1].split(','))
     return length
 
-# 报表安装创建时间排序
+# 按照报表创建时间排序
 def get_file_list(file_path):
 
     dir_list = os.listdir(file_path)
     if not dir_list:
-        return
+        return []
     else:
         dir_list = sorted(dir_list, key=lambda x: os.path.getctime(os.path.join(file_path, x)),reverse=True)
         return dir_list

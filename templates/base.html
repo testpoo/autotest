@@ -21,6 +21,7 @@
         <div id=sitename>
             <div class="left">{{ pagename }}</div>
             <div class="right">
+                <span>{{ '角色：'+role(session['username']) if session.get('logged_in') }}</span>
                 <span>{{ get_name(session['username']) if session.get('logged_in') }}</span>
                 <span><a href="{{ url_for('modify_passwd') }}">修改密码</a></span>
                 <span><a href="{{ url_for('logout') }}">退出</a></span>
@@ -30,8 +31,6 @@
         {% endblock %}
         <div id=footer>
             <ul>
-                <li><a href="{{ SITEURL }}/login" style="color:#ff9023;font-weight: bold;">自动化测试平台</a> | <a href="{{ SITEURL }}/caseManage">案例管理平台</a> | <a
-                        href="{{ SITEURL }}/review">案例审核平台</a></li>
                 <li>&nbsp;&copy;&nbsp;上讯西研自动化测试组</li>
             </ul>
         </div>

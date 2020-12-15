@@ -3,5 +3,50 @@
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
-<div class="suninfo">❆</div>
-    {% endblock %}
+<div class="statistics">
+    <h2>OMA按版本统计</h2>
+    <table class="count">
+        <thead>
+            <tr>
+                <th>版本</th>
+                <th>数量</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for version in versions %}
+            <tr>
+                <td>{{ version[0] }}</td>
+                <td><a href="{{ SITEURL }}/caseManage/uicases/a.version/{{ version[0] }}/1">{{ version[1] }}</a></td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>总计</td>
+                <td><a href="{{ SITEURL }}/caseManage/uicases/1/1/1">{{ counts }}</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="statistics">
+    <h2>OMA按模块统计</h2>
+    <table class="count">
+        <thead>
+            <tr>
+                <th>模块</th>
+                <th>数量</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for model in models %}
+            <tr>
+                <td>{{ model[0] }}</td>
+                <td><a href="{{ SITEURL }}/caseManage/uicases/a.model/{{ model[0] }}/1">{{ model[1] }}</a></td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>总计</td>
+                <td><a href="{{ SITEURL }}/caseManage/uicases/1/1/1">{{ counts }}</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
