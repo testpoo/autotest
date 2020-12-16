@@ -548,3 +548,8 @@ a.addElement {
 .statistics .count td a {
     color: #199FED;
 }
+
+#content .invalid {
+    font-size: 72px;
+    color: #018383;
+}

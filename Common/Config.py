@@ -9,48 +9,6 @@ SITEURL = "http://127.0.0.1:5000"
 
 dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
 #dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
-
-#nav = ['自动化测试平台','UI自动化','接口自动化','设置']
-
-#sub_nav_ui = [['UI封装','uiset'],['测试用例','uicases'],['测试集','uisitues'],['测试报告','ui_report_list'],['测试用例回收站','uirecyclebin']]
-
-#sub_nav_api = [['接口集','apiset'],['测试用例','apicases'],['测试集','apisitues'],['测试报告','api_report_list'], ['测试用例回收站','apirecyclebin']]
-
-#set_nav = [['注册','register'],['重置密码','reset_passwd']]
-
-#operation = [['编辑','edit'],['查看','query'],['执行','exec'],['删除','delete'],['提交','submit']]
-
-#operation = [['编辑','edit'],['查看','query'],['执行','exec'],['删除','delete'],['提交','submit']]
-
-#operation_exec = [['查看','query'],['执行','exec'],['驳回','reject'],['删除','delete']]
-
-#recyclebin = [['恢复','restore'],['彻底删除','delete']]
-#==============================================================================================================
-# 案例管理
-#==============================================================================================================
-
-#caseManage_nav = ['案例管理平台','UI自动化','接口自动化','设置']
-
-#caseManage_sub_nav_ui = [['UI封装','uiset'],['测试用例','uicases'],['测试用例回收站','uirecyclebin']]
-
-#caseManage_sub_nav_api = [['接口集','apiset'],['测试用例','apicases'], ['测试用例回收站','apirecyclebin']]
-
-#caseManage_set_nav = [['版本号','versions']]
-
-#==============================================================================================================
-# 案例审核
-#==============================================================================================================
-
-#review_nav = ['案例审核平台','UI自动化','接口自动化']
-
-#review_sub_nav_ui = [['测试用例','uicases']]
-
-#review_sub_nav_api = [['测试用例','apicases']]
-
-#review_user = ['puyawei','lvhao']
-
-#review_operation = [['审核','query'],['执行','exec']]
-
 #==============================================================================================================
 product = ['SiCAP','OMA']
 
@@ -89,8 +47,8 @@ para_headers = {
 }
 
 # 案例状态
-# 0：初始状态 1：提交状态 2：删除状态 3：审核状态
-
+# 0：待提交 1：待审核 2：已删除 3：已审核
+activity_dict = {'delete':'["0","1","3"]','submit':'["0"]','restore':'["2"]','redelete':'["0","1","2","3"]','review':'["1"]','reject':'["1","3"]'}
 #==============================================================================================================
 #change time to str
 def getCurrentTime():

@@ -35,6 +35,7 @@ app.config.from_object(__name__)
 #        return time.strftime(timeFormat)
 #    return dict(current_time=get_time)
 
+# 获取中文名
 @app.context_processor
 def get_zh_name():
     def get_name(username):
@@ -42,16 +43,19 @@ def get_zh_name():
         return zname[0][0]
     return dict(get_name=get_name)
 
+# 获取siteurl
 @app.context_processor
 def get_siteurl():
     return dict(SITEURL=SITEURL)
 
+# 获取username
 @app.context_processor
 def get_user():
     def get_user(username):
         return username
     return dict(username=get_user)
 
+# 获取用户导航菜单
 @app.context_processor
 def get_navs():
     def get_nav(username,sub_nav): 
@@ -66,6 +70,7 @@ def get_navs():
         return navs
     return dict(nav=get_nav)
 
+# 获取页面操作项目
 @app.context_processor
 def get_operation():
     def get_buttons(menu):
@@ -76,6 +81,7 @@ def get_operation():
         return buttons
     return dict(operation=get_buttons)
 
+# 获取用户权限
 @app.context_processor
 def get_auth():
     def get_auths(user):
@@ -83,17 +89,34 @@ def get_auth():
         return auths
     return dict(role=get_auths)
 
+# 获取产品
 @app.context_processor
 def get_product():
     return dict(product=product)
 
+# 获取oma模块
 @app.context_processor
 def get_model_oma():
     return dict(model_oma=model_oma)
 
+# 获取sicap模块
 @app.context_processor
 def get_model_sicap():
     return dict(model_sicap=model_sicap)
+
+# 页面权限控制
+def get_auths_control(user,url,category,status,operation,opera):
+    user_auths = selectone('SELECT auth FROM user WHERE username = %s',[user])[0][0].split('|')
+    page_auths = selectall('SELECT auth FROM auth WHERE url = "'+url+'" AND '+category+' = '+str(status)+' and '+operation+' like "%'+opera+'%"')[0][0].split('|')
+    if list(set(page_auths) & set(user_auths)) != []:
+        return True
+    else:
+        return False
+
+# 获取案例状态
+def activity(category,cases,id):
+    activity = selectall("select activity from "+cases+" where id = '"+str(id)+"'")[0][0]
+    return str(activity)
 
 ###############################
 #             公共
@@ -150,7 +173,7 @@ def index(current_user):
 @app.route('/modify_passwd', methods=['GET', 'POST'])
 def modify_passwd():
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
     error = None
     if request.method == 'POST':
         cur = selectone('select password from user where username = %s',(session['username']))
@@ -185,7 +208,9 @@ def logout():
 @app.route('/uicases/<category>/<value>/<int:status>/<int:num>', methods=['GET', 'POST'])
 def uicases(category,value,status,num):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uicases','status',status,'1','1') == False:
+        return render_template('invalid.html')
     else:
         error = None
         if category == 'a.name':
@@ -227,7 +252,9 @@ def uicases(category,value,status,num):
 @app.route('/new_uicase/<int:status>', methods=['GET', 'POST'])
 def new_uicase(status):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uicases','status',status,'1','1') == False:
+        return render_template('invalid.html')
     error = None
 
     version = selectall('select version from versions')
@@ -263,14 +290,16 @@ def new_uicase(status):
             else:
                 flash('创建失败...')
 
-            return redirect(url_for('uicases',category='a.username',value=session['username'],status=0,num=1))
+            return redirect(url_for('uicases',category='a.username',value=session['username'],status=status,num=1))
     return render_template('ui/new_uicase.html', list_steps=list_steps,versions=versions, current='uicases'+str(status), status=status,pagename = '新增测试用例', issuetypes=issuetypes,nexttypes=nexttypes, error=error)
 
 # UI案例查询
 @app.route('/uicase_query/<int:status>/<int:id>', methods=['GET', 'POST'])
 def uicase_query(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uicases','status',status,'operation','查看-query') == False:
+        return render_template('invalid.html')
     else:
         cur = selectone('SELECT type,version, model, product, name,pre_steps, steps, description,next_steps, username, create_date FROM uicases where id=%s',[id])
         cases = [dict(type=row[0], version=row[1], model=row[2], product=row[3], name=row[4], pre_steps=row[5], steps=row[6], description=row[7], next_steps=row[8], username=row[9], create_date=row[10]) for row in cur]
@@ -280,7 +309,9 @@ def uicase_query(status,id):
 @app.route('/uicase_delete/<int:status>/<int:id>', methods=['GET', 'POST'])
 def uicase_delete(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uicases','status',status,'operation','删除-delete') == False:
+        return render_template('invalid.html')
     else:
         uisitue = selectall('select steps from uisitues')
         uisitues = [dict(steps=row[0]) for row in uisitue]
@@ -313,11 +344,13 @@ def uicase_delete(status,id):
             flash("该用例被测试集引用，不能删除~！")
         elif uicase_name in uicase_pre_steps_all or uicase_name in uicase_next_steps_all:
             flash("该案例被其他用例前置/后置事务引用，不能删除~！")
+        elif activity('delete','uicases',id) not in activity_dict['delete']:
+            flash('用例状态不允许执行该操作...')
         else:
-            cur = addUpdateDel('update uicases set activity = "2" where id=%s',[id])
+            cur = addUpdateDel('update uicases set activity = "2" where id=%s and activity in ("0","1","3")',[id])
 
-            cur_uicases_del= selectone("SELECT * FROM uicases where id=%s and activity !=2",[id])
-            if cur_uicases_del == ():
+            cur_uicases_del= selectone("SELECT * FROM uicases where id=%s and activity =2",[id])
+            if cur_uicases_del != ():
                 flash('删除成功...')
             else:
                 flash('删除失败...')
@@ -328,7 +361,9 @@ def uicase_delete(status,id):
 @app.route('/uicase_exec/<int:status>/<int:id>', methods=['GET', 'POST'])
 def uicase_exec(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uicases','status',status,'operation','执行-exec') == False:
+        return render_template('invalid.html')
     else:
         error = None
         newrun = RunUiTests(id,session['username'])
@@ -339,24 +374,30 @@ def uicase_exec(status,id):
 @app.route('/uicase_reject/<int:status>/<int:id>', methods=['GET', 'POST'])
 def uicase_reject(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uicases','status',status,'operation','驳回-reject') == False:
+        return render_template('invalid.html')
+    elif activity('reject','uicases',id) not in activity_dict['reject']:
+        flash('用例状态不允许执行该操作...')
     else:
-        cur = addUpdateDel('update uicases set activity=0 where id=%s and activity=1',[id])
+        cur = addUpdateDel('update uicases set activity=0 where id=%s and activity in ("1","3")',[id])
 
         cur_uicases_reject= selectone("SELECT * FROM uicases where id=%s and activity=0",[id])
-        if cur_uicases_reject == ():
-            flash('驳回失败...')
-        else:
+        if cur_uicases_reject != ():
             flash('驳回成功...')
+        else:
+            flash('驳回失败...')
 
-        return redirect(url_for('uicases',category='a.username',value=session['username'],status=status,num=1))
+    return redirect(url_for('uicases',category='a.username',value=session['username'],status=status,num=1))
 
 # UI案例编辑
 @app.route('/uicase_edit/<int:status>/<int:id>', methods=['GET', 'POST'])
 def uicase_edit(status,id):
     error = None
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uicases','status',status,'operation','编辑-edit') == False:
+        return render_template('invalid.html')
     else:
         issuetype = selectall('select name from uicases where type="公共用例"')
         issuetypes = [dict(name=row[0]) for row in issuetype]
@@ -390,7 +431,7 @@ def uicase_edit(status,id):
                 else:
                     flash('编辑失败...')
 
-                return redirect(url_for('uicases_write',category='a.username',value=session['username'],num=1))
+                return redirect(url_for('uicases',category='a.username',value=session['username'],status=status,num=1))
             else:
                 addUpdateDel('update uicases set name=%s, pre_steps=%s, steps=%s, next_steps=%s, description=%s where id=%s',[request.form['name'], request.form['pre-steps'], request.form['steps'], request.form['next-steps'],request.form['description'],id])
 
@@ -406,64 +447,76 @@ def uicase_edit(status,id):
                 else:
                     flash('编辑失败...')
 
-                return redirect(url_for('uicases',category='a.username',value=session['username'],status=0,num=1))
+                return redirect(url_for('uicases',category='a.username',value=session['username'],status=status,num=1))
         return render_template('ui/uicase_edit.html', list_steps=list_steps, case=cases[0],issuetypes=issuetypes,nexttypes=nexttypes,current='uicases'+str(status),status=status,pagename = '测试用例编辑',error=error,id=id)
 
 # UI案例删除后恢复
 @app.route('/uicase_restore/<int:status>/<int:id>', methods=['GET', 'POST'])
 def uicase_restore(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uicases','status',status,'operation','恢复-restore') == False:
+        return render_template('invalid.html')
+    elif activity('restore','uicases',id) not in activity_dict['restore']:
+        flash('用例状态不允许执行该操作...')
     else:
         cur = addUpdateDel('update uicases set activity=0 where id=%s and activity=2',[id])
 
         cur_uicases_del= selectone("SELECT * FROM uicases where id=%s and activity=0",[id])
-        if cur_uicases_del == ():
-            flash('恢复失败...')
-        else:
+        if cur_uicases_del != ():
             flash('恢复成功...')
+        else:
+            flash('恢复失败...')
 
-        return redirect(url_for('uicases',category='a.username',value=session['username'],status=status,num=1))
+    return redirect(url_for('uicases',category='a.username',value=session['username'],status=status,num=1))
 
 # UI案例彻底删除
 @app.route('/uicase_redelete/<int:status>/<int:id>', methods=['GET', 'POST'])
 def uicase_redelete(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uicases','status',status,'operation','彻底删除-redelete') == False:
+        return render_template('invalid.html')
+    elif activity('redelete','uicases',id) not in activity_dict['redelete']:
+        flash('用例状态不允许执行该操作...')
     else:
         uicase = selectone('select name from uicases where id=%s',[id])
         uicases = [dict(name=row[0]) for row in uicase]
         uicase_name = uicases[0]['name']
         
-        cur = addUpdateDel('delete from uicases where id=%s and activity=2',[id])
+        cur = addUpdateDel('delete from uicases where id=%s',[id])
 
-        cur_uicases_del= selectone("SELECT * FROM uicases where id=%s and activity=2",[id])
+        cur_uicases_del= selectone("SELECT * FROM uicases where id=%s",[id])
         if cur_uicases_del == ():
             flash('删除成功...')
         else:
             flash('删除失败...')
 
-        return redirect(url_for('uicases',category='a.username',value=session['username'],status=status,num=1))
+    return redirect(url_for('uicases',category='a.username',value=session['username'],status=status,num=1))
 
 # UI案例提交
 @app.route('/uicase_submit/<int:status>/<int:id>', methods=['GET', 'POST'])
 def _uicase_submit(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uicases','status',status,'operation','提交-submit') == False:
+        return render_template('invalid.html')
+    elif activity('submit','uicases',id) not in activity_dict['submit']:
+        flash('用例状态不允许执行该操作...')
     else:
         uicase = selectone('select name from uicases where id=%s',[id])
         uicases = [dict(name=row[0]) for row in uicase]
         uicase_name = uicases[0]['name']
         
-        cur = addUpdateDel('update uicases set activity=1 where id=%s',[id])
+        cur = addUpdateDel('update uicases set activity=1 where id=%s and activity=0',[id])
 
         cur_uicases_submint= selectone("SELECT * FROM uicases where id=%s and activity=1",[id])
-        if cur_uicases_submint == ():
+        if cur_uicases_submint != ():
             flash('提交成功...')
         else:
             flash('提交失败...')
 
-        return redirect(url_for('uicases',category='a.username',value=session['username'],status=status,num=1))
+    return redirect(url_for('uicases',category='a.username',value=session['username'],status=status,num=1))
 
 ###############################
 #          UI测试集
@@ -472,7 +525,9 @@ def _uicase_submit(status,id):
 @app.route('/uisitues/<name>/<value>/<int:num>', methods=['GET', 'POST'])
 def uisitues(name,value,num):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uisitues','1','1','1','1') == False:
+        return render_template('invalid.html')
     else:
         all_Count = selectall('SELECT count(1) FROM uisitues a where '+name+' = "'+value+'"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
@@ -484,6 +539,7 @@ def uisitues(name,value,num):
             else:
                 name = '1'
                 value = '1'
+            return redirect(url_for('uisitues',name=name,value=value,num=num))
         cur = selectall('SELECT a.id,a.name,a.exec_mode,a.steps,a.description,b.zh_name,a.create_date FROM uisitues a inner join user b on a.username=b.username where '+name+' = "'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         uisitues = [dict(id=row[0], name=row[1], exec_mode=row[2], steps=row[3], description=row[4], username=row[5], create_date=row[6]) for row in cur]
         return render_template('ui/uisitues.html',uisitues=uisitues,name=name,value=value, num=num, uisitues_list=uisitues_list,all_Page=all_Page,current="uisitues", pagename = '测试集')
@@ -492,7 +548,9 @@ def uisitues(name,value,num):
 @app.route('/new_uisitue', methods=['GET', 'POST'])
 def new_uisitue():
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uisitues','1','1','1','1') == False:
+        return render_template('invalid.html')
     error = None
     cur_issue = selectall('SELECT name FROM uicases where activity="1"')
     uisitues_issue = [dict(name=row[0]) for row in cur_issue]
@@ -531,7 +589,9 @@ def new_uisitue():
 @app.route('/uisitue_edit/<int:id>', methods=['GET', 'POST'])
 def uisitue_edit(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uisitues','1','1','operation','编辑-edit') == False:
+        return render_template('invalid.html')
     else:
         cur_issue = selectall('SELECT name FROM uicases where activity="1"')
         uisitues_issue = [dict(name=row[0]) for row in cur_issue]
@@ -565,7 +625,9 @@ def uisitue_edit(id):
 @app.route('/uisitue_query/<int:id>', methods=['GET', 'POST'])
 def uisitue_query(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uisitues','1','1','operation','查看-query') == False:
+        return render_template('invalid.html')
     else:
         cur = selectone('SELECT name,exec_mode, steps, description FROM uisitues where id=%s',[id])
         cases = [dict(name=row[0], exec_mode=row[1], steps=row[2], description=row[3]) for row in cur]
@@ -575,7 +637,9 @@ def uisitue_query(id):
 @app.route('/uisitue_delete/<int:id>', methods=['GET', 'POST'])
 def uisitue_delete(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uisitues','1','1','operation','删除-delete') == False:
+        return render_template('invalid.html')
     else:
         cur = addUpdateDel('delete from uisitues where id=%s',[id])
 
@@ -591,7 +655,9 @@ def uisitue_delete(id):
 @app.route('/uisitue_exec/<int:id>', methods=['GET', 'POST'])
 def uisitue_exec(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uisitues','1','1','operation','执行-exec') == False:
+        return render_template('invalid.html')
     else:
         error = None
         username = session['username']
@@ -604,7 +670,9 @@ def uisitue_exec(id):
 @app.route('/ui_report_list/1', methods=['GET', 'POST'])
 def ui_report_list():
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'ui_report_list','1','1','1','1') == False:
+        return render_template('invalid.html')
     else:
         report_lists = get_file_list(path_ui)[0:18]
         return render_template('report_list.html', pagename = '测试报告列表',report_lists=report_lists,path = path_ui,current='ui_report_list')
@@ -616,7 +684,9 @@ def ui_report_list():
 @app.route('/apisitues/<name>/<value>/<int:num>', methods=['GET', 'POST'])
 def apisitues(name,value,num):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apisitues','1','1','1','1') == False:
+        return render_template('invalid.html')
     else:
         all_Count = selectall('SELECT count(1) FROM apisitues a where '+name+' = "'+value+'"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
@@ -628,6 +698,7 @@ def apisitues(name,value,num):
             else:
                 name = '1'
                 value = '1'
+            return redirect(url_for('apisitues',name=name,value=value,num=num))
         cur = selectall('SELECT a.id,a.name,a.exec_mode, a.steps,a.description,b.zh_name,a.create_date FROM apisitues a inner join user b on a.username=b.username where '+name+' = "'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         apisitues = [dict(id=row[0], name=row[1], exec_mode=row[2], steps=row[3], description=row[4], username=row[5], create_date=row[6]) for row in cur]
         return render_template('api/apisitues.html',apisitues=apisitues, all_Page=all_Page, name=name,value=value, num=num,apisitues_list=apisitues_list,pagename = '测试集',current='apisitues')
@@ -636,7 +707,9 @@ def apisitues(name,value,num):
 @app.route('/new_apisitue', methods=['GET', 'POST'])
 def new_apisitue():
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apisitues','1','1','1','1') == False:
+        return render_template('invalid.html')
     error = None
     cur_issue = selectall('SELECT name FROM apicases where activity="1"')
     apisitues_issue = [dict(name=row[0]) for row in cur_issue]
@@ -673,7 +746,9 @@ def new_apisitue():
 @app.route('/apisitue_edit/<int:id>', methods=['GET', 'POST'])
 def apisitue_edit(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apisitues','1','1','operation','编辑-edit') == False:
+        return render_template('invalid.html')
     else:
         error=None
         cur_issue = selectall('SELECT name FROM apicases where activity="1"')
@@ -709,7 +784,9 @@ def apisitue_edit(id):
 @app.route('/apisitue_query/<int:id>', methods=['GET', 'POST'])
 def apisitue_query(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apisitues','1','1','operation','查看-query') == False:
+        return render_template('invalid.html')
     else:
         cur = selectone('SELECT name, exec_mode, steps, description FROM apisitues where id=%s',[id])
         cases = [dict(name=row[0], exec_mode=row[1], steps=row[2], description=row[3]) for row in cur]
@@ -719,7 +796,9 @@ def apisitue_query(id):
 @app.route('/apisitue_delete/<int:id>', methods=['GET', 'POST'])
 def apisitue_delete(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apisitues','1','1','operation','删除-delete') == False:
+        return render_template('invalid.html')
     else:
         cur = addUpdateDel('delete from apisitues where id=%s',[id])
 
@@ -735,7 +814,9 @@ def apisitue_delete(id):
 @app.route('/apisitue_exec/<int:id>', methods=['GET', 'POST'])
 def apisitue_exec(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apisitues','1','1','operation','执行-exec') == False:
+        return render_template('invalid.html')
     else:
         error = None
         username = session['username']
@@ -748,7 +829,9 @@ def apisitue_exec(id):
 @app.route('/api_report_list/1', methods=['GET', 'POST'])
 def api_report_list():
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'api_report_list','1','1','1','1') == False:
+        return render_template('invalid.html')
     else:
         report_lists = get_file_list(path_api)[0:18]
         return render_template('report_list.html', pagename = '测试报告列表',report_lists=report_lists,path = path_api,current='api_report_list')
@@ -760,7 +843,9 @@ def api_report_list():
 @app.route('/apicases/<category>/<value>/<int:status>/<int:num>', methods=['GET', 'POST'])
 def apicases(category,value,status,num):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apicases','status',status,'1','1') == False:
+        return render_template('invalid.html')
     else:
         error = None
         if category == 'a.name':
@@ -802,7 +887,9 @@ def apicases(category,value,status,num):
 @app.route('/new_apicase/<int:status>', methods=['GET', 'POST'])
 def new_apicase(status):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apicases','status',status,'1','1') == False:
+        return render_template('invalid.html')
     cur = selectall('SELECT name,request FROM apiset')
     apisets = [dict(name=row[0],request=row[1]) for row in cur]
     error = None
@@ -863,7 +950,9 @@ def new_apicase(status):
 @app.route('/apicase_query/<int:status>/<int:id>', methods=['GET', 'POST'])
 def apicase_query(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apicases','status',status,'operation','查看-query') == False:
+        return render_template('invalid.html')
     else:
         cur = selectone('SELECT version, name, product, model, steps, description FROM apicases where id=%s',[id])
         cases = [dict(version=row[0], name=row[1], product=row[2], model=row[3], steps=row[4], description=row[5]) for row in cur]
@@ -880,7 +969,9 @@ def apicase_query(status,id):
 @app.route('/apicase_delete/<int:status>/<int:id>', methods=['GET', 'POST'])
 def apicase_delete(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apicases','status',status,'operation','删除-delete') == False:
+        return render_template('invalid.html')
     else:
         apisitue = selectall('select steps from apisitues')
         apisitues = [dict(steps=row[0]) for row in apisitue]
@@ -913,11 +1004,13 @@ def apicase_delete(status,id):
             flash("该用例被测试集引用，不能删除~！")
         elif apicase_name in apicase_pre_steps_all or apicase_name in apicase_next_steps_all:
             flash("该案例被其他用例前置/后置事务引用，不能删除~！")
+        elif activity('delete','apicases',id) not in activity_dict['delete']:
+            flash('用例状态不允许执行该操作...')
         else:
-            cur = addUpdateDel('update apicases set activity = "2" where id=%s',[id])
+            cur = addUpdateDel('update apicases set activity = "2" where id=%s and activity in ("0","1","3")',[id])
 
-            cur_apicases_del= selectone("SELECT * FROM apicases where id=%s and activity !=2",[id])
-            if cur_apicases_del == ():
+            cur_apicases_del= selectone("SELECT * FROM apicases where id=%s and activity ==2",[id])
+            if cur_apicases_del != ():
                 flash('删除成功...')
             else:
                 flash('删除失败...')
@@ -928,7 +1021,9 @@ def apicase_delete(status,id):
 @app.route('/apicase_exec/<int:status>/<int:id>', methods=['GET', 'POST'])
 def apicase_exec(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apicases','status',status,'operation','执行-exec') == False:
+        return render_template('invalid.html')
     else:
         error = None
         newrun = RunTests(id,session['username'])
@@ -940,23 +1035,29 @@ def apicase_exec(status,id):
 @app.route('/apicase_reject/<int:status>/<int:id>', methods=['GET', 'POST'])
 def apicase_reject(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apicases','status',status,'operation','驳回-reject') == False:
+        return render_template('invalid.html')
+    elif activity('reject','apicases',id) not in activity_dict['reject']:
+        flash('用例状态不允许执行该操作...')
     else:
-        cur = addUpdateDel('update apicases set activity=0 where id=%s and activity=1',[id])
+        cur = addUpdateDel('update apicases set activity=0 where id=%s and activity in ("1","3")',[id])
 
         cur_apicases_reject= selectone("SELECT * FROM apicases where id=%s and activity=0",[id])
-        if cur_apicases_reject == ():
-            flash('驳回失败...')
-        else:
+        if cur_apicases_reject != ():
             flash('驳回成功...')
+        else:
+            flash('驳回失败...')
 
-        return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
+    return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
 
 # API用例编辑
 @app.route('/apicase_edit/<int:status>/<int:id>', methods=['GET', 'POST'])
 def apicase_edit(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apicases','status',status,'operation','编辑-edit') == False:
+        return render_template('invalid.html')
     else:
         error = None
         cur = selectall('SELECT name,request FROM apiset')
@@ -969,65 +1070,77 @@ def apicase_edit(status,id):
 @app.route('/apicase_restore/<int:status>/<int:id>', methods=['GET', 'POST'])
 def apicase_restore(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apicases','status',status,'operation','恢复-restore') == False:
+        return render_template('invalid.html')
+    elif activity('restore','apicases',id) not in activity_dict['restore']:
+        flash('用例状态不允许执行该操作...')
     else:
         cur = addUpdateDel('update apicases set activity=0 where id=%s and activity=2',[id])
 
         cur_apicases_del= selectone("SELECT * FROM apicases where id=%s and activity=0",[id])
-        if cur_apicases_del == ():
-            flash('恢复失败...')
-        else:
+        if cur_apicases_del != ():
             flash('恢复成功...')
+        else:
+            flash('恢复失败...')
 
-        return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
+    return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
 
 # API用例彻底删除
 @app.route('/apicase_redelete/<int:status>/<int:id>', methods=['GET', 'POST'])
 def apicase_redelete(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apicases','status',status,'operation','删除-redelete') == False:
+        return render_template('invalid.html')
+    elif activity('redelete','apicases',id) not in activity_dict['redelete']:
+        flash('用例状态不允许执行该操作...')
     else:
         apicase = selectone('select name from apicases where id=%s',[id])
         apicases = [dict(name=row[0]) for row in apicase]
         apicase_name = apicases[0]['name']
         
-        addUpdateDel('delete from apicases where id=%s and activity=2',[id])
+        addUpdateDel('delete from apicases where id=%s',[id])
         addUpdateDel('delete from apidates where case_name=%s',[apicase_name])
 
         cur_apidates_del= selectone("SELECT * FROM apidates where case_name=%s",[apicase_name])
-        cur_apicases_del= selectone("SELECT * FROM apicases where id=%s and activity=2",[id])
+        cur_apicases_del= selectone("SELECT * FROM apicases where id=%s",[id])
         if cur_apidates_del == () and cur_apidates_del == ():
             flash('删除成功...')
         else:
             flash('删除失败...')
 
-        return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
+    return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
 
 # API用例提交
 @app.route('/apicase_submit/<int:status>/<int:id>', methods=['GET', 'POST'])
 def apicase_submit(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apicases','status',status,'operation','提交-submit') == False:
+        return render_template('invalid.html')
+    elif activity('submit','apicases',id) not in activity_dict['submit']:
+        flash('用例状态不允许执行该操作...')
     else:
         apicase = selectone('select name from apicases where id=%s',[id])
         apicases = [dict(name=row[0]) for row in apicase]
         apicase_name = apicases[0]['name']
         
-        cur = addUpdateDel('update apicases set activity=1 where id=%s',[id])
+        cur = addUpdateDel('update apicases set activity=1 where id=%s and activity=0',[id])
 
         cur_apicases_submint= selectone("SELECT * FROM apicases where id=%s and activity=1",[id])
-        if cur_apicases_submint == ():
-            flash('提交失败...')
-        else:
+        if cur_apicases_submint != ():
             flash('提交成功...')
+        else:
+            flash('提交失败...')
 
-        return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
+    return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
 
 # API用例查询后编辑
 @app.route('/apidate_edit_cases_query/<case_name>', methods=['GET', 'POST'])
 def apidate_edit_cases_query(case_name):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
     error = None
     cur = selectone('SELECT name from apidates WHERE case_name = %s',[case_name])
     names = [dict(name=row[0]) for row in cur]
@@ -1044,7 +1157,7 @@ def apidate_edit_cases_query(case_name):
 @app.route('/apidate_edit_cases_save/<case_name>', methods=['GET', 'POST'])
 def apidate_edit_cases_save(case_name):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
     error=None
     if request.method == 'POST':
         if request.form['request'].strip() == '' or request.form['checks'].strip() == '':
@@ -1078,7 +1191,9 @@ def apidate_edit_cases_save(case_name):
 @app.route('/uiset/<keyword>/<value>/<int:num>', methods=['GET', 'POST'])
 def uiset(keyword,value,num):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uiset','1','1','1','1') == False:
+        return render_template('invalid.html')
     else:
         #value = value.replace('%27','\'').replace('%2C',',').replace('%29',')').replace('%28','(').replace('%7C','|')
         all_Count = selectall('SELECT count(1) FROM uiset a where '+keyword+' = "'+value+'"')[0][0]
@@ -1091,7 +1206,7 @@ def uiset(keyword,value,num):
             else:
                 keyword = '1'
                 value = '1'
-            return redirect(url_for('uiset',keyword=keyword,value=value,num='1'))
+            return redirect(url_for('uiset',keyword=keyword,value=value,num=num))
         cur = selectall('SELECT a.id,a.keyword,a.description,a.template,a.example,b.zh_name,a.create_date FROM uiset a inner join user b on a.username=b.username where '+keyword+' = "'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         uisets = [dict(id=row[0], keyword=row[1], description=row[2], template=row[3], example=row[4], username=row[5], create_date=row[6]) for row in cur]
         return render_template('set/uiset.html',uisets=uisets,all_Page=all_Page,keyword=keyword,value=value,num=num, current='uiset',uiset_list=uiset_list,pagename = 'UI封装')
@@ -1100,7 +1215,9 @@ def uiset(keyword,value,num):
 @app.route('/new_uiset', methods=['GET', 'POST'])
 def new_uiset():
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uiset','1','1','1','1') == False:
+        return render_template('invalid.html')
     error = None
     if request.method == 'POST':
         uiset = selectall('select keyword from uiset')
@@ -1121,14 +1238,16 @@ def new_uiset():
             else:
                 flash('创建失败...')
 
-            return redirect(url_for('uiset',num=1))
+            return redirect(url_for('uiset',keyword=1,value=1,num=1))
     return render_template('set/new_uiset.html',current='uiset', pagename = '新建UI封装',error=error)
 
 # UI封装编辑
 @app.route('/uiset_edit/<int:id>', methods=['GET', 'POST'])
 def uiset_edit(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uiset','1','1','operation','编辑-edit') == False:
+        return render_template('invalid.html')
     else:
         cur = selectone('SELECT id,keyword,description,template,example FROM uiset where id=%s',[id])
         cases = [dict(id=row[0], keyword=row[1], description=row[2], template=row[3], example=row[4]) for row in cur]
@@ -1148,14 +1267,16 @@ def uiset_edit(id):
                 else:
                     flash('编辑失败...')
 
-                return redirect(url_for('uiset',num=1))
+                return redirect(url_for('uiset',keyword=1,value=1,num=1))
         return render_template('set/uiset_edit.html',case=cases[0],current='uiset', pagename = 'UI封装编辑',id=id)
 
 # UI封装查询
 @app.route('/uiset_query/<int:id>', methods=['GET', 'POST'])
 def uiset_query(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uiset','1','1','operation','查看-query') == False:
+        return render_template('invalid.html')
     else:
         cur = selectone('SELECT id,keyword,description,template,example FROM uiset where id=%s',[id])
         cases = [dict(id=row[0], keyword=row[1], description=row[2], template=row[3], example=row[4]) for row in cur]
@@ -1165,7 +1286,9 @@ def uiset_query(id):
 @app.route('/uiset_delete/<int:id>', methods=['GET', 'POST'])
 def uiset_delete(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uiset','1','1','operation','删除-delete') == False:
+        return render_template('invalid.html')
     else:
         addUpdateDel('delete from uiset where id=%s',[id])
 
@@ -1175,16 +1298,18 @@ def uiset_delete(id):
         else:
             flash('删除失败...')
 
-        return redirect(url_for('uiset',num=1))
+        return redirect(url_for('uiset',keyword=1,value=1,num=1))
 
 ###############################
-#             接口集
+#             接口
 ###############################
-# 接口集
+# 接口
 @app.route('/apiset/<name>/<value>/<int:num>', methods=['GET', 'POST'])
 def apiset(name,value,num):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apiset','1','1','1','1') == False:
+        return render_template('invalid.html')
     else:
         all_Count = selectall('SELECT count(1) FROM apiset a where '+name+' = "'+value+'"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
@@ -1196,15 +1321,18 @@ def apiset(name,value,num):
             else:
                 name = '1'
                 value = '1'
+            return redirect(url_for('apiset',name=name,value=value,num=num))
         cur = selectall('SELECT a.id,a.name,a.path,a.method,a.request,a.checks,a.description,b.zh_name,a.create_date FROM apiset a inner join user b on a.username=b.username where '+name+' = "'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         apisets = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=row[4], checks=row[5], description=row[6], username=row[7], create_date=row[8]) for row in cur]
         return render_template('set/apiset.html',apisets=apisets,all_Page=all_Page,name=name,value=value, num=num, current='apiset',apiset_list=apiset_list,pagename = '全部接口')
 
-# 新建接口集
+# 新建接口
 @app.route('/new_apiset', methods=['GET', 'POST'])
 def new_apiset():
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apiset','1','1','1','1') == False:
+        return render_template('invalid.html')
     error = None
     if request.method == 'POST':
         apiset = selectall('select name from apiset')
@@ -1232,14 +1360,16 @@ def new_apiset():
             else:
                 flash('创建失败...')
 
-            return redirect(url_for('apiset',num=1))
+            return redirect(url_for('apiset',name=1,value=1,num=1))
     return render_template('set/new_apiset.html',pagename = '新增接口',error=error,current='apiset', methods=http_methods)
 
-# 接口集编辑
+# 接口编辑
 @app.route('/apiset_edit/<int:id>', methods=['GET', 'POST'])
 def apiset_edit(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apiset','1','1','operation','编辑-edit') == False:
+        return render_template('invalid.html')
     else:
         error=None
         cur = selectone('SELECT id,name,path,method,request,checks,description FROM apiset where id=%s',[id])
@@ -1268,24 +1398,28 @@ def apiset_edit(id):
                 else:
                     flash('编辑失败...')
 
-                return redirect(url_for('apiset',num=1))
+                return redirect(url_for('apiset',name=1,value=1,num=1))
         return render_template('set/apiset_edit.html',case=cases[0],error=error,current='apiset', pagename = '接口编辑', id=id)
 
-# 接口集查询
+# 接口查询
 @app.route('/apiset_query/<int:id>', methods=['GET', 'POST'])
 def apiset_query(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apiset','1','1','operation','查看-query') == False:
+        return render_template('invalid.html')
     else:
         cur = selectone('SELECT id,name,path,method,request,checks,description FROM apiset where id=%s',[id])
         cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=row[4], checks=row[5], description=row[6]) for row in cur]
         return render_template('set/apiset_query.html',case=cases[0],current='apiset', pagename = '接口查看')
 
-# 接口集删除
+# 接口删除
 @app.route('/apiset_delete/<int:id>', methods=['GET', 'POST'])
 def apiset_delete(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apiset','1','1','operation','删除-delete') == False:
+        return render_template('invalid.html')
     else:
         addUpdateDel('delete from apiset where id=%s',[id])
 
@@ -1295,13 +1429,15 @@ def apiset_delete(id):
         else:
             flash('删除失败...')
 
-        return redirect(url_for('apiset',num=1))
+        return redirect(url_for('apiset',name=1,value=1,num=1))
 
-# 接口集执行
+# 接口执行
 @app.route('/apiset_exec/<int:id>', methods=['GET', 'POST'])
 def apiset_exec(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apiset','1','1','operation','执行-exec') == False:
+        return render_template('invalid.html')
     else:
         error = None
         newrun = RunTests(id,session['username'])
@@ -1316,7 +1452,9 @@ def apiset_exec(id):
 @app.route('/version_delete/<int:id>', methods=['GET', 'POST'])
 def version_delete(id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'versions','1','1','operation','删除-delete') == False:
+        return render_template('invalid.html')
     else:
         cur = addUpdateDel('delete from versions where id=%s',[id])
 
@@ -1326,13 +1464,15 @@ def version_delete(id):
         else:
             flash('删除失败...')
 
-        return redirect(url_for('versions',num=1))
+        return redirect(url_for('versions',version=1,value=1,num=1))
 
 # 新建版本
 @app.route('/new_version', methods=['GET', 'POST'])
 def new_version():
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'versions','1','1','1','1') == False:
+        return render_template('invalid.html')
     error = None
     if request.method == 'POST':
         version = selectall('select version from versions')
@@ -1353,14 +1493,16 @@ def new_version():
             else:
                 flash('创建失败...')
 
-            return redirect(url_for('versions',num=1))
+            return redirect(url_for('versions',version=1,value=1,num=1))
     return render_template('version/new_version.html', pagename = '新增版本号',current='versions',error=error)
 
 # 版本展示
 @app.route('/versions/<version>/<value>/<int:num>', methods=['GET', 'POST'])
 def versions(version,value,num):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'versions','1','1','1','1') == False:
+        return render_template('invalid.html')
     else:
         all_Count = selectall('SELECT count(1) FROM versions a where '+version+' = "'+value+'"')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
@@ -1372,6 +1514,7 @@ def versions(version,value,num):
             else:
                 version = '1'
                 value = '1'
+            return redirect(url_for('versions',version=version,value=value,num=num))
         cur = selectall('SELECT a.id,a.version,b.zh_name,a.create_date FROM versions a inner join user b on a.username=b.username where '+version+' = "'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         versions = [dict(id=row[0], version=row[1], username=row[2], create_date=row[3]) for row in cur]
         return render_template('version/versions.html',versions=versions,version=version,value=value,num=num,version_list=version_list,all_Page=all_Page,current='versions', pagename = '版本号')
@@ -1383,32 +1526,40 @@ def versions(version,value,num):
 @app.route('/uicase_review/<int:status>/<int:id>', methods=['GET', 'POST'])
 def uicase_review(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uicases','status',status,'operation','审核-review') == False:
+        return render_template('invalid.html')
+    elif activity('review','uicases',id) not in activity_dict['review']:
+        flash('用例状态不允许执行该操作...')
     else:
-        cur = addUpdateDel('update uicases set activity="3" where id=%s',[id])
+        cur = addUpdateDel('update uicases set activity="3" where id=%s and activity="1"',[id])
 
-        cur_new= selectone("SELECT * FROM uicases WHERE id = %s activity='1'",[id])
+        cur_new= selectone("SELECT * FROM uicases WHERE id = %s and activity=3",[id])
         if cur_new != ():
             flash('审核成功...')
         else:
             flash('审核失败...')
-        return redirect(url_for('uicases',category='a.username',value=session['username'],status=status,num=1))
+    return redirect(url_for('uicases',category='a.username',value=session['username'],status=status,num=1))
 
 # API用例审核
-@app.route('/apicase_review/<int:id>', methods=['GET', 'POST'])
-def apicase_review(id):
+@app.route('/apicase_review/<int:status>/<int:id>', methods=['GET', 'POST'])
+def apicase_review(status,id):
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'apicases','status',status,'operation','审核-review') == False:
+        return render_template('invalid.html')
+    elif activity('review','apicases',id) not in activity_dict['review']:
+        flash('用例状态不允许执行该操作...')
     else:
-        cur = addUpdateDel('update apicases set activity="3" where id=%s',[id])
+        cur = addUpdateDel('update apicases set activity="3" where id=%s and activity="1"',[id])
 
-        cur_new= selectone("SELECT * FROM apicases WHERE id = %s activity='1'",[id])
+        cur_new= selectone("SELECT * FROM apicases WHERE id = %s and activity=3",[id])
         if cur_new != ():
             flash('审核成功...')
         else:
             flash('审核失败...')
 
-        return redirect(url_for('apicases',category='a.username',value=session['username'],status=1,num=1))
+    return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
 
 ##############################
 #         管理员
@@ -1417,7 +1568,9 @@ def apicase_review(id):
 @app.route('/reset_passwd', methods=['GET', 'POST'])
 def reset_passwd():
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'reset_passwd','1','1','1','1') == False:
+        return render_template('invalid.html')
     try:
         error =None
         cur = selectall('select username from user')
@@ -1439,7 +1592,9 @@ def reset_passwd():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'register','1','1','1','1') == False:
+        return render_template('invalid.html')
     try:
         error = None
         cur = selectall('select username from user')
@@ -1465,7 +1620,9 @@ def register():
 @app.route('/page_auth', methods=['GET', 'POST'])
 def page_auth():
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'page_auth','1','1','1','1') == False:
+        return render_template('invalid.html')
     error = None
     if request.method == 'POST':
         if request.form['select-page'].strip() == '':
@@ -1481,7 +1638,9 @@ def page_auth():
 @app.route('/opera_auth', methods=['GET', 'POST'])
 def opera_auth():
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'opera_auth','1','1','1','1') == False:
+        return render_template('invalid.html')
     error = None
     if request.method == 'POST':
         if request.form['select-page'].strip() == '':
@@ -1497,7 +1656,9 @@ def opera_auth():
 @app.route('/user_auth', methods=['GET', 'POST'])
 def user_auth():
     if not session.get('logged_in'):
-        abort(401)
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'user_auth','1','1','1','1') == False:
+        return render_template('invalid.html')
     error = None
     if request.method == 'POST':
         if request.form['select-user'].strip() == '':
