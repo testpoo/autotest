@@ -65,6 +65,7 @@ textarea {
     border-radius: 5px;
     border: 1px solid #ebeef5;
     color: #676a6c;
+    outline-color:#F5F7FA;
 }
 
 input, button, select, textarea {
@@ -322,8 +323,8 @@ body {
 }
 
 #content .form-group .form-control {
-    width: 95%;
-    margin-left: 5%;
+    width: 94%;
+    margin-left: 6%;
 }
 
 #content .form-group .apiElement {
@@ -447,7 +448,7 @@ a.addElement {
     color: #02a8a8;
 }
 
-#make_issue {
+#make_issue_all {
     display: none;
     position: absolute;
     margin: auto;
@@ -457,14 +458,48 @@ a.addElement {
     right: 0px;
     z-index: 999;
     background-color: #fff;
-    border: 5px solid #676a6c;
     width: 1200px;
-    height: 600px;
-    overflow-y: scroll;
+    height: 800px;
+    font-family: microsoft-yahei;
     }
+
+#make_issue_nav {
+    width: 1200px;
+    height: 60px;
+    line-height: 60px;
+    font-size: 1.5em;
+    padding: 0 20px;
+    font-weight: bolder;
+    background-color: #02a8a8;
+}
+
+#make_issue_nav #left {
+    float: left;
+    color: #fff;
+}
+
+#make_issue_nav #right {
+    float: right;
+}
+
+#make_issue_table {
+    background-color: #fff;
+    width: 1200px;
+    height: 740px;
+    overflow-y: scroll;
+}
+
+#make_issue {
+    background-color: #fff;
+    width: 1183px;
+}
 
 #make_issue th {
     min-width: 50px;
+}
+
+.issue_names_list {
+    width: 100%;
 }
 
 #hidebg {
@@ -482,56 +517,25 @@ a.addElement {
     opacity:0.5;
 }
 
-/* 对号 */
-.success{
-    display: inline-block;
-    font-weight: 700;
-    margin: 0 10px;
-    width: 8px;
-    height: 13px;
-    transform: rotate(45deg);
-    border-style: solid;
-    border-color: #009933;
-    border-width:   0 4px 4px 0 ;
-}
-
-/* X号 */
-.failed {
-    width: 15px;
-    height: 15px;
-    margin: auto;
-    position: relative;
-    margin-left: 32px;
-}
-.failed::before,
-.failed::after {
-    content: "";
-    position: absolute;
-    height: 18px;
-    width: 3px;
-    top: 0px;
-    right: 15px;
-    background: red;
-}
-.failed::before {
-    transform: rotate(45deg);
-}
-.failed::after {
-    transform: rotate(-45deg);
+/* 对/X号 */
+.success, .failed{
+    color: #fff;
+    margin:0 10px;
 }
 
 .issue_div {
     height: 42px;
-    width: 100px;
     border-radius: 5px;
     background-color: #ebeef5;
     line-height: 42px;
+    cursor:pointer;
 }
 
 #content .page a {
     color: #02a8a8;
 }
 
+/* 主页统计 */
 .statistics {
     float: left;
     margin-right: 20px;
@@ -549,6 +553,7 @@ a.addElement {
     color: #199FED;
 }
 
+/* 无效页面 */
 #content .invalid {
     font-size: 72px;
     color: #018383;

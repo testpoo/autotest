@@ -1181,6 +1181,7 @@ def apidate_edit_cases_save(case_name):
                 flash('编辑成功...')
             else:
                 flash('编辑失败...')
+            return redirect(url_for('apidate_edit_cases_query',case_name=case_name))
 
     return render_template('api/apidate_edit_cases.html',case_name=case_name, error=error,current='apicases', pagename = '编辑接口数据')
 
@@ -1448,23 +1449,28 @@ def apiset_exec(id):
 ##############################
 #         版本
 ##############################
-# 版本删除
-@app.route('/version_delete/<int:id>', methods=['GET', 'POST'])
-def version_delete(id):
+# 版本展示
+@app.route('/versions/<version>/<value>/<int:num>', methods=['GET', 'POST'])
+def versions(version,value,num):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    elif get_auths_control(session['username'],'versions','1','1','operation','删除-delete') == False:
+    elif get_auths_control(session['username'],'versions','1','1','1','1') == False:
         return render_template('invalid.html')
     else:
-        cur = addUpdateDel('delete from versions where id=%s',[id])
-
-        cur_versions_del= selectone("SELECT * FROM versions where id=%s",[id])
-        if cur_versions_del == ():
-            flash('删除成功...')
-        else:
-            flash('删除失败...')
-
-        return redirect(url_for('versions',version=1,value=1,num=1))
+        all_Count = selectall('SELECT count(1) FROM versions a where '+version+' = "'+value+'"')[0][0]
+        all_Page = math.ceil(all_Count/page_Count)
+        version_list = selectall('select version from versions')
+        if request.method == 'POST':
+            if request.form['select-version'] != '':
+                version = 'a.version'
+                value = request.form['select-version']
+            else:
+                version = '1'
+                value = '1'
+            return redirect(url_for('versions',version=version,value=value,num=num))
+        cur = selectall('SELECT a.id,a.version,b.zh_name,a.create_date FROM versions a inner join user b on a.username=b.username where '+version+' = "'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
+        versions = [dict(id=row[0], version=row[1], username=row[2], create_date=row[3]) for row in cur]
+        return render_template('version/versions.html',versions=versions,version=version,value=value,num=num,version_list=version_list,all_Page=all_Page,current='versions', pagename = '版本号')
 
 # 新建版本
 @app.route('/new_version', methods=['GET', 'POST'])
@@ -1496,29 +1502,23 @@ def new_version():
             return redirect(url_for('versions',version=1,value=1,num=1))
     return render_template('version/new_version.html', pagename = '新增版本号',current='versions',error=error)
 
-# 版本展示
-@app.route('/versions/<version>/<value>/<int:num>', methods=['GET', 'POST'])
-def versions(version,value,num):
+# 版本删除
+@app.route('/version_delete/<int:id>', methods=['GET', 'POST'])
+def version_delete(id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    elif get_auths_control(session['username'],'versions','1','1','1','1') == False:
+    elif get_auths_control(session['username'],'versions','1','1','operation','删除-delete') == False:
         return render_template('invalid.html')
     else:
-        all_Count = selectall('SELECT count(1) FROM versions a where '+version+' = "'+value+'"')[0][0]
-        all_Page = math.ceil(all_Count/page_Count)
-        version_list = selectall('select version from versions')
-        if request.method == 'POST':
-            if request.form['select-version'] != '':
-                version = 'a.version'
-                value = request.form['select-version']
-            else:
-                version = '1'
-                value = '1'
-            return redirect(url_for('versions',version=version,value=value,num=num))
-        cur = selectall('SELECT a.id,a.version,b.zh_name,a.create_date FROM versions a inner join user b on a.username=b.username where '+version+' = "'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
-        versions = [dict(id=row[0], version=row[1], username=row[2], create_date=row[3]) for row in cur]
-        return render_template('version/versions.html',versions=versions,version=version,value=value,num=num,version_list=version_list,all_Page=all_Page,current='versions', pagename = '版本号')
+        cur = addUpdateDel('delete from versions where id=%s',[id])
 
+        cur_versions_del= selectone("SELECT * FROM versions where id=%s",[id])
+        if cur_versions_del == ():
+            flash('删除成功...')
+        else:
+            flash('删除失败...')
+
+        return redirect(url_for('versions',version=1,value=1,num=1))
 ###############################
 #           审核
 ###############################

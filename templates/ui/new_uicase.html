@@ -63,7 +63,8 @@
       rows="5"></textarea>
   </div>
   <div id="getSelectValue" style="display: none;">
-    <input list="issue_names" id="issue_name" class="issue_names_list" name="issue_name" maxlength="200" placeholder="请选择用例步骤">
+    <input list="issue_names" id="issue_name" class="issue_names_list" name="issue_name" maxlength="200"
+      placeholder="请选择用例步骤">
     <datalist id="issue_names">
       {% for list_step in list_steps %}
       <option value="{{ list_step['keyword'] }}">
@@ -75,9 +76,8 @@
   </div>
   <div class="form-group">
     <label for="choice">操作步骤<span style="color:red">*</span></label>
-    <div class="form-control required issue_div" id="choice" name="choice" placeholder="请输入步骤">
-      <a href="#" onclick="makeIssue()">用例生成工具</a>
-    </div>
+    <div class="form-control required issue_div" id="choice" name="choice" placeholder="请输入步骤" onclick="makeIssue()">
+      用例生成工具</div>
   </div>
   <div class="form-group">
     <label for="steps"></label>
@@ -107,22 +107,31 @@
     <input type=submit value="保存" class="button">
   </div>
 </form>
-<table id="make_issue">
-  <thead>
-    <tr>
-      <th>用例步骤</th>
-      <th>参数1</th>
-      <th>参数2</th>
-      <th>参数3</th>
-      <th>参数4</th>
-      <th>参数5</th>
-      <th><a href="#" onclick="addElementTdone()" id="addElementTd" class="addElementTd">➕</a></th>
-      <th><a href="#" class="success" onclick="saveTable()"></a> <a href="#" class="failed" onclick="closeTable()"></a></th>
-    </tr>
-  </thead>
-  <tbody id="make_issue_tbody">
+<div id=make_issue_all>
+  <div id=make_issue_nav>
+    <div id=left>用例生成工具</div>
+    <div id=right><a href="#" class="success" onclick="saveTable()">&radic;</a> <a href="#" class="failed"
+        onclick="closeTable()">&times;</a>
+    </div>
+  </div>
+  <div id=make_issue_table>
+    <table id="make_issue">
+      <thead>
+        <tr>
+          <th>用例步骤</th>
+          <th>参数1</th>
+          <th>参数2</th>
+          <th>参数3</th>
+          <th>参数4</th>
+          <th>参数5</th>
+          <th><a href="#" onclick="addElementTdone()" id="addElementTd" class="addElementTd">➕</a></th>
+        </tr>
+      </thead>
+      <tbody id="make_issue_tbody">
 
-  </tbody>
-</table>
+      </tbody>
+    </table>
+  </div>
+</div>
 <div id="hidebg"></div>
 {% endblock %}

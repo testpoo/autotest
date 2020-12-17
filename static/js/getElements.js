@@ -205,7 +205,7 @@ function pack(id) {
 
 // 弹出缺陷工具
 function makeIssue() {
-  document.getElementById("make_issue").style.display = "block";
+  document.getElementById("make_issue_all").style.display = "block";
   document.getElementById("hidebg").style.display = "block";
   document.getElementById("hidebg").style.height = document.body.clientHeight + "px";
   document.getElementById("content").style.height = document.body.clientHeight + "px";
@@ -255,13 +255,9 @@ function minusElementTd() {
   box.remove();
 }
 
-//function doNotDelete() {
-//  alert("第一行不能删，留着肯定有用~！")
-//}
-
 // 关闭工具
 function closeTable() {
-  document.getElementById("make_issue").style.display = "none";
+  document.getElementById("make_issue_all").style.display = "none";
   document.getElementById("hidebg").style.display = "none";
   document.getElementById("content").style.overflow = "scroll";
 }
@@ -370,10 +366,11 @@ function saveTable() {
   document.getElementById("steps").value = '';
   last_words = last_words.substr(0, last_words.length - 2);
   document.getElementById("steps").value = last_words;
-  document.getElementById("make_issue").style.display = "none";
+  document.getElementById("make_issue_all").style.display = "none";
   document.getElementById("hidebg").style.display = "none";
   document.getElementById("content").style.overflow = "scroll";
 }
+
 // 数组平均分割
 function chunk(array, size) {
   //获取数组的长度，如果你传入的不是数组，那么获取到的就是undefined
