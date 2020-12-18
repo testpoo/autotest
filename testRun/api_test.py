@@ -8,7 +8,6 @@ from Common.Config import *
 from Common import Config, LogUtility
 import json
 
-
 class RunTests(object):
 
     def __init__(self, id, username):
@@ -51,25 +50,24 @@ class RunTests(object):
     # 获取测试案例
     def getTestCases(self):
         starttime = Config.getCurrentTime()
-        cur = selectone(
-            'SELECT name,product,steps FROM apicases WHERE id=%s', [self.id])
-        cases = [dict(name=row[0], product=row[1], steps=row[2])
-                 for row in cur]
-
+        cur = selectone('SELECT name,product,pre_steps,next_steps FROM apicases WHERE id=%s', [self.id])
+        cases = [dict(name=row[0], product=row[1], pre_steps=row[2],next_steps=row[3]) for row in cur]
+        pre_steps = cases[0]['pre_steps'].split('\r\n')
+        next_steps = cases[0]['next_steps'].split('\r\n')
         case_name = cases[0]['name']
-        product = cases[0]['product']
-        apis_cur = selectone('SELECT name FROM apidates WHERE case_name=%s', [case_name])
-        list_apis = [dict(name=row[0]) for row in apis_cur]
-        list_apis = [list_api['name'] for list_api in list_apis]
+        pre_steps.append(case_name)
+        all_steps = pre_steps + next_steps
+        list_apis = []
+        for all_step in all_steps:
+            apis_cur = selectone('SELECT case_name,name FROM apidates WHERE case_name = %s', [all_step])[0]
+            list_apis.append(apis_cur)
         results = []
-        finally_results = {'case_name': case_name, 'results': '',
-                           'status': '', 'starttime': starttime, 'spenttime': '', 'error': []}
+        finally_results = {'case_name': case_name, 'results': '','status': '', 'starttime': starttime, 'spenttime': '', 'error': []}
         false='false'
         ture='true'
         status = '成功'
         for i in range(len(list_apis)):
-            cases_cur = selectone('SELECT name, path, method, request, checks, parameter from apidates WHERE case_name=%s and name=%s', [
-                                  case_name, list_apis[i]])
+            cases_cur = selectone('SELECT name, path, method, request, checks, parameter from apidates WHERE case_name=%s and name=%s', [list_apis[i][0], list_apis[i][1]])
             cases_list = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5]) for row in cases_cur][0]
             name = cases_list['name']
             url = cases_list['path']
@@ -85,13 +83,11 @@ class RunTests(object):
 
             headers = para_headers
             err = ''
-            result = {'case_name': case_name, 'name': name, 'url': url,
-                      'method': method, 'error': [], 'status': '失败','new_param':''}
+            result = {'case_name': case_name, 'name': name, 'url': url,'method': method, 'error': [], 'status': '失败','new_param':''}
 
             try:
                 true=True
-                r = eval('requests.'+method +
-                         '(url, headers=headers, data=data, verify=False)')
+                r = eval('requests.'+method + '(url, headers=headers, data=data, verify=False)')
                 if parameter!='':
                     parameter = eval(parameter)
                 else:
@@ -101,7 +97,7 @@ class RunTests(object):
                     result['new_param']=traverse_take_field(content,parameter)
                 else:
                     result['new_param']=''
-                    LogUtility.logger.debug("Failed running test siutes, error message: {}".format('参数不是列表'))
+                    LogUtility.logger.debug("测试集运行失败,错误信息: {}".format('参数不是列表'))
                 
                 if r.text == checks:
                     result['status'] = "成功"
@@ -111,8 +107,7 @@ class RunTests(object):
                     status = '失败'
                     break
             except Exception as api_err:
-                LogUtility.logger.debug(
-                    "Failed running test siutes, error message: {}".format(str(err)))
+                LogUtility.logger.debug("测试集运行失败,错误信息: {}".format(str(err)))
                 result['status'] = "失败"
                 result['error'].append(str(api_err))
                 status = '失败'

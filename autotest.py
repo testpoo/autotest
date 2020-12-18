@@ -582,7 +582,7 @@ def new_uisitue():
                 flash('创建成功...')
             else:
                 flash('创建失败...')
-            return redirect(url_for('uisitues',num=1))
+            return redirect(url_for('uisitues',name=1,value=1,num=1))
     return render_template('ui/new_uisitue.html',uisitues_issue=uisitues_issue, uisitues_name=uisitues_name, uisitues_model=uisitues_model, uisitues_version=uisitues_version, current="uisitues", pagename = '新增测试集',error=error)
 
 # UI测试集编辑
@@ -602,6 +602,9 @@ def uisitue_edit(id):
         cur_version = selectall('SELECT version FROM uicases where activity="1" group by version')
         uisitues_version = [dict(version=row[0]) for row in cur_version]
 
+        cur_name = selectall('SELECT zh_name FROM user WHERE username != "admin"')
+        uisitues_name = [dict(username=row[0]) for row in cur_name]
+
         cur = selectone('SELECT name, steps, description FROM uisitues where id=%s',[id])
         cases = [dict(name=row[0], steps=row[1], description=row[2]) for row in cur]
         if request.method == 'POST':
@@ -618,8 +621,8 @@ def uisitue_edit(id):
                     flash('编辑成功...')
                 else:
                     flash('编辑失败...')
-                return redirect(url_for('uisitues',num=1))
-        return render_template('ui/uisitue_edit.html',uisitues_issue=uisitues_issue, uisitues_model=uisitues_model, uisitues_version=uisitues_version, case=cases[0],current="uisitues", pagename = '测试集编辑',id=id)
+                return redirect(url_for('uisitues',name=1,value=1,num=1))
+        return render_template('ui/uisitue_edit.html',uisitues_issue=uisitues_issue, uisitues_model=uisitues_model, uisitues_version=uisitues_version,uisitues_name=uisitues_name, case=cases[0],current="uisitues", pagename = '测试集编辑',id=id)
 
 # UI测试集查询
 @app.route('/uisitue_query/<int:id>', methods=['GET', 'POST'])
@@ -649,7 +652,7 @@ def uisitue_delete(id):
         else:
             flash('删除失败...')
 
-        return redirect(url_for('uisitues',num=1))
+        return redirect(url_for('uisitues',name=1,value=1,num=1))
 
 # UI测试集执行
 @app.route('/uisitue_exec/<int:id>', methods=['GET', 'POST'])
@@ -664,7 +667,7 @@ def uisitue_exec(id):
         newrun = RunUiTests(id,username)
         newrun.getTestSiutes()
         flash('执行成功...')
-        return redirect(url_for('uisitues',num=1))
+        return redirect(url_for('uisitues',name=1,value=1,num=1))
 
 # UI测试集报告
 @app.route('/ui_report_list/1', methods=['GET', 'POST'])
@@ -720,6 +723,9 @@ def new_apisitue():
     cur_version = selectall('SELECT version FROM apicases where activity="1" group by version')
     apisitues_version = [dict(version=row[0]) for row in cur_version]
 
+    cur_name = selectall('SELECT zh_name FROM user WHERE username != "admin"')
+    apisitues_name = [dict(username=row[0]) for row in cur_name]
+
     if request.method == 'POST':
         apiname = selectall('select name from apisitues')
         apinames = [dict(name=row[0]) for row in apiname]
@@ -739,8 +745,8 @@ def new_apisitue():
             else:
                 flash('创建失败...')
 
-            return redirect(url_for('apisitues',num=1))
-    return render_template('api/new_apisitue.html', pagename = '新增测试集',error=error,apisitues_issue=apisitues_issue,apisitues_model=apisitues_model,apisitues_version=apisitues_version,current='apisitues')
+            return redirect(url_for('apisitues',name=1,value=1,num=1))
+    return render_template('api/new_apisitue.html', pagename = '新增测试集',error=error,apisitues_issue=apisitues_issue,apisitues_model=apisitues_model,apisitues_version=apisitues_version,apisitues_name=apisitues_name,current='apisitues')
 
 # API测试集编辑
 @app.route('/apisitue_edit/<int:id>', methods=['GET', 'POST'])
@@ -760,10 +766,13 @@ def apisitue_edit(id):
         cur_version = selectall('SELECT version FROM apicases where activity="1" group by version')
         apisitues_version = [dict(version=row[0]) for row in cur_version]
 
+        cur_name = selectall('SELECT zh_name FROM user WHERE username != "admin"')
+        apisitues_name = [dict(username=row[0]) for row in cur_name]
+
         cur = selectone('SELECT name, exec_mode, steps, description FROM apisitues where id=%s',[id])
         cases = [dict(name=row[0], exec_mode=row[1], steps=row[2], description=row[3]) for row in cur]
         if request.method == 'POST':
-            if request.form['steps'].strip == '' or request.form['exec-mode'] == '':
+            if request.form['steps'].strip == '':
                 error = '必输项不能为空'
             else:
                 addUpdateDel('update apisitues set exec_mode=%s, steps=%s, description=%s where id=%s',[request.form['exec-mode'], request.form['steps'], request.form['description'],id])
@@ -777,8 +786,8 @@ def apisitue_edit(id):
                     flash('编辑成功...')
                 else:
                     flash('编辑失败...')
-                return redirect(url_for('apisitues',num=1))
-        return render_template('api/apisitue_edit.html',case=cases[0], pagename = '测试集编辑',id=id,apisitues_issue=apisitues_issue,apisitues_model=apisitues_model,apisitues_version=apisitues_version,error=error,current='apisitues')
+                return redirect(url_for('apisitues',name=1,value=1,num=1))
+        return render_template('api/apisitue_edit.html',case=cases[0], pagename = '测试集编辑',id=id,apisitues_issue=apisitues_issue,apisitues_model=apisitues_model,apisitues_version=apisitues_version,apisitues_name=apisitues_name,error=error,current='apisitues')
 
 # API测试集查询
 @app.route('/apisitue_query/<int:id>', methods=['GET', 'POST'])
@@ -808,7 +817,7 @@ def apisitue_delete(id):
         else:
             flash('删除失败...')
 
-        return redirect(url_for('apisitues',num=1))
+        return redirect(url_for('apisitues',name=1,value=1,num=1))
 
 # API测试集执行
 @app.route('/apisitue_exec/<int:id>', methods=['GET', 'POST'])
@@ -823,7 +832,7 @@ def apisitue_exec(id):
         newrun = RunTests(id,username)
         res=newrun.getTestSiutes()
         flash('执行成功...')
-        return redirect(url_for('apisitues',num=1))
+        return redirect(url_for('apisitues',name=1,value=1,num=1))
 
 # API测试集报告
 @app.route('/api_report_list/1', methods=['GET', 'POST'])
@@ -919,17 +928,7 @@ def new_apicase(status):
             addUpdateDel('insert into apicases (type, version, model, product, name, pre_steps, steps, next_steps, description,activity, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
                          [request.form['type'], request.form['version'], request.form['model'], request.form['product'], request.form['name'], request.form['pre-steps'], request.form['steps'], request.form['next-steps'], request.form['description'], '0', session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
 
-            pre_step = selectone('SELECT name FROM apidates WHERE case_name in %s',[request.form['pre-steps'].split('\r\n')])
-            pre_steps = [dict(pre_step=row[0]) for row in pre_step]
-            pre_steps = [pre_step['pre_step'] for pre_step in pre_steps]
-            pre_steps = deline(pre_steps)
-
-            next_step = selectone('SELECT name FROM apidates WHERE case_name in %s',[request.form['next-steps'].split('\r\n')])
-            next_steps = [dict(next_step=row[0]) for row in next_step]
-            next_steps = [next_step['next_step'] for next_step in next_steps]
-            next_steps = deline(next_steps)
-
-            steps = pre_steps+request.form['steps'].split('\r\n')+next_steps
+            steps = request.form['steps'].split('\r\n')
 
             for i in range(len(steps)):
                 cur = selectone('select name,path,method,request,checks from apiset where name = %s',[steps[i]])
@@ -943,7 +942,7 @@ def new_apicase(status):
             else:
                 flash('创建失败...')
 
-            return redirect(url_for('apidate_edit_cases_query',case_name=request.form["name"]))
+            return redirect(url_for('apidate_edit_cases_query',case_name=request.form["name"],status=status))
     return render_template('api/new_apicase.html',apisets=apisets,versions=versions,issuetypes=issuetypes,nexttypes=nexttypes, current='apicases'+str(status),status=status,pagename = '新增用例',error=error)
 
 # API用例查询
@@ -1064,7 +1063,7 @@ def apicase_edit(status,id):
         apisets = [dict(name=row[0],request=row[1]) for row in cur]
         cur = selectone('SELECT type, version, name, product, model, pre_steps, steps, next_steps,description FROM apicases where id=%s',[id])
         cases = [dict(type=row[0], version=row[1], name=row[2], product=row[3], model=row[4], pre_steps=row[5], steps=row[6], next_steps=row[7], description=row[8]) for row in cur]
-    return render_template('api/apicase_edit.html',case=cases[0],current='apicases'+str(status), pagename = '接口编辑', id=id)
+    return render_template('api/apicase_edit.html',case=cases[0],current='apicases'+str(status),status=status, pagename = '接口编辑', id=id)
 
 # API用例删除后恢复
 @app.route('/apicase_restore/<int:status>/<int:id>', methods=['GET', 'POST'])
@@ -1137,8 +1136,8 @@ def apicase_submit(status,id):
     return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
 
 # API用例查询后编辑
-@app.route('/apidate_edit_cases_query/<case_name>', methods=['GET', 'POST'])
-def apidate_edit_cases_query(case_name):
+@app.route('/apidate_edit_cases_query/<case_name>/<int:status>', methods=['GET', 'POST'])
+def apidate_edit_cases_query(case_name,status):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     error = None
@@ -1150,12 +1149,12 @@ def apidate_edit_cases_query(case_name):
         else:
             cur = selectone('select name,path,method,request,checks,parameter from apidates where case_name=%s and name=%s',[case_name,request.form['choice']])
             cases = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5]) for row in cur]
-            return render_template('api/apidate_edit_cases.html',case=cases[0], names=names, case_name=case_name,pagename = '编辑接口数据')
-    return render_template('api/apidate_edit_cases.html',names=names, case_name=case_name,pagename = '编辑接口数据')
+            return render_template('api/apidate_edit_cases.html',case=cases[0], names=names, case_name=case_name,current='apicases'+str(status),status=status,pagename = '编辑接口数据')
+    return render_template('api/apidate_edit_cases.html',names=names, case_name=case_name,current='apicases'+str(status),status=status,pagename = '编辑接口数据')
 
 # API用例编辑后保存
-@app.route('/apidate_edit_cases_save/<case_name>', methods=['GET', 'POST'])
-def apidate_edit_cases_save(case_name):
+@app.route('/apidate_edit_cases_save/<case_name>/<int:status>', methods=['GET', 'POST'])
+def apidate_edit_cases_save(case_name,status):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     error=None
@@ -1181,9 +1180,9 @@ def apidate_edit_cases_save(case_name):
                 flash('编辑成功...')
             else:
                 flash('编辑失败...')
-            return redirect(url_for('apidate_edit_cases_query',case_name=case_name))
+            return redirect(url_for('apidate_edit_cases_query',case_name=case_name,status=status))
 
-    return render_template('api/apidate_edit_cases.html',case_name=case_name, error=error,current='apicases', pagename = '编辑接口数据')
+    return render_template('api/apidate_edit_cases.html',case_name=case_name, error=error,current='apicases',status=status, pagename = '编辑接口数据')
 
 ###############################
 #             UI封装
@@ -1348,9 +1347,8 @@ def new_apiset():
             error = '路径格式不对'
         elif is_dict(request.form['request'].strip()) == False:
             error = '请求项格式不对'
-        elif request.form['checks'].strip() != '':
-            if is_dict(request.form['checks'].strip()) == False:
-                error = '检查项格式不对'
+        elif request.form['checks'].strip() != '' and is_dict(request.form['checks'].strip()) == False:
+            error = '检查项格式不对'
         else:
             addUpdateDel('insert into apiset (name, description, path, method, request, checks, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                          [request.form['name'], request.form['description'], cn_to_uk(request.form['path']), request.form['method'], cn_to_uk(request.form['request']), cn_to_uk(request.form['checks']), session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
@@ -1383,9 +1381,8 @@ def apiset_edit(id):
                 error = '路径格式不对'
             elif is_dict(request.form['request'].strip()) == False:
                 error = '请求项格式不对'
-            elif request.form['checks'].strip() != '':
-                if is_dict(request.form['checks'].strip()) == False:
-                    error = '检查项格式不对'
+            elif request.form['checks'].strip() != '' and is_dict(request.form['checks'].strip()) == False:
+                error = '检查项格式不对'
             else:
                 addUpdateDel('update apiset set path=%s, request=%s, checks=%s, description=%s where id=%s',[request.form['path'], request.form['request'], request.form['checks'], request.form['description'],id])
                 cur_edit= selectone("SELECT path,request,checks,description FROM apiset WHERE id = %s",[id])

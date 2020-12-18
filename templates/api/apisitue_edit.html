@@ -7,8 +7,8 @@
 <form class="form-horizontal" id="apisitue_edit" action="{{ url_for('apisitue_edit',id=id) }}" method="post">
   <div class="form-group">
     <label for="name">名称</label>
-    <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称" readonly
-      unselectable="on" value={{ case['name'] }}>
+    <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称"
+      readonly unselectable="on" value={{ case['name'] }}>
   </div>
   <div class="form-group">
     <label for="description">描述</label>
@@ -17,9 +17,11 @@
   </div>
   <div class="form-group">
     <label for="exec-mode">执行模式</label>
-    <input list="exec-modes"  class="form-control required" id="exec-mode" name="exec-mode" maxlength="200" placeholder="请选择执行模式" onchange="getExecMode()">
+    <input list="exec-modes" class="form-control required" id="exec-mode" name="exec-mode" maxlength="200"
+      placeholder="请选择执行模式" onchange="getExecMode()">
     <datalist id="exec-modes">
       <option value="按用例">
+      <option value="按用户">
       <option value="按模块">
       <option value="按版本">
     </datalist>
@@ -30,6 +32,15 @@
     <datalist id="select-issues">
       {% for apisitue_issue in apisitues_issue %}
       <option value="{{ apisitue_issue['name'] }}">
+        {% endfor %}
+    </datalist>
+  </div>
+  <div class="form-group" id="select-username-mode">
+    <label for="select-user">选择用户</label>
+    <input list="select-users"  class="form-control required" id="select-user" name="select-user" maxlength="200" placeholder="请选择操作用户" onchange="getUserModes()">
+    <datalist id="select-users">
+      {% for apisitue_name in apisitues_name %}
+      <option value="{{ apisitue_name['username'] }}">
         {% endfor %}
     </datalist>
   </div>
@@ -53,7 +64,8 @@
   </div>
   <div class="form-group">
     <label for="steps">操作步骤</label>
-    <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30" rows="1">{{ case['steps'] }}</textarea>
+    <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30"
+      rows="1">{{ case['steps'] }}</textarea>
   </div>
   <div class="form-group">
     <input type=submit value="更新" class="button">

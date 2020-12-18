@@ -5,7 +5,7 @@
 {% endfor %}
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
 <form class="form-horizontal" id="apidate_edit_cases_query"
-    action="{{ url_for('apidate_edit_cases_query',case_name=case_name) }}" method="post">
+    action="{{ url_for('apidate_edit_cases_query',case_name=case_name,status=status) }}" method="post">
     <div class="form-group">
         <label for="choice">选择接口</label>
         <input id="select" list="choice" class="form-control required" name="choice" maxlength="200"
@@ -21,7 +21,7 @@
     </div>
 </form>
 <form class="form-horizontal" id="apidate_edit_cases_save" name="apidate_edit_cases_save"
-    action="{{ url_for('apidate_edit_cases_save',case_name=case_name) }}" method="post">
+    action="{{ url_for('apidate_edit_cases_save',case_name=case_name,status=status) }}" method="post">
     <div class="form-group">
         <label for="name">名称</label>
         <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入路径"
