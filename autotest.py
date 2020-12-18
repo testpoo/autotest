@@ -561,7 +561,7 @@ def new_uisitue():
     cur_version = selectall('SELECT version FROM uicases where activity="1" group by version')
     uisitues_version = [dict(version=row[0]) for row in cur_version]
 
-    cur_name = selectall('SELECT zh_name FROM user WHERE username != "admin"')
+    cur_name = selectall('SELECT b.zh_name FROM uicases a inner join user b on a.username=b.username group BY a.username')
     uisitues_name = [dict(username=row[0]) for row in cur_name]
 
     if request.method == 'POST':
@@ -602,7 +602,7 @@ def uisitue_edit(id):
         cur_version = selectall('SELECT version FROM uicases where activity="1" group by version')
         uisitues_version = [dict(version=row[0]) for row in cur_version]
 
-        cur_name = selectall('SELECT zh_name FROM user WHERE username != "admin"')
+        cur_name = selectall('SELECT b.zh_name FROM uicases a inner join user b on a.username=b.username group BY a.username')
         uisitues_name = [dict(username=row[0]) for row in cur_name]
 
         cur = selectone('SELECT name, steps, description FROM uisitues where id=%s',[id])
@@ -723,7 +723,7 @@ def new_apisitue():
     cur_version = selectall('SELECT version FROM apicases where activity="1" group by version')
     apisitues_version = [dict(version=row[0]) for row in cur_version]
 
-    cur_name = selectall('SELECT zh_name FROM user WHERE username != "admin"')
+    cur_name = selectall('SELECT b.zh_name FROM apicases a inner join user b on a.username=b.username group BY a.username')
     apisitues_name = [dict(username=row[0]) for row in cur_name]
 
     if request.method == 'POST':
@@ -766,7 +766,7 @@ def apisitue_edit(id):
         cur_version = selectall('SELECT version FROM apicases where activity="1" group by version')
         apisitues_version = [dict(version=row[0]) for row in cur_version]
 
-        cur_name = selectall('SELECT zh_name FROM user WHERE username != "admin"')
+        cur_name = selectall('SELECT b.zh_name FROM apicases a inner join user b on a.username=b.username group BY a.username')
         apisitues_name = [dict(username=row[0]) for row in cur_name]
 
         cur = selectone('SELECT name, exec_mode, steps, description FROM apisitues where id=%s',[id])
