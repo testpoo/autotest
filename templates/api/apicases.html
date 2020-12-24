@@ -123,6 +123,7 @@
       <td>{{ case['create_date'] }}</td>
       <td>
         {% if status == 0 %}
+        <span class="opration"><a href="{{ SITEURL }}/apicase_makedate/{{ status }}/{{ case['id'] }}" onclick="loading()"> 数据生成</a></span>
         {% for opera,links in operation('用例编写') %}
         <span class="opration"><a href="{{ SITEURL }}/apicase_{{ links }}/{{ status }}/{{ case['id'] }}" onclick="loading()">{{ opera
             }}</a></span>

@@ -6,8 +6,8 @@
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
   <form class="form-horizontal" id="apicases"
   action="{{ url_for('opera_auth') }}" method="post">
-  <div class="float-left">
-    <label for="select-page" class="float-label">选择页面</label>
+  <div class="form-group">
+    <label for="select-page">选择页面</label>
     <input list="select-pages" class="form-control reqapired" id="select-page" name="select-page" maxlength="200"
       placeholder="请选择页面">
     <datalist id="select-pages">
@@ -16,11 +16,25 @@
       {% endfor %}
     </datalist>
   </div>
-  <div class="float-left" id="div-names">
-    <label for="operation" class="float-label">默认值（默认全部）</label>
-    <input type="longtext" class="form-control" id="operation" name="operation" maxlength="500" placeholder="请输入查询值" value="编辑-edit|查看-query|审核-query|驳回-reject|执行-exec|删除-delete|提交-submit|恢复-restore|彻底删除-redelete">
+  <div class="form-group" id="div-names-none" style="display: none;">
+    <label for="operation"></label>
+    <input type="longtext" class="form-control" id="auth" name="auth" maxlength="500" placeholder="请输入查询值">
   </div>
-  <div class="float-left">
+  <div class="form-group" id="div-names-block">
+    <label for="auth">默认值</label>
+    <div id="checkbox">
+      <span><input style="vertical-align:middle" type="checkbox" name="category" value="编辑-edit" onclick="getCheckbox()" /> 编辑</span>
+      <span><input style="vertical-align:middle" type="checkbox" name="category" value="查看-query" onclick="getCheckbox()" /> 查看</span>
+      <span><input style="vertical-align:middle" type="checkbox" name="category" value="审核-query" onclick="getCheckbox()" /> 审核</span>
+      <span><input style="vertical-align:middle" type="checkbox" name="category" value="驳回-reject" onclick="getCheckbox()" /> 驳回</span>
+      <span><input style="vertical-align:middle" type="checkbox" name="category" value="执行-exec" onclick="getCheckbox()" /> 执行</span>
+      <span><input style="vertical-align:middle" type="checkbox" name="category" value="删除-delete" onclick="getCheckbox()" /> 删除</span>
+      <span><input style="vertical-align:middle" type="checkbox" name="category" value="提交-submit" onclick="getCheckbox()" /> 提交</span>
+      <span><input style="vertical-align:middle" type="checkbox" name="category" value="恢复-restore" onclick="getCheckbox()" /> 恢复</span>
+      <span><input style="vertical-align:middle" type="checkbox" name="category" value="彻底删除-redelete" onclick="getCheckbox()" /> 彻底删除</span>
+    </div>
+  </div>
+  <div class="form-group">
     <input type=submit value="保存" class="button">
   </div>
 </form>
@@ -39,7 +53,7 @@
       <td>{{ loop.index }}</td>
       <td>{{ opera_auth[0] }}</td>
       <td>{{ opera_auth[1] }}</td>
-      <td>{{ opera_auth[2] }}</td>
+      <td>{{ opera_auth[2]|split }}</td>
     </tr>
     {% endfor %}
   </tbody>

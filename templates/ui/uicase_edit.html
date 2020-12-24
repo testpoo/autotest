@@ -93,22 +93,31 @@
     <input type=submit value="修改" class="button">
   </div>
 </form>
-<table id="make_issue">
-  <thead>
-    <tr>
-      <th>用例步骤</th>
-      <th>参数1</th>
-      <th>参数2</th>
-      <th>参数3</th>
-      <th>参数4</th>
-      <th>参数5</th>
-      <th><a href="#" onclick="addElementTdone()" id="addElementTd" class="addElementTd">➕</a></th>
-      <th><a href="#" class="success" onclick="saveTable()"></a> <a href="#" class="failed" onclick="closeTable()"></a></th>
-    </tr>
-  </thead>
-  <tbody id="make_issue_tbody">
+<div id=make_issue_all>
+  <div id=make_issue_nav>
+    <div id=left>用例生成工具</div>
+    <div id=right><a href="#" class="success" onclick="saveTable()">&radic;</a> <a href="#" class="failed"
+        onclick="closeTable()">&times;</a>
+    </div>
+  </div>
+  <div id=make_issue_table>
+    <table id="make_issue">
+      <thead>
+        <tr>
+          <th>用例步骤</th>
+          <th>参数1</th>
+          <th>参数2</th>
+          <th>参数3</th>
+          <th>参数4</th>
+          <th>参数5</th>
+          <th><a href="#" onclick="addElementTdone()" id="addElementTd" class="addElementTd">➕</a></th>
+        </tr>
+      </thead>
+      <tbody id="make_issue_tbody">
 
-  </tbody>
-</table>
+      </tbody>
+    </table>
+  </div>
+</div>
 <div id="hidebg"></div>
 {% endblock %}

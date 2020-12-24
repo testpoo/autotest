@@ -4,52 +4,112 @@
 <div class="alert">{{ message }}</div>
 {% endfor %}
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
-<div class="form-group">
-    <label for="type">用例类型</label>
-    <input type="text" id="type" class="form-control required" name="type" maxlength="200" placeholder="请输入用例类型"
-        readonly unselectable="on" value={{ case['type'] }}>
+<script type="text/javascript">
+    window.onload = function () { getEditDateToTable() };
+</script>
+<form class="form-horizontal" id="apicase_edit" name="apicase_edit"
+    action="{{ url_for('apicase_edit',status=status,id=id) }}" method="post">
+    <div class="form-group">
+        <label for="type">用例类型</label>
+        <input type="text" id="type" class="form-control required" name="type" maxlength="200" placeholder="请输入用例类型"
+            readonly unselectable="on" value={{ case['type'] }}>
+    </div>
+    <div class="form-group">
+        <label for="version">用例版本</label>
+        <input type="text" id="version" class="form-control required" name="version" maxlength="200"
+            placeholder="请输入版本号" readonly unselectable="on" value={{ case['version'] }}>
+    </div>
+    <div class="form-group">
+        <label for="name">名称</label>
+        <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称"
+            unselectable="on" value={{ case['name'] }}>
+    </div>
+    <div class="form-group">
+        <label for="description">描述</label>
+        <textarea class="form-control required" id="description" name="description" placeholder="请输入描述" cols="300"
+            rows="5">{{ case['description'] }}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="product">所属产品</label>
+        <input type="text" class="form-control required" id="product" name="product" maxlength="200"
+            placeholder="请输入用例所属产品" readonly unselectable="on" value={{ case['product'] }}>
+    </div>
+    <div class="form-group">
+        <label for="model">模块</label>
+        <input type="text" class="form-control required" id="model" name="model" maxlength="200" placeholder="请输入用例模块"
+            readonly unselectable="on" value={{ case['model'] }}>
+    </div>
+    {% if case['type'] == '普通用例' %}
+    <div class="form-group delPreNext">
+        <label for="pre-choice">前置事务</label>
+        <input id="pre-choice" list="pre-choices" class="form-control required" name="pre-choice" maxlength="200"
+            placeholder="请选择前置事务" onchange="getPres()">
+        <datalist id="pre-choices">
+            {% for issuetype in issuetypes %}
+            <option value="{{ issuetype['name'] }}">
+                {% endfor %}
+        </datalist>
+    </div>
+    <div class="form-group delPreNext">
+        <label for="pre-steps"></label>
+        <textarea class="form-control required" id="pre-steps" name="pre-steps" placeholder="请输入前置事务" cols="300"
+            rows="5">{{ case['pre_steps'] }}</textarea>
+    </div>
+    {% endif %}
+    <div class="form-group">
+        <label for="choice">操作步骤<span style="color:red">*</span></label>
+        <input id="select" list="choice" class="form-control required" name="choice" maxlength="200"
+            placeholder="请选择操作步骤" onchange="getApiElements()">
+        <datalist id="choice">
+            {% for apiset in apisets %}
+            <option value="{{ apiset['name'] }}">
+                {% endfor %}
+        </datalist>
+    </div>
+    <div class="form-group" style="display: none;">
+        <label for="steps"></label>
+        <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="300"
+            rows="10">{{ case['steps'] }}</textarea>
+    </div>
+    <div id="add_api_table">
+        <table id="add_api">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>用例名称</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="add_api_tbody"></tbody>
+        </table>
+    </div>
+    {% if case['type'] == '普通用例' %}
+    <div class="form-group delPreNext">
+        <label for="next-choice">后置事务</label>
+        <input id="next-choice" list="next-choices" class="form-control required" name="next-choice" maxlength="200"
+            placeholder="请选择后置事务" onchange="getNexts()">
+        <datalist id="next-choices">
+            {% for nexttype in nexttypes %}
+            <option value="{{ nexttype['name'] }}">
+                {% endfor %}
+        </datalist>
+    </div>
+    <div class="form-group delPreNext">
+        <label for="next-steps"></label>
+        <textarea class="form-control required" id="next-steps" name="next-steps" placeholder="请输入后置事务" cols="300"
+            rows="5">{{ case['next_steps'] }}</textarea>
+    </div>
+    {% endif %}
+    <div class="form-group">
+        <input type=submit name="save" value="保存" class="button">
+    </div>
+</form>
+<div id=save-dates>
+    <div id=save-dates-nav>
+        <div id=left>数据编辑工具</div>
+        <div id=right><a href="#" class="failed" onclick="closeEditDate()">&times;</a></div>
+    </div>
+    <iframe id=save-date></iframe>
 </div>
-<div class="form-group">
-    <label for="version">用例版本</label>
-    <input type="text" id="version" class="form-control required" name="version" maxlength="200" placeholder="请输入版本号"
-        readonly unselectable="on" value={{ case['version'] }}>
-</div>
-<div class="form-group">
-    <label for="name">名称</label>
-    <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入用例名称"
-        readonly unselectable="on" value={{ case['name'] }}>
-</div>
-<div class="form-group">
-    <label for="description">描述</label>
-    <textarea class="form-control required" id="description" name="description" placeholder="请输入描述" cols="300" rows="5">{{ case['description'] }}</textarea>
-</div>
-<div class="form-group">
-    <label for="product">所属产品</label>
-    <input type="text" class="form-control required" id="product" name="product" maxlength="200" placeholder="请输入用例所属产品"
-        readonly unselectable="on" value={{ case['product'] }}>
-</div>
-<div class="form-group">
-    <label for="model">模块</label>
-    <input type="text" class="form-control required" id="model" name="model" maxlength="200" placeholder="请输入用例模块"
-        readonly unselectable="on" value={{ case['model'] }}>
-</div>
-<div class="form-group">
-    <label for="pre-steps">前置事务</label>
-    <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入前置事务">{{ case['pre_steps'] }}</div>
-</div>
-<div class="form-group">
-    <label for="steps">操作步骤</label>
-    <div class="form-control required textarea" id="steps" name="steps" placeholder="请输入步骤">{{ case['steps'] }}</div>
-</div>
-<div class="form-group">
-    <label for="next-steps">后置事务</label>
-    <div class="form-control required textarea" id="next-steps" name="next-steps" placeholder="请输入后置事务">{{ case['next_steps'] }}</div>
-</div>
-<div class="new">
-    <ul>
-        <li>
-            <a href="{{ SITEURL }}/apidate_edit_cases_query/{{ case['name'] }}/{{ status }}">编辑数据</a>
-        </li>
-    </ul>
-</div>
+<div id="hidebg"></div>
 {% endblock %}

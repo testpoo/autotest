@@ -41,7 +41,7 @@ class RunTests(object):
 
         except Exception as err:
             LogUtility.logger.debug(
-                "Failed running test apis, error message: {}".format(str(err)))
+                "接口运行失败, 错误信息是: {}".format(str(err)))
             result = [name, url, method, data, str(err)]
         finally:
             endtime = Config.getCurrentTime()
@@ -58,7 +58,10 @@ class RunTests(object):
         pre_steps.append(case_name)
         all_steps = pre_steps + next_steps
         list_apis = []
+        print('all_steps',all_steps)
         for all_step in all_steps:
+            if all_step == '':
+                continue
             apis_cur = selectone('SELECT case_name,name FROM apidates WHERE case_name = %s', [all_step])[0]
             list_apis.append(apis_cur)
         results = []
@@ -128,12 +131,16 @@ class RunTests(object):
     def getTestSiutes(self):
         try:
             starttime = Config.getCurrentTime()
-            cur = selectone(
-                'SELECT name,exec_mode,steps FROM apisitues WHERE id=%s', [self.id])
+            cur = selectone('SELECT name,exec_mode,steps FROM apisitues WHERE id=%s', [self.id])
             cases = [dict(name=row[0], exec_mode=row[1], steps=row[2]) for row in cur]
-            cases_name = cases[0]['name']
-            exec_mode = cases[0]['exec_mode']
-            cases_step = cases[0]['steps'].split('\r\n')
+            if cases == []:
+                exec_mode = '按失败'
+                cases_name = '失败'
+            else:
+                cases_name = cases[0]['name']
+                exec_mode = cases[0]['exec_mode']
+                cases_step = cases[0]['steps'].split('\r\n')
+
             if exec_mode == '按用例':
                 steps_case = cases_step
             elif exec_mode == '按模块':
@@ -150,16 +157,24 @@ class RunTests(object):
                     cases_dict = [dict(name=row[0]) for row in cur_version]
                     case_step_list = [case['name'] for case in cases_dict]
                     steps_case.extend(case_step_list)
+            elif exec_mode == '按失败':
+                cur = selectall('SELECT case_name FROM report a WHERE a.`status` = \'失败\' and type = \'api\'')
+                steps_case = []
+                for case in cur:
+                    steps_case.append(case[0])
+
             count = len(steps_case)
 
             all_id = []
             for step in cases_step:
-                cur_step = selectone(
-                    'select id,product from apicases where name =%s', [step])
+                if step.startswith('#'):
+                    continue
+                cur_step = selectone('select id,product from apicases where name =%s', [step])
                 cases_step = [dict(id=row[0],product=row[1]) for row in cur_step]
+                if cases_step == []:
+                    continue
                 all_id.append([cases_step[0]['id'],cases_step[0]['product']])
-            addUpdateDel('delete from report where type=%s and username=%s', [
-                         'api', self.username])
+            addUpdateDel('delete from report where type=%s and username=%s', ['api', self.username])
             for ids in all_id:
                 self.id = str(ids[0])
                 res = self.getTestCases()
@@ -167,7 +182,7 @@ class RunTests(object):
                              res['case_name'], 'api', str(ids[1]), res['status'], res['spenttime'], str(res['error']), self.username, time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
         except Exception as err:
             LogUtility.logger.debug(
-                "Failed running test siutes, error message: {}".format(str(err)))
+                "测试用例运行失败，错误信息是: {}".format(str(err)))
         finally:
             endtime = Config.getCurrentTime()
             spenttime = Config.timeDiff(starttime, endtime)

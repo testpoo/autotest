@@ -276,8 +276,7 @@ body {
 /* uicase */
 #content {
     text-align: center;
-    padding: 67px 20px 0px 20px;
-    padding-bottom: 60px;
+    padding: 67px 20px 60px 20px;
     z-index: 0;
 }
 
@@ -532,7 +531,7 @@ a.addElement {
 }
 
 #content .page a {
-    color: #02a8a8;
+    color: #fc5531;
 }
 
 /* 主页统计 */
@@ -557,4 +556,87 @@ a.addElement {
 #content .invalid {
     font-size: 72px;
     color: #018383;
+}
+
+/* checkbox */
+#checkbox {
+    margin-left: 6%;
+    background: #F5F7FA;
+}
+
+#checkbox span {
+    margin-right: 10px;
+}
+
+/* 接口测试工具 */
+#add_api_table {
+    padding: 10px;
+}
+
+#add_api {
+    margin-left: 6%;
+    width: 94%;
+}
+
+#add_api a {
+    color: #199FED;
+}
+
+.minusApiElementTd {
+    margin-left: 10px;
+    cursor:pointer;
+    color: #199FED;
+}
+
+/* 接口数据保存 */
+#edit-date {
+    height: 42px;
+    border-radius: 5px;
+    background-color: #ebeef5;
+    line-height: 42px;
+    cursor:pointer;
+}
+
+#save-dates {
+    display: none;
+    position: absolute;
+    margin: auto;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    z-index: 999;
+    background-color: #fff;
+    width: 1200px;
+    height: 750px;
+}
+
+#save-dates #save-dates-nav {
+    height: 60px;
+    background-color: #02a8a8;
+    font-size: 1.5em;
+    font-weight: bolder;
+    color: #fff;
+}
+
+#save-dates #save-dates-nav #left {
+    line-height: 60px;
+    float: left;
+    width: 50%;
+    padding-left: 20px;
+    text-align: left;
+}
+
+#save-dates #save-dates-nav #right {
+    line-height: 60px;
+    float: left;
+    width: 50%;
+    padding-right: 20px;
+    text-align: right;
+}
+
+#save-date {
+    width: 1200px;
+    height: 700px;
+    border: 0px;
 }

@@ -1,5 +1,16 @@
 {% extends "base_index.html" %}
 {% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+<div class="new">
+	<ul>
+	  <li>
+		<a href="{{ SITEURL }}/exec_failed/{{ type }}/0">执行失败用例</a>
+	  </li>
+	</ul>
+  </div>
 <table>
 	<thead>
 		<tr>
@@ -13,7 +24,9 @@
 		<tr>
 			<td>{{ loop.index }}</td>
 			<td>{{ report_list }}</td>
-			<td><span class="opration"><a href="{{ SITEURL }}/{{ path }}/{{ report_list }}" target="_blank">查看</a></span></td>
+			<td>
+				<span class="opration"><a href="{{ SITEURL }}/{{ path }}/{{ report_list }}" target="_blank">查看</a></span>
+			</td>
 		</tr>
 		{% endfor %}
 	</tbody>

@@ -41,9 +41,9 @@ function loading() {
   document.getElementById("loadDiv").style.display = "block";
 }
 
-// 公共案例去掉前置后置事件
+// 前后置案例去掉前置后置事件
 function delPreNext() {
-  if (document.getElementById("type").value == '公共用例' || document.getElementById("type").value == '后置用例') {
+  if (document.getElementById("type").value == '前置用例' || document.getElementById("type").value == '后置用例') {
     for (var i = 0; i < 4; i++) {
       document.getElementsByClassName("delPreNext")[i].style.display = "none";
     }
@@ -288,9 +288,9 @@ function getSteps() {
   for (i = 0; i < num; i++) {
     words = steps[i].indexOf('|');
     //words = steps[i].split('|');
-    word_x = steps[i].slice(0,words);
+    word_x = steps[i].slice(0, words);
     //word_y = steps[i].slice(words+1).replace(/^\"|\'|\"$/g, '').replace(/^\(/gi, '').replace(/\)$/gi, '').split(',');
-    word_y = eval(steps[i].slice(words+1).replace(/^\(/gi, '[').replace(/\)$/gi, ']'))
+    word_y = eval(steps[i].slice(words + 1).replace(/^\(/gi, '[').replace(/\)$/gi, ']'))
     //word_y = words[1].replace(/^\"|\'|\(|\)|\"$/g, '').split(',');
     setpUiSet.push(word_x);
     stepText.push(word_y);
@@ -392,4 +392,159 @@ function chunk(array, size) {
   }
   //输出新数组
   return result
+}
+
+/* 获取用户权限 */
+function getCheckbox() {
+  checkboxs = document.getElementsByName('category');
+  document.getElementById('auth').value = '';
+  for (var i = 0; i < checkboxs.length; i++) {
+    if (checkboxs[i].checked) {
+      document.getElementById('auth').value += checkboxs[i].value + '|';
+    }
+  }
+}
+
+// 接口用例工具-新建和编辑
+function getApiElements() {
+  var xstep = document.getElementsByName("choice")[0].value;
+  document.getElementsByName("choice")[0].value = '';
+
+  var parent = document.getElementById('add_api_tbody');
+  var temp = parent.innerHTML;
+  parent.innerHTML = temp + '<tr class="add_api_tr"><td></td><td>' + xstep + '</td><td><span class="minusApiElementTd" onclick="minusApiElementTd()">删除</span></td></tr>'
+
+  var table = document.getElementById("add_api");
+  case_name = '';
+  for (var i = 1; i < table.rows.length; i++) {
+    table.rows[i].cells[0].innerHTML = i;
+    if (case_name == '') {
+      case_name += i.toString() + '-' + table.rows[i].cells[1].innerHTML;
+    }
+    else {
+      case_name += '\n'+i.toString() + '-' + table.rows[i].cells[1].innerHTML;
+    }
+    document.getElementById("steps").innerHTML = case_name;
+  }
+}
+
+// 删除接口表格
+function minusApiElementTd() {
+  var e = e || window.event;
+  var target = e.target || e.srcElement;
+  if (target.parentNode.tagName.toLowerCase() == "td") {
+    rowIndex = target.parentNode.parentNode.rowIndex;
+  }
+  var box = document.getElementsByClassName("add_api_tr")[rowIndex - 1];
+  box.parentNode.removeChild(box);
+  box.remove();
+  var table = document.getElementById("add_api");
+  var tableRow = document.getElementById("add_api").rows.length - 1;
+  if (tableRow == 0) {
+    document.getElementById("steps").innerHTML = '';
+  } else {
+    case_name = '';
+    for (var i = 0; i < tableRow; i++) {
+      case_name += table.rows[i + 1].cells[1].innerHTML + '\r\n';
+      document.getElementById("steps").innerHTML = case_name;
+    }
+  }
+  var table = document.getElementById("add_api");
+  for (var i = 1; i < table.rows.length; i++) {
+    table.rows[i].cells[0].innerHTML = i;
+  }
+}
+
+/* 接口数据编辑 */
+function editDate() {
+  // 获取表格数据
+  var e = e || window.event;
+  var target = e.target || e.srcElement;
+  if (target.parentNode.tagName.toLowerCase() == "td") {
+    rowIndex = target.parentNode.parentNode.rowIndex;
+  }
+  case_name = document.getElementById('name').value;
+  var table = document.getElementById("add_api"); //获取第一个表格   
+  api_name = table.rows[rowIndex].cells[0].innerHTML + '-' + table.rows[rowIndex].cells[1].innerHTML;
+
+  var ifr = document.getElementById("save-date")
+  ifr.setAttribute('src', '/apidate_query/'+case_name+'/'+api_name);
+  document.getElementById("save-dates").style.display = "block";
+  document.getElementById("hidebg").style.display = "block";
+  document.getElementById("hidebg").style.height = document.body.clientHeight + "px";
+  document.getElementById("content").style.height = document.body.clientHeight + "px";
+  document.getElementById("content").style.overflow = "hidden";
+}
+
+/* 关闭接口编辑窗口 */
+function closeEditDate() {
+  document.getElementById("save-dates").style.display = "none";
+  document.getElementById("hidebg").style.display = "none";
+  document.getElementById("content").style.overflow = "scroll";
+}
+
+// 获取接口数据到表格
+function getEditDateToTable() {
+  steps = document.getElementById('steps').innerHTML;
+  var parent = document.getElementById('add_api_tbody');
+  step_list = steps.replace(/(\s*$)/g, "").split('\n');
+  for (var i = 0; i < step_list.length; i++) {
+    step_list[i] = step_list[i].split('-')[1]
+    parent.innerHTML += '<tr class="add_api_tr"><td>1</td><td>' + step_list[i] + '</td><td><span class="minusApiElementTd" onclick="minusApiElementTd()">删除</span></td></tr>'
+  }
+  var table = document.getElementById("add_api");
+  for (var i = 1; i < table.rows.length; i++) {
+    table.rows[i].cells[0].innerHTML = i;
+  }
+}
+
+// 接口用例工具-数据编辑
+function getMakeDateElements() {
+  steps = document.getElementById('steps').innerHTML;
+  var parent = document.getElementById('add_api_tbody');
+  step_list = steps.replace(/(\s*$)/g, "").split('\n');
+  for (var i = 0; i < step_list.length; i++) {
+    step_list[i] = step_list[i].split('-')[1]
+    parent.innerHTML += '<tr class="add_api_tr"><td>1</td><td>' + step_list[i] + '</td><td><span class="minusApiElementTd" onclick="editDate()">编辑数据</span></td></tr>'
+  }
+  var table = document.getElementById("add_api");
+  for (var i = 1; i < table.rows.length; i++) {
+    table.rows[i].cells[0].innerHTML = i;
+  }
+}
+
+/* 接口数据查看 */
+function queryDate() {
+  // 获取表格数据
+  var e = e || window.event;
+  var target = e.target || e.srcElement;
+  if (target.parentNode.tagName.toLowerCase() == "td") {
+    rowIndex = target.parentNode.parentNode.rowIndex;
+  }
+  case_name = document.getElementById('name').value;
+  var table = document.getElementById("add_api"); //获取第一个表格   
+  api_name = table.rows[rowIndex].cells[0].innerHTML + '-' + table.rows[rowIndex].cells[1].innerHTML;
+
+  var ifr = document.getElementById("save-date")
+  ifr.setAttribute('src', '/apidate_apiquery/'+case_name+'/'+api_name);
+  document.getElementById("save-dates").style.display = "block";
+  document.getElementById("hidebg").style.display = "block";
+  document.getElementById("hidebg").style.height = document.body.clientHeight + "px";
+  document.getElementById("content").style.height = document.body.clientHeight + "px";
+  document.getElementById("content").style.overflow = "hidden";
+}
+
+// 案例接口查询
+function getQueryDateElements() {
+  steps = document.getElementById('steps').innerHTML;
+  var parent = document.getElementById('add_api_tbody');
+  step_list = steps.replace(/(\s*$)/g, "").split('\n');
+  for (var i = 0; i < step_list.length; i++) {
+    step_list[i] = step_list[i].split('-')[1]
+    parent.innerHTML += '<tr class="add_api_tr"><td>1</td><td>' + step_list[i] + '</td><td><span class="minusApiElementTd" onclick="queryDate()">查看</span></td></tr>'
+  }
+  var table = document.getElementById("add_api");
+  for (var i = 1; i < table.rows.length; i++) {
+    table.rows[i].cells[0].innerHTML = i;
+  }
 }

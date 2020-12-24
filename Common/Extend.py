@@ -439,9 +439,15 @@ class Extend(object):
         描述：验证当前页中既定得元素是否在给定得字符串中
         用法：self.assert_text()
         '''
+        try:
+            result = WebDriverWait(self.driver,20).until(EC.text_to_be_present_in_element((type,value),text))
+        except:
+            pass
         element = self.findElement(type, value)
-        LogUtility.logger.debug('text:%s\n页面文本:%s'%(text,element.text.strip()))
-        TestCase().assertEqual(text, element.text.strip())
+        realtext= element.text.strip()
+        LogUtility.logger.debug('text:%s\n页面文本:%s'%(text,realtext))
+        TestCase().assertEqual(text,realtext)
+        #TestCase().assertTrue(result,'文本不匹配')
         
     def assertTexts(self,type,value,texts,order='False'): 
         '''

@@ -6,8 +6,8 @@
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
 <form class="form-horizontal" id="apicases"
   action="{{ url_for('page_auth') }}" method="post">
-  <div class="float-left">
-    <label for="select-page" class="float-label">选择页面</label>
+  <div class="form-group">
+    <label for="select-page">选择页面</label>
     <input list="select-pages" class="form-control reqapired" id="select-page" name="select-page" maxlength="200"
       placeholder="请选择页面">
     <datalist id="select-pages">
@@ -16,11 +16,20 @@
       {% endfor %}
     </datalist>
   </div>
-  <div class="float-left" id="div-names">
-    <label for="auth" class="float-label">默认值（默认全部）</label>
+  <div class="form-group" id="div-names-none" style="display: none;">
+    <label for="auth">默认值</label>
     <input type="longtext" class="form-control" id="auth" name="auth" maxlength="500" placeholder="请输入查询值" value="审核|普通|执行|管理">
   </div>
-  <div class="float-left">
+  <div class="form-group" id="div-names-block">
+    <label for="auth">默认值</label>
+    <div id="checkbox">
+      <span><input style="vertical-align:middle" type="checkbox" name="category" value="审核" onclick="getCheckbox()" /> 审核</span>
+      <span><input style="vertical-align:middle" type="checkbox" name="category" value="普通" onclick="getCheckbox()" /> 普通</span>
+      <span><input style="vertical-align:middle" type="checkbox" name="category" value="执行" onclick="getCheckbox()" /> 执行</span>
+      <span><input style="vertical-align:middle" type="checkbox" name="category" value="管理" onclick="getCheckbox()" /> 管理</span>
+    </div>
+  </div>
+  <div class="form-group">
     <input type=submit value="保存" class="button">
   </div>
 </form>

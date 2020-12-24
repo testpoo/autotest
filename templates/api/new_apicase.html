@@ -11,7 +11,7 @@
     <input id="type" list="types" class="form-control required" name="type" maxlength="200" placeholder="请选择用例类型"
       onchange="delPreNext()">
     <datalist id="types">
-      <option value="公共用例">
+      <option value="前置用例">
       <option value="普通用例">
       <option value="后置用例">
     </datalist>
@@ -65,21 +65,33 @@
   <div class="form-group delPreNext">
     <label for="pre-steps"></label>
     <textarea class="form-control required" id="pre-steps" name="pre-steps" placeholder="请输入前置事务" cols="300"
-      rows="5" onclick="show()"></textarea>
+      rows="5"></textarea>
   </div>
   <div class="form-group">
     <label for="choice">操作步骤<span style="color:red">*</span></label>
     <input id="select" list="choice" class="form-control required" name="choice" maxlength="200" placeholder="请选择操作步骤"
-      onchange="getElements()">
+      onchange="getApiElements()">
     <datalist id="choice">
       {% for apiset in apisets %}
       <option value="{{ apiset['name'] }}">
         {% endfor %}
     </datalist>
   </div>
-  <div class="form-group">
+  <div class="form-group" style="display: none;">
     <label for="steps"></label>
     <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="300" rows="10"></textarea>
+  </div>
+  <div id="add_api_table">
+    <table id="add_api">
+      <thead>
+        <tr>
+          <th>序号</th>
+          <th>用例名称</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="add_api_tbody"></tbody>
+    </table>
   </div>
   <div class="form-group delPreNext">
     <label for="next-choice">后置事务</label>
@@ -100,4 +112,12 @@
     <input type=submit name="save" value="保存" class="button">
   </div>
 </form>
+<div id=save-dates>
+  <div id=save-dates-nav>
+    <div id=left>数据编辑工具</div>
+    <div id=right><a href="#" class="failed" onclick="closeEditDate()">&times;</a></div>
+  </div>
+  <iframe id=save-date></iframe>
+</div>
+<div id="hidebg"></div>
 {% endblock %}

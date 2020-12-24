@@ -184,3 +184,10 @@ def get_file_list(file_path):
     else:
         dir_list = sorted(dir_list, key=lambda x: os.path.getctime(os.path.join(file_path, x)),reverse=True)
         return dir_list
+
+# 数据库查出来的tuple转换成list
+def tupleToList(tuple):
+    list = []
+    for tup in tuple:
+        list.append(tup[0])
+    return list

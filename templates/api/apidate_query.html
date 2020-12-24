@@ -1,0 +1,58 @@
+{% extends "base_index.html" %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert">{{ message }}</div>
+{% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+<style>
+  #sitename,#nav,#footer{display: none;}
+  #main{padding: 0px 20px;}
+  #content{padding: 0px;}
+</style>
+<form class="form-horizontal" id="apidate_save" name="apidate_save"
+    action="{{ url_for('apidate_save') }}" method="post">
+    <div class="form-group">
+        <label for="case_name">用例名称</label>
+        <input type="text" class="form-control required" id="case_name" name="case_name" maxlength="200" placeholder="请输入用例名称"
+            readonly unselectable="on" value={{ case_name }}>
+    </div>
+    <div class="form-group">
+        <label for="name">接口名称</label>
+        <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入接口名称"
+            readonly unselectable="on" value={{ case['name'] if case }}>
+    </div>
+    <div class="form-group">
+        <label for="path">路径</label>
+        <input type="text" class="form-control required" id="path" name="path" maxlength="200" placeholder="请输入路径"
+            readonly unselectable="on" value={{ case['path'] if case }}>
+    </div>
+    <div class="form-group">
+        <label for="method">http方法</label>
+        <input id="select" class="form-control required" name="method" maxlength="20" placeholder="请选择http方法" readonly
+            unselectable="on" value={{ case['method'] if case }}>
+    </div>
+    <div class="form-group">
+        <label for="request">请求</label>
+        <textarea class="form-control required" id="request" name="request" placeholder="请输入请求" cols="30"
+            rows="5">{{ case['request'] if case }}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="checks">检查项</label>
+        <textarea class="form-control required" id="checks" name="checks" placeholder="请输入检查项" cols="30"
+            rows="5">{{ case['checks'] if case }}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="parameter">参数</label>
+        <textarea class="form-control required" id="parameter" name="parameter" placeholder="请输入参数" cols="30"
+            rows="5">{{ case['parameter'] if case }}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="description">描述</label>
+        <textarea class="form-control required" id="description" name="description" placeholder="请输入描述" cols="30"
+            rows="5">{{ case['description'] if case }}</textarea>
+    </div>
+    <div class="form-group">
+        <input type=submit value="保存" class="button">
+    </div>
+</form>
+{% endblock %}

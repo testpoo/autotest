@@ -3,6 +3,7 @@
 {% for message in get_flashed_messages() %}
 <div class="alert">{{ message }}</div>
 {% endfor %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
 <form class="form-horizontal" id="uicases" action="{{ url_for('uicases',category=category,value=value,status=status,num=num) }}" method="post">
   <div class="float-left">
     <label for="select-model" class="float-label">选择模块</label>

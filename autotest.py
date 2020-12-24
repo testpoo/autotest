@@ -28,6 +28,16 @@ app.config.from_object(__name__)
 
 #app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
+# jinja2过滤器
+@app.template_filter('split')
+def split(str):
+    temp = ''
+    first = str.split('|')
+    for sec in first:
+        temp +=sec.split('-')[0]+'|'
+    temp = temp[:-1]
+    return temp
+
 # 导入time
 #@app.context_processor
 #def get_current_time():
@@ -261,7 +271,7 @@ def new_uicase(status):
     versions = [dict(version=row[0]) for row in version]
     versions = [version['version'] for version in versions]
 
-    issuetype = selectall('select name from uicases where type="公共用例"')
+    issuetype = selectall('select name from uicases where type="前置用例"')
     issuetypes = [dict(name=row[0]) for row in issuetype]
 
     nexttype = selectall('select name from uicases where type="后置用例"')
@@ -282,7 +292,7 @@ def new_uicase(status):
             error = "请选择正确的版本号"
         else:
             addUpdateDel('insert into uicases (type,version, model, product, name, pre_steps,steps,next_steps, description,activity, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                         [request.form['type'],request.form['version'], request.form['model'], request.form['product'], request.form['name'],request.form['pre-steps'], request.form['steps'],request.form['next-steps'], request.form['description'], '0', session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+                         [request.form['type'],request.form['version'], request.form['model'], request.form['product'], request.form['name'].strip(),request.form['pre-steps'], request.form['steps'],request.form['next-steps'], request.form['description'], '0', session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
 
             cur_new= selectone("SELECT * FROM uicases WHERE name = %s",[request.form['name']])
             if cur_new != ():
@@ -399,7 +409,7 @@ def uicase_edit(status,id):
     elif get_auths_control(session['username'],'uicases','status',status,'operation','编辑-edit') == False:
         return render_template('invalid.html')
     else:
-        issuetype = selectall('select name from uicases where type="公共用例"')
+        issuetype = selectall('select name from uicases where type="前置用例"')
         issuetypes = [dict(name=row[0]) for row in issuetype]
 
         nexttype = selectall('select name from uicases where type="后置用例"')
@@ -418,7 +428,7 @@ def uicase_edit(status,id):
                 error = '必输项不能为空'
             elif request.form['name'].strip() in uinames:
                 error = "该用例已经存在"
-            elif request.form['type'].strip() in ('公共用例','后置用例'):
+            elif request.form['type'].strip() in ('前置用例','后置用例'):
                 addUpdateDel('update uicases set name=%s, steps=%s, description=%s where id=%s',[request.form['name'], request.form['steps'], request.form['description'],id])
 
                 cur_edit= selectone("SELECT name,steps,description FROM uicases WHERE id = %s",[id])
@@ -529,9 +539,9 @@ def uisitues(name,value,num):
     elif get_auths_control(session['username'],'uisitues','1','1','1','1') == False:
         return render_template('invalid.html')
     else:
-        all_Count = selectall('SELECT count(1) FROM uisitues a where '+name+' = "'+value+'"')[0][0]
+        all_Count = selectall('SELECT count(1) FROM uisitues a where '+name+' = "'+value+'" and activity != \'1\'')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        uisitues_list = selectall('select name from uisitues')
+        uisitues_list = selectall('select name from uisitues where activity = \'1\'')
         if request.method == 'POST':
             if request.form['select-interface'] != '':
                 name = 'a.name'
@@ -540,7 +550,7 @@ def uisitues(name,value,num):
                 name = '1'
                 value = '1'
             return redirect(url_for('uisitues',name=name,value=value,num=num))
-        cur = selectall('SELECT a.id,a.name,a.exec_mode,a.steps,a.description,b.zh_name,a.create_date FROM uisitues a inner join user b on a.username=b.username where '+name+' = "'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
+        cur = selectall('SELECT a.id,a.name,a.exec_mode,a.steps,a.description,b.zh_name,a.create_date FROM uisitues a inner join user b on a.username=b.username where '+name+' = "'+value+'" and activity = \'1\' order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         uisitues = [dict(id=row[0], name=row[1], exec_mode=row[2], steps=row[3], description=row[4], username=row[5], create_date=row[6]) for row in cur]
         return render_template('ui/uisitues.html',uisitues=uisitues,name=name,value=value, num=num, uisitues_list=uisitues_list,all_Page=all_Page,current="uisitues", pagename = '测试集')
 
@@ -574,8 +584,8 @@ def new_uisitue():
         elif request.form['name'].strip() in uinames:
             error = "该用例集已经存在"
         else:
-            addUpdateDel('insert into uisitues (name, exec_mode, steps, description, username, create_date) values (%s, %s, %s, %s, %s, %s)',
-                         [request.form['name'], request.form['exec-mode'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+            addUpdateDel('insert into uisitues (name, exec_mode, steps, activity, description, username, create_date) values (%s, %s, %s, %s, %s, %s, %s)',
+                         [request.form['name'], request.form['exec-mode'], request.form['steps'], '1', request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
             
             cur_new= selectone("SELECT * FROM uisitues WHERE name = %s",[request.form['name']])
             if cur_new != ():
@@ -644,10 +654,10 @@ def uisitue_delete(id):
     elif get_auths_control(session['username'],'uisitues','1','1','operation','删除-delete') == False:
         return render_template('invalid.html')
     else:
-        cur = addUpdateDel('delete from uisitues where id=%s',[id])
+        cur = addUpdateDel('update uisitues set activity = \'2\' where id=%s',[id])
 
-        cur_uisitues_del= selectone("SELECT * FROM uisitues where id=%s",[id])
-        if cur_uisitues_del == ():
+        cur_uisitues_del= selectone("SELECT * FROM uisitues where activity != '2' id=%s",[id])
+        if cur_uisitues_del == None:
             flash('删除成功...')
         else:
             flash('删除失败...')
@@ -666,7 +676,7 @@ def uisitue_exec(id):
         username = session['username']
         newrun = RunUiTests(id,username)
         newrun.getTestSiutes()
-        flash('执行成功...')
+        flash('执行完毕...')
         return redirect(url_for('uisitues',name=1,value=1,num=1))
 
 # UI测试集报告
@@ -678,7 +688,28 @@ def ui_report_list():
         return render_template('invalid.html')
     else:
         report_lists = get_file_list(path_ui)[0:18]
-        return render_template('report_list.html', pagename = '测试报告列表',report_lists=report_lists,path = path_ui,current='ui_report_list')
+        return render_template('report_list.html', pagename = '测试报告列表',report_lists=report_lists,path = path_ui,current='ui_report_list',type = 'ui')
+
+# UI执行失败的案例
+@app.route('/exec_failed/<type>/0', methods=['GET', 'POST'])
+def exec_failed(type):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    elif get_auths_control(session['username'],'uisitues','1','1','1','1') == False:
+        return render_template('invalid.html')
+    else:
+        error = None
+        username = session['username']
+        if type == 'ui':
+            newrun = RunUiTests('0',username)
+            newrun.getTestSiutes()
+            flash('执行成功...')
+            return redirect(url_for('ui_report_list'))
+        elif type == 'api':
+            newrun = RunTests('0',username)
+            newrun.getTestSiutes()
+            flash('执行成功...')
+            return redirect(url_for('api_report_list'))
 
 ###############################
 #          API测试集
@@ -691,9 +722,9 @@ def apisitues(name,value,num):
     elif get_auths_control(session['username'],'apisitues','1','1','1','1') == False:
         return render_template('invalid.html')
     else:
-        all_Count = selectall('SELECT count(1) FROM apisitues a where '+name+' = "'+value+'"')[0][0]
+        all_Count = selectall('SELECT count(1) FROM apisitues a where '+name+' = "'+value+'" and  activity = \'1\'')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
-        apisitues_list = selectall('select name from apisitues')
+        apisitues_list = selectall('select name from apisitues where activity = \'1\'')
         if request.method == 'POST':
             if request.form['select-interface'] != '':
                 name = 'a.name'
@@ -702,7 +733,7 @@ def apisitues(name,value,num):
                 name = '1'
                 value = '1'
             return redirect(url_for('apisitues',name=name,value=value,num=num))
-        cur = selectall('SELECT a.id,a.name,a.exec_mode, a.steps,a.description,b.zh_name,a.create_date FROM apisitues a inner join user b on a.username=b.username where '+name+' = "'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
+        cur = selectall('SELECT a.id,a.name,a.exec_mode, a.steps,a.description,b.zh_name,a.create_date FROM apisitues a inner join user b on a.username=b.username where '+name+' = "'+value+'" and activity = \'1\' order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         apisitues = [dict(id=row[0], name=row[1], exec_mode=row[2], steps=row[3], description=row[4], username=row[5], create_date=row[6]) for row in cur]
         return render_template('api/apisitues.html',apisitues=apisitues, all_Page=all_Page, name=name,value=value, num=num,apisitues_list=apisitues_list,pagename = '测试集',current='apisitues')
 
@@ -736,8 +767,8 @@ def new_apisitue():
         elif request.form['name'].strip() in apinames:
             error = "该用例集已经存在"
         else:
-            addUpdateDel('insert into apisitues (name, exec_mode, steps, description, username, create_date) values (%s, %s, %s, %s, %s, %s)',
-                         [request.form['name'], request.form['exec-mode'], request.form['steps'], request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+            addUpdateDel('insert into apisitues (name, exec_mode, steps, activity, description, username, create_date) values (%s, %s, %s, %s, %s, %s, %s)',
+                         [request.form['name'], request.form['exec-mode'], request.form['steps'], '1', request.form['description'], session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
 
             cur_new= selectone("SELECT * FROM apisitues WHERE name = %s",[request.form['name']])
             if cur_new != ():
@@ -809,9 +840,9 @@ def apisitue_delete(id):
     elif get_auths_control(session['username'],'apisitues','1','1','operation','删除-delete') == False:
         return render_template('invalid.html')
     else:
-        cur = addUpdateDel('delete from apisitues where id=%s',[id])
+        cur = addUpdateDel('update apisitues set activity = \'2\' where id=%s',[id])
 
-        cur_apisitues_del= selectone("SELECT * FROM apisitues where id=%s",[id])
+        cur_apisitues_del= selectone("SELECT * FROM apisitues where id=%s and activity != '2'",[id])
         if cur_apisitues_del == ():
             flash('删除成功...')
         else:
@@ -831,7 +862,7 @@ def apisitue_exec(id):
         username = session['username']
         newrun = RunTests(id,username)
         res=newrun.getTestSiutes()
-        flash('执行成功...')
+        flash('执行完毕...')
         return redirect(url_for('apisitues',name=1,value=1,num=1))
 
 # API测试集报告
@@ -843,7 +874,7 @@ def api_report_list():
         return render_template('invalid.html')
     else:
         report_lists = get_file_list(path_api)[0:18]
-        return render_template('report_list.html', pagename = '测试报告列表',report_lists=report_lists,path = path_api,current='api_report_list')
+        return render_template('report_list.html', pagename = '测试报告列表',report_lists=report_lists,path = path_api,current='api_report_list',type='api')
 
 ###############################
 #              API
@@ -907,11 +938,18 @@ def new_apicase(status):
     versions = [dict(version=row[0]) for row in version]
     versions = [version['version'] for version in versions]
 
-    issuetype = selectall('select name from apicases where type="公共用例"')
+    issuetype = selectall('select name from apicases where type="前置用例"')
     issuetypes = [dict(name=row[0]) for row in issuetype]
+
+    for issuetype in issuetypes:
+        if selectone('SELECT COUNT(1) FROM apidates a INNER JOIN apicases b ON a.case_name = b.name WHERE a.case_name = %s',[issuetype['name']])[0][0] == 0:
+            issuetypes.remove(issuetype)
 
     nexttype = selectall('select name from apicases where type="后置用例"')
     nexttypes = [dict(name=row[0]) for row in nexttype]
+    for nexttype in nexttypes:
+        if selectone('SELECT COUNT(1) FROM apidates a INNER JOIN apicases b ON a.case_name = b.name WHERE a.case_name = %s',[nexttype['name']])[0][0] == 0:
+            nexttypes.remove(nexttype)
 
     if request.method == 'POST':
         apiname = selectall('select name from apicases')
@@ -926,24 +964,62 @@ def new_apicase(status):
             error = "请选择正确的版本号"
         else:
             addUpdateDel('insert into apicases (type, version, model, product, name, pre_steps, steps, next_steps, description,activity, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                         [request.form['type'], request.form['version'], request.form['model'], request.form['product'], request.form['name'], request.form['pre-steps'], request.form['steps'], request.form['next-steps'], request.form['description'], '0', session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
-
-            steps = request.form['steps'].split('\r\n')
-
-            for i in range(len(steps)):
-                cur = selectone('select name,path,method,request,checks from apiset where name = %s',[steps[i]])
-                cases = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4]) for row in cur]
-                addUpdateDel('insert into apidates (case_name,name,path,method,request,checks,username,create_date) values (%s,%s,%s,%s,%s,%s,%s,%s)',[request.form['name'], str(i)+'_'+steps[i], cn_to_uk(cases[0]['path']), cases[0]['method'], cn_to_uk(cases[0]['request']), cn_to_uk(cases[0]['checks']), session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+                         [request.form['type'], request.form['version'], request.form['model'], request.form['product'], request.form['name'].strip(), request.form['pre-steps'], request.form['steps'], request.form['next-steps'], request.form['description'], '0', session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
 
             cur_apicases_new= selectone("SELECT * FROM apicases WHERE name = %s",[request.form['name']])
-            cur_apidates_new= selectone("SELECT * FROM apidates WHERE case_name = %s,name = %s",[request.form['name'],steps[-1]])
-            if cur_apicases_new != () and cur_apidates_new !=():
+            if cur_apicases_new != ():
                 flash('创建成功...')
             else:
                 flash('创建失败...')
 
-            return redirect(url_for('apidate_edit_cases_query',case_name=request.form["name"],status=status))
+            return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
     return render_template('api/new_apicase.html',apisets=apisets,versions=versions,issuetypes=issuetypes,nexttypes=nexttypes, current='apicases'+str(status),status=status,pagename = '新增用例',error=error)
+
+# API用例查询后编辑
+@app.route('/apidate_query/<case_name>/<name>', methods=['GET', 'POST'])
+def apidate_query(case_name,name):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    error = None
+    apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s',[case_name,name])
+
+    if apidate_cur != ():
+        cur = apidate_cur
+    else:
+        cur = selectone('select name,path,method,request,checks,parameter,description from apiset where name=%s',[new_name])
+    cases = [dict(name=name, path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5], description=row[6]) for row in cur]
+    return render_template('api/apidate_query.html',case=cases[0],case_name=case_name, name=name,pagename = '编辑接口数据')
+
+# API用例查询后保存
+@app.route('/apidate_save', methods=['GET', 'POST'])
+def apidate_save():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    error = None
+    if request.method == 'POST':
+        if request.form['request'].strip() == '' or request.form['checks'].strip() == '':
+            error = '必输项不能为空'
+        elif is_dict(request.form['request'].strip()) == False:
+            error = '请求格式不对'
+        elif is_dict(request.form['checks'].strip()) == False:
+            error = '检查项格式不对'
+        elif request.form['parameter'].strip() != '' and is_list(request.form['parameter'].strip()) == False:
+                error = '参数格式不对'
+        else:
+            addUpdateDel('update apidates set request = %s,checks = %s,parameter=%s,description=%s where case_name=%s and name=%s',[cn_to_uk(request.form['request']), cn_to_uk(request.form['checks']),cn_to_uk(request.form['parameter']), cn_to_uk(request.form['description']),request.form['case_name'],request.form['name']])
+
+            cur_edit= selectone("SELECT request,checks,parameter FROM apidates where case_name=%s and name=%s and username=%s",[request.form['case_name'],request.form['name'],session['username']])
+            apidates_edit = [dict(request=row[0],checks=row[1],parameter=row[2]) for row in cur_edit]
+            apidates_request = apidates_edit[0]['request']
+            apidates_checks = apidates_edit[0]['checks']
+            apidates_parameter = apidates_edit[0]['parameter']
+            if request.form['request'] == apidates_request and request.form['checks'] == apidates_checks and request.form['parameter'] == apidates_parameter:
+                flash('编辑成功...')
+            else:
+                flash('编辑失败...')
+            return redirect(url_for('apidate_query',case_name=request.form['case_name'],name=request.form['name']))
+
+    return render_template('api/apidate_query.html',error=error,current='apicases', pagename = '编辑接口数据')
 
 # API用例查询
 @app.route('/apicase_query/<int:status>/<int:id>', methods=['GET', 'POST'])
@@ -953,16 +1029,28 @@ def apicase_query(status,id):
     elif get_auths_control(session['username'],'apicases','status',status,'operation','查看-query') == False:
         return render_template('invalid.html')
     else:
-        cur = selectone('SELECT version, name, product, model, steps, description FROM apicases where id=%s',[id])
-        cases = [dict(version=row[0], name=row[1], product=row[2], model=row[3], steps=row[4], description=row[5]) for row in cur]
+        cur = selectone('SELECT type,version, name, product, model, pre_steps, steps, next_steps, description FROM apicases where id=%s',[id])
+        cases = [dict(type=row[0], version=row[1], name=row[2], product=row[3], model=row[4], pre_steps=row[5], steps=row[6], next_steps=row[7], description=row[8]) for row in cur]
         steps = cases[0]['steps'].split('\r\n')
         case_name = cases[0]['name']
         case_details = []
-        for i in range(len(steps)):
-            cur = selectone('select name,path,method,request,checks,parameter from apidates where case_name=%s and name=%s',[case_name,str(i)+'_'+steps[i]])
+        for step in steps:
+            cur = selectone('select name,path,method,request,checks,parameter from apidates where case_name=%s and name=%s',[case_name,step])
+            if cur == ():
+                continue
             case_detail = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5]) for row in cur]
             case_details.append(case_detail[0])
         return render_template('api/apicase_query.html',case_details=case_details, case=cases[0], pagename = '接口查看',current='apicases'+str(status),status=status)
+
+# API用例查询-接口查询
+@app.route('/apidate_apiquery/<case_name>/<name>', methods=['GET', 'POST'])
+def apidate_apiquery(case_name,name):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    error = None
+    apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s and username=%s',[case_name,name,session['username']])
+    cases = [dict(name=name, path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5], description=row[6]) for row in apidate_cur]
+    return render_template('api/apidate_apiquery.html',case=cases[0],case_name=case_name, name=name,pagename = '编辑接口数据')
 
 # API用例删除
 @app.route('/apicase_delete/<int:status>/<int:id>', methods=['GET', 'POST'])
@@ -1023,12 +1111,17 @@ def apicase_exec(status,id):
         return redirect(url_for('login'))
     elif get_auths_control(session['username'],'apicases','status',status,'operation','执行-exec') == False:
         return render_template('invalid.html')
-    else:
-        error = None
-        newrun = RunTests(id,session['username'])
-        res=newrun.getTestCases()
 
-        return render_template('api/apicase_exec.html',res=res,pagename = '接口执行结果',current='apicases'+str(status))
+    count_dates = selectone('SELECT COUNT(1) FROM apicases a INNER JOIN apidates b ON a.name = b.case_name WHERE a.id = %s',[id])[0][0]
+    if count_dates == 0:
+        flash('未生成接口数据，不允许执行！')
+        return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
+
+    error = None
+    newrun = RunTests(id,session['username'])
+    res=newrun.getTestCases()
+
+    return render_template('api/apicase_exec.html',res=res,pagename = '接口执行结果',current='apicases'+str(status))
 
 # API用例驳回
 @app.route('/apicase_reject/<int:status>/<int:id>', methods=['GET', 'POST'])
@@ -1053,17 +1146,65 @@ def apicase_reject(status,id):
 # API用例编辑
 @app.route('/apicase_edit/<int:status>/<int:id>', methods=['GET', 'POST'])
 def apicase_edit(status,id):
+    count_dates = selectone('SELECT COUNT(1) FROM apicases a INNER JOIN apidates b ON a.name = b.case_name WHERE a.id = %s',[id])[0][0]
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     elif get_auths_control(session['username'],'apicases','status',status,'operation','编辑-edit') == False:
         return render_template('invalid.html')
-    else:
-        error = None
-        cur = selectall('SELECT name,request FROM apiset')
-        apisets = [dict(name=row[0],request=row[1]) for row in cur]
-        cur = selectone('SELECT type, version, name, product, model, pre_steps, steps, next_steps,description FROM apicases where id=%s',[id])
-        cases = [dict(type=row[0], version=row[1], name=row[2], product=row[3], model=row[4], pre_steps=row[5], steps=row[6], next_steps=row[7], description=row[8]) for row in cur]
-    return render_template('api/apicase_edit.html',case=cases[0],current='apicases'+str(status),status=status, pagename = '接口编辑', id=id)
+    elif count_dates != 0:
+        flash('已生成接口数据，不允许编辑！')
+        return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
+
+    issuetype = selectall('select name from apicases where type="前置用例"')
+    issuetypes = [dict(name=row[0]) for row in issuetype]
+
+    nexttype = selectall('select name from apicases where type="后置用例"')
+    nexttypes = [dict(name=row[0]) for row in nexttype]
+        
+    error = None
+    cur = selectall('SELECT name,request FROM apiset')
+    apisets = [dict(name=row[0],request=row[1]) for row in cur]
+    cur = selectone('SELECT type, version, name, product, model, pre_steps, steps, next_steps,description FROM apicases where id=%s',[id])
+    cases = [dict(type=row[0], version=row[1], name=row[2], product=row[3], model=row[4], pre_steps=row[5], steps=row[6], next_steps=row[7], description=row[8]) for row in cur]
+    if request.method == 'POST':
+        apiname = selectone('select name from apicases where name !=%s',[cases[0]['name']])
+        apinames = [dict(name=row[0]) for row in apiname]
+        apinames = [apiname['name'] for apiname in apinames]
+
+        if request.form['name'].strip() == '':
+            error = '必输项不能为空！'
+        elif request.form['name'].strip() in apinames:
+            error = "该用例已经存在！"
+        elif request.form['type'].strip() in ('前置用例','后置用例'):
+            addUpdateDel('update apicases set name=%s, steps=%s, description=%s where id=%s',[request.form['name'], request.form['steps'], request.form['description'],id])
+
+            cur_edit= selectone("SELECT name,steps,description FROM apicases WHERE id = %s",[id])
+            apicases_edit = [dict(name=row[0],steps=row[1],description=row[2]) for row in cur_edit]
+            apicase_name = apicases_edit[0]['name']
+            apicases_steps = apicases_edit[0]['steps']
+            apicases_description = apicases_edit[0]['description']
+            if request.form['name'] == apicase_name and request.form['steps'] == apicases_steps and request.form['description'] == apicases_description:
+                flash('编辑成功...')
+            else:
+                flash('编辑失败...')
+
+            return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
+        else:
+            addUpdateDel('update apicases set name = %s, pre_steps = %s, steps = %s, next_steps = %s, description = %s', [request.form['name'].strip(), request.form['pre-steps'], request.form['steps'], request.form['next-steps'], request.form['description']])
+
+            cur_edit= selectone("SELECT name,pre_steps,steps,next_steps,description FROM apicases WHERE id = %s",[id])
+            apicases_edit = [dict(name=row[0],pre_steps=row[1],steps=row[2],next_steps=row[3],description=row[4]) for row in cur_edit]
+            apicase_name = apicases_edit[0]['name']
+            apicase_pre_steps = apicases_edit[0]['pre_steps']
+            apicases_steps = apicases_edit[0]['steps']
+            apicase_next_steps = apicases_edit[0]['next_steps']
+            apicases_description = apicases_edit[0]['description']
+            if request.form['name'] == apicase_name and request.form['pre-steps'] == apicase_pre_steps and request.form['steps'] == apicases_steps and request.form['next-steps'] == apicase_next_steps and request.form['description'] == apicases_description:
+                flash('编辑成功...')
+            else:
+                flash('编辑失败...')
+            return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
+    return render_template('api/apicase_edit.html',case=cases[0],current='apicases'+str(status),status=status,issuetypes=issuetypes, nexttypes=nexttypes,error=error,pagename = '接口编辑', id=id)
 
 # API用例删除后恢复
 @app.route('/apicase_restore/<int:status>/<int:id>', methods=['GET', 'POST'])
@@ -1114,12 +1255,16 @@ def apicase_redelete(status,id):
 # API用例提交
 @app.route('/apicase_submit/<int:status>/<int:id>', methods=['GET', 'POST'])
 def apicase_submit(status,id):
+    count_dates = selectone('SELECT COUNT(1) FROM apicases a INNER JOIN apidates b ON a.name = b.case_name WHERE a.id = %s',[id])[0][0]
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     elif get_auths_control(session['username'],'apicases','status',status,'operation','提交-submit') == False:
         return render_template('invalid.html')
     elif activity('submit','apicases',id) not in activity_dict['submit']:
         flash('用例状态不允许执行该操作...')
+    elif count_dates == 0:
+        flash('未生成接口数据，不允许提交...')
+        return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
     else:
         apicase = selectone('select name from apicases where id=%s',[id])
         apicases = [dict(name=row[0]) for row in apicase]
@@ -1135,54 +1280,30 @@ def apicase_submit(status,id):
 
     return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
 
-# API用例查询后编辑
-@app.route('/apidate_edit_cases_query/<case_name>/<int:status>', methods=['GET', 'POST'])
-def apidate_edit_cases_query(case_name,status):
+# API接口数据生成
+@app.route('/apicase_makedate/<int:status>/<int:id>', methods=['GET', 'POST'])
+def apicase_makedate(status,id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    error = None
-    cur = selectone('SELECT name from apidates WHERE case_name = %s',[case_name])
-    names = [dict(name=row[0]) for row in cur]
-    if request.method == 'POST':
-        if request.form['choice'].strip() == '':
-            error = '必输项不能为空'
-        else:
-            cur = selectone('select name,path,method,request,checks,parameter from apidates where case_name=%s and name=%s',[case_name,request.form['choice']])
-            cases = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5]) for row in cur]
-            return render_template('api/apidate_edit_cases.html',case=cases[0], names=names, case_name=case_name,current='apicases'+str(status),status=status,pagename = '编辑接口数据')
-    return render_template('api/apidate_edit_cases.html',names=names, case_name=case_name,current='apicases'+str(status),status=status,pagename = '编辑接口数据')
+    #elif get_auths_control(session['username'],'apicases','status',status,'operation','数据生成-makedate') == False:
+    #    return render_template('invalid.html')
+    #elif activity('submit','apicases',id) not in activity_dict['submit']:
+    #    flash('用例状态不允许执行该操作...')
+    else:
+        error = None
+        cur = selectone('SELECT type, version, name, product, model, pre_steps, steps, next_steps,description FROM apicases where id=%s',[id])
+        case = [dict(type=row[0], version=row[1], name=row[2], product=row[3], model=row[4], pre_steps=row[5], steps=row[6], next_steps=row[7], description=row[8]) for row in cur]
 
-# API用例编辑后保存
-@app.route('/apidate_edit_cases_save/<case_name>/<int:status>', methods=['GET', 'POST'])
-def apidate_edit_cases_save(case_name,status):
-    if not session.get('logged_in'):
-        return redirect(url_for('login'))
-    error=None
-    if request.method == 'POST':
-        if request.form['request'].strip() == '' or request.form['checks'].strip() == '':
-            error = '必输项不能为空'
-        elif is_dict(request.form['request'].strip()) == False:
-            error = '请求格式不对'
-        elif is_dict(request.form['checks'].strip()) == False:
-            error = '检查项格式不对'
-        elif request.form['parameter'].strip() != '':
-            if is_list(request.form['parameter'].strip()) == False:
-                error = '参数格式不对'
-        else:
-            addUpdateDel('update apidates set request=%s, checks=%s, parameter=%s where case_name=%s and name=%s',[cn_to_uk(request.form['request']),cn_to_uk(request.form['checks']),cn_to_uk(request.form['parameter']),case_name,request.form['name']])
-
-            cur_edit= selectone("SELECT request,checks,parameter FROM apidates where case_name=%s and name=%s",[case_name,request.form['name']])
-            apidates_edit = [dict(request=row[0],checks=row[1],parameter=row[2]) for row in cur_edit]
-            apidates_request = apidates_edit[0]['request']
-            apidates_checks = apidates_edit[0]['checks']
-            apidates_parameter = apidates_edit[0]['parameter']
-            if request.form['request'] == apidates_request and request.form['checks'] == apidates_checks and request.form['parameter'] == apidates_parameter:
-                flash('编辑成功...')
-            else:
-                flash('编辑失败...')
-            return redirect(url_for('apidate_edit_cases_query',case_name=case_name,status=status))
-
-    return render_template('api/apidate_edit_cases.html',case_name=case_name, error=error,current='apicases',status=status, pagename = '编辑接口数据')
+        steps = selectone('SELECT steps FROM apicases WHERE id = %s',[id])[0][0].split('\r\n')
+        steps_in_dates = selectone('SELECT count(1) FROM apidates a INNER JOIN apicases b ON a.case_name = b.name WHERE b.id = %s',[id])[0][0]
+        if steps_in_dates == 0:
+            for step in steps:
+                new_step = step.split('-')[1]
+                cur = selectone('select name,path,method,request,checks from apiset where name = %s',[new_step])
+                api_cases = [dict(name=step, path=row[1], method=row[2], request=row[3], checks=row[4]) for row in cur]
+                addUpdateDel('insert into apidates (case_name,name,path,method,request,checks,username,create_date) values (%s,%s,%s,%s,%s,%s,%s,%s)',[case[0]['name'], step, cn_to_uk(api_cases[0]['path']), api_cases[0]['method'], cn_to_uk(api_cases[0]['request']), cn_to_uk(api_cases[0]['checks']), session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+                
+    return render_template('api/apicase_makedate.html',case=case[0],current='apicases'+str(status),status=status,error=error,pagename = '数据生成', id=id)
 
 ###############################
 #             UI封装
@@ -1626,7 +1747,7 @@ def page_auth():
             error = '授权页面不能为空'
         else:
             temp = request.form['select-page'].split('-')
-            addUpdateDel('update auth set auth=%s where type=%s and name=%s',[request.form['auth'],temp[0],temp[1]])
+            addUpdateDel('update auth set auth=%s where type=%s and name=%s',[request.form['auth'][:-1],temp[0],temp[1]])
             flash('权限更新成功...')
     page_auths = selectall("SELECT TYPE,NAME,auth FROM auth")
     return render_template('admin/page_auth.html', error=error,page_auths=page_auths,current='page_auth', pagename = '页面权限设置')
@@ -1644,7 +1765,7 @@ def opera_auth():
             error = '授权页面不能为空'
         else:
             temp = request.form['select-page'].split('-')
-            addUpdateDel('update auth set operation=%s where type=%s and name=%s',[request.form['operation'],temp[0],temp[1]])
+            addUpdateDel('update auth set operation=%s where type=%s and name=%s',[request.form['auth'][:-1],temp[0],temp[1]])
             flash('权限更新成功...')
     opera_auths = selectall("SELECT TYPE,NAME,operation FROM auth")
     return render_template('admin/opera_auth.html', error=error,opera_auths=opera_auths, current='opera_auth',pagename = '操作权限设置')
@@ -1661,7 +1782,7 @@ def user_auth():
         if request.form['select-user'].strip() == '':
             error = '用户名不能为空'
         else:
-            addUpdateDel('update user set auth=%s where zh_name=%s',[request.form['auth'],request.form['select-user']])
+            addUpdateDel('update user set auth=%s where zh_name=%s',[request.form['auth'][:-1],request.form['select-user']])
             flash('权限更新成功...')
     user_auths = selectall("SELECT username,zh_name,auth FROM user")
     return render_template('admin/user_auth.html', error=error,user_auths=user_auths,current='user_auth', pagename = '用户权限设置')

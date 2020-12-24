@@ -80,7 +80,7 @@ class RunUiTests(object):
 
         except Exception as err:
             LogUtility.logger.debug(
-                "Failed running test siutes, error message: {}".format(str(err)))
+                "测试集运行失败, 错误信息是: {}".format(str(err)))
             result['status'] = '失败'
             result['error'].append("用例错误："+str(err))
             TestCase.getScreenshot(Config.Screenshot+'/'+case_name+'_'+Screenshottime+'.png')
@@ -116,9 +116,13 @@ class RunUiTests(object):
 
             cur = selectone('SELECT name, exec_mode, steps, description FROM uisitues where id=%s',[self.id])
             cases = [dict(name=row[0], exec_mode=row[1], steps=row[2], description=row[3]) for row in cur]
-            cases_step = cases[0]['steps'].split('\r\n')
-            exec_mode = cases[0]['exec_mode']
-            cases_name = cases[0]['name']
+            if cases == []:
+                exec_mode = '按失败'
+                cases_name = '失败'
+            else:
+                cases_step = cases[0]['steps'].split('\r\n')
+                exec_mode = cases[0]['exec_mode']
+                cases_name = cases[0]['name']
             
             if exec_mode == '按用例':
                 steps_case = cases_step
@@ -143,12 +147,21 @@ class RunUiTests(object):
                     cases_dict = [dict(name=row[0]) for row in cur_version]
                     case_step_list = [case['name'] for case in cases_dict]
                     steps_case.extend(case_step_list)
+            elif exec_mode == '按失败':
+                cur = selectall('SELECT case_name FROM report a WHERE a.`status` = \'失败\' and type = \'ui\'')
+                steps_case = []
+                for case in cur:
+                    steps_case.append(case[0])
 
             count = len(steps_case)
             all_id = []
             for step in steps_case:
+                if step.startswith('#'):
+                    continue
                 cur_step = selectone('select id, product from uicases where name =%s',[step])
                 cases_step = [dict(id=row[0], product=row[1]) for row in cur_step]
+                if cases_step == []:
+                    continue
                 all_id.append([cases_step[0]['id'], cases_step[0]['product']])
             addUpdateDel('delete from report where type=%s and username=%s',['ui',self.username])
             for ids in all_id:
@@ -158,7 +171,7 @@ class RunUiTests(object):
 
         except Exception as e:
             LogUtility.logger.debug(
-                "Failed running test siutes, error message: {}".format(str(e)))
+                "测试集运行失败, 错误信息是: {}".format(str(e)))
         finally:
             endtime = Config.getCurrentTime()
             spenttime = Config.timeDiff(starttime,endtime)

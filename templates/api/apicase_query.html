@@ -1,5 +1,8 @@
 {% extends "base_index.html" %}
 {% block content %}
+<script type="text/javascript">
+    window.onload = function () { getQueryDateElements() };
+</script>
 <div class="form-group">
     <label for="type">用例类型</label>
     <input id="type" class="form-control required" name="type" maxlength="200" placeholder="请输入用例类型" readonly
@@ -32,47 +35,37 @@
 {% if case['type'] == '普通用例' %}
 <div class="form-group">
     <label for="pre-steps">前置事务</label>
-    <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入前置事务"></div>
+    <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入前置事务">{{ case['pre_steps'] }}</div>
 </div>
 {% endif %}
 <div class="form-group">
     <label for="steps">操作步骤</label>
     <div class="form-control required textarea" id="steps" name="steps" placeholder="请输入步骤">{{ case['steps'] }}</div>
 </div>
+<div id="add_api_table">
+    <table id="add_api">
+      <thead>
+        <tr>
+          <th>序号</th>
+          <th>用例名称</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="add_api_tbody"></tbody>
+    </table>
+  </div>
 {% if case['type'] == '普通用例' %}
 <div class="form-group">
     <label for="pre-steps">后置事务</label>
-    <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入后置事务"></div>
+    <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入后置事务">{{ case['next_steps'] }}</div>
 </div>
 {% endif %}
-{% for case_detail in case_details %}
-<hr>
-<div class="form-group">
-    <label for="case_name">名称</label>
-    <input type="text" class="form-control required" id="case_name" name="case_name" maxlength="200" placeholder="请输入路径"
-        readonly unselectable="on" value={{ case_detail['name'] }}>
-</div>
-<div class="form-group">
-    <label for="case_path">路径</label>
-    <input type="text" class="form-control required" id="case_path" name="case_path" maxlength="200" placeholder="请输入路径"
-        readonly unselectable="on" value={{ case_detail['path'] }}>
-</div>
-<div class="form-group">
-    <label for="case_method">方法</label>
-    <input id="case_method" class="form-control required" name="case_method" maxlength="20" placeholder="请选择方法" readonly
-        unselectable="on" value={{ case_detail['method'] }}>
-</div>
-<div class="form-group">
-    <label for="case_request">请求</label>
-    <div class="form-control required textarea" id="request" name="case_request" placeholder="请输入请求">{{ case_detail['request'] }}</div>
-</div>
-<div class="form-group">
-    <label for="case_checks">检查项</label>
-    <div class="form-control required textarea" id="checks" name="case_checks" placeholder="请输入检查项">{{ case_detail['checks'] }}</div>
-</div>
-<div class="form-group">
-    <label for="case_parameter">参数</label>
-    <div class="form-control required textarea" id="case_parameter" name="case_parameter" placeholder="请输入参数">{{ case_detail['parameter'] }}</div>
-</div>
-{% endfor %}
+<div id=save-dates>
+    <div id=save-dates-nav>
+      <div id=left>数据查询</div>
+      <div id=right><a href="#" class="failed" onclick="closeEditDate()">&times;</a></div>
+    </div>
+    <iframe id=save-date></iframe>
+  </div>
+  <div id="hidebg"></div>
 {% endblock %}
