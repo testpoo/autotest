@@ -1,4 +1,22 @@
 {% extends "base.html" %}
-{% block content %}
-<div id=content>404</div>
+{% block login %}
+<style>
+    #sitename,
+    #nav,
+    #footer {
+        display: none;
+    }
+
+    #main {
+        padding: 0px 20px;
+    }
+
+    #content {
+        padding: 0px;
+    }
+</style>
+<div id=content>
+    <p class=invalid>404:页面找不到了，哈哈~！</p>
+    <p style="font-size: 360px;color:#ddd">☠</p>
+</div>
 {% endblock %}

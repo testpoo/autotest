@@ -118,22 +118,22 @@
       <td>{{ case['create_date'] }}</td>
       <td>
         {% if status == 0 %}
-        {% for opera,links in operation('用例编写') %}
+        {% for opera,links in operation('用例编写','UI自动化') %}
         <span class="opration"><a href="{{ SITEURL }}/uicase_{{ links }}/{{ status }}/{{ case['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
         {% endfor %}
         {% elif status == 1 %}
-        {% for opera,links in operation('用例审核') %}
+        {% for opera,links in operation('用例审核','UI自动化') %}
         <span class="opration"><a href="{{ SITEURL }}/uicase_{{ links }}/{{ status }}/{{ case['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
         {% endfor %}
         {% elif status == 3 %}
-        {% for opera,links in operation('用例执行') %}
+        {% for opera,links in operation('用例执行','UI自动化') %}
         <span class="opration"><a href="{{ SITEURL }}/uicase_{{ links }}/{{ status }}/{{ case['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
         {% endfor %}
         {% elif status == 2 %}
-        {% for opera,links in operation('回收站') %}
+        {% for opera,links in operation('回收站','UI自动化') %}
         <span class="opration"><a href="{{ SITEURL }}/uicase_{{ links }}/{{ status }}/{{ case['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
         {% endfor %}
@@ -143,8 +143,10 @@
     {% endfor %}
     <tr>
       <td colspan="14">
-        {% for page in range(all_Page) %}
-        <span class="opration {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/uicases/{{ category }}/{{ value }}/{{ status }}/{{ page+1 }}">{{ page+1 }}</a></span>
+        {% for page in range(num-3,num+2) %}
+        {% if page >=0 and page < all_Page %}
+        <span class="pages {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/uicases/{{ category }}/{{ value }}/{{ status }}/{{ page+1 }}">{{ page+1 }}</a></span>
+        {% endif %}
         {% endfor %}
       </td>
     </tr>

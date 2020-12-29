@@ -463,7 +463,7 @@ function editDate() {
   if (target.parentNode.tagName.toLowerCase() == "td") {
     rowIndex = target.parentNode.parentNode.rowIndex;
   }
-  case_name = document.getElementById('name').value;
+  case_name = document.getElementById('name').value.replace('/','%252F');
   var table = document.getElementById("add_api"); //获取第一个表格   
   api_name = table.rows[rowIndex].cells[0].innerHTML + '-' + table.rows[rowIndex].cells[1].innerHTML;
 
@@ -521,7 +521,7 @@ function queryDate() {
   if (target.parentNode.tagName.toLowerCase() == "td") {
     rowIndex = target.parentNode.parentNode.rowIndex;
   }
-  case_name = document.getElementById('name').value;
+  case_name = document.getElementById('name').value.replace('/','%252F');
   var table = document.getElementById("add_api"); //获取第一个表格   
   api_name = table.rows[rowIndex].cells[0].innerHTML + '-' + table.rows[rowIndex].cells[1].innerHTML;
 

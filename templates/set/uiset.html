@@ -50,7 +50,7 @@
       <td>{{ uiset['username'] }}</td>
       <td>{{ uiset['create_date'] }}</td>
       <td>
-        {% for opera,links in operation('UI封装') %}
+        {% for opera,links in operation('UI封装','UI自动化') %}
         <span class="opration"><a href="{{ SITEURL }}/uiset_{{ links }}/{{ uiset['id'] }}">{{ opera }}</a></span>
         {% endfor %}
       </td>
@@ -59,7 +59,7 @@
     <tr>
       <td colspan="8">
         {% for page in range(all_Page) %}
-        <span class="opration {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/uiset/{{ keyword }}/{{ value }}/{{ page+1 }}">{{
+        <span class="pages {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/uiset/{{ keyword }}/{{ value }}/{{ page+1 }}">{{
             page+1 }}</a></span>
         {% endfor %}
       </td>

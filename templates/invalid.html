@@ -1,8 +1,19 @@
 {% extends "base.html" %}
 {% block login %}
 <style>
-    #main{padding-left: 0px;}
-    #footer{margin-left: 0px}
+    #sitename,
+    #nav,
+    #footer {
+        display: none;
+    }
+
+    #main {
+        padding: 0px 20px;
+    }
+
+    #content {
+        padding: 0px;
+    }
 </style>
 <div id=content>
     <p class=invalid>您没有访问该链接的权限~！</p>

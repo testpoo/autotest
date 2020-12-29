@@ -45,7 +45,7 @@
       <td>{{ version['username'] }}</td>
       <td>{{ version['create_date'] }}</td>
       <td>
-        {% for opera,links in operation('版本号') %}
+        {% for opera,links in operation('版本号','设置') %}
         <span class="opration"><a href="{{ SITEURL }}/version_{{ links }}/{{ version['id'] }}" onclick="loading()">{{
             opera }}</a></span>
         {% endfor %}
@@ -55,7 +55,7 @@
     <tr>
       <td colspan="10">
         {% for page in range(all_Page) %}
-        <span class="opration"><a href="{{ SITEURL }}/versions/{{ version }}/{{ value }}/{{ page+1 }}">{{ page+1 }}</a></span>
+        <span class="pages {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/versions/{{ version }}/{{ value }}/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>

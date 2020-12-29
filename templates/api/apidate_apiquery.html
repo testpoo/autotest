@@ -20,6 +20,11 @@
         }
     </style>
 <div class="form-group">
+    <label for="case_name">用例名称</label>
+    <input type="text" class="form-control required" id="case_name" name="case_name" maxlength="200" placeholder="请输入用例名称"
+            readonly unselectable="on" value={{ case_name }}>
+</div>
+<div class="form-group">
     <label for="name">接口名称</label>
     <input type="text" class="form-control required" id="name" name="name" maxlength="200" placeholder="请输入接口名称" readonly unselectable="on" value={{ case['name'] if case }}>
 </div>

@@ -83,8 +83,8 @@ def get_navs():
 # 获取页面操作项目
 @app.context_processor
 def get_operation():
-    def get_buttons(menu):
-        auths = selectone('SELECT operation FROM auth WHERE NAME = %s',[menu])[0][0].split('|')
+    def get_buttons(menu,type):
+        auths = selectone('SELECT operation FROM auth WHERE NAME = %s and type=%s',[menu,type])[0][0].split('|')
         buttons = []
         for auth in auths:
             buttons.append(auth.split('-'))
@@ -250,11 +250,11 @@ def uicases(category,value,status,num):
             elif request.form['select-model'].strip() == '按用户' and request.form['query-username'].strip() != '':
                 category = 'b.zh_name'
                 value = request.form['query-username']
-            return redirect(url_for('uicases',category=category,value=value,status=status,num='1'))
+            return redirect(url_for('uicases',category=category,value=changeWord(value),status=status,num='1'))
         if category == 'a.name':
-            cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description,a.exec_result, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="'+str(status)+'" and '+category+' like "%'+value+'%" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
+            cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description,a.exec_result, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="'+str(status)+'" and '+category+' like "%'+wordChange(value)+'%" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         else:
-            cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description,a.exec_result, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="'+str(status)+'" and '+category+'="'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
+            cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description,a.exec_result, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="'+str(status)+'" and '+category+'="'+wordChange(value)+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], exec_result=row[10], zh_name=row[11], create_date=row[12]) for row in cur]
         return render_template('ui/uicases.html',cases=cases,all_Page=all_Page,category=category,value=value,status=status,num=num,usernames=usernames,versions=versions,models=models,current='uicases'+str(status),error=error,pagename = 'UI测试用例')
 
@@ -539,7 +539,7 @@ def uisitues(name,value,num):
     elif get_auths_control(session['username'],'uisitues','1','1','1','1') == False:
         return render_template('invalid.html')
     else:
-        all_Count = selectall('SELECT count(1) FROM uisitues a where '+name+' = "'+value+'" and activity != \'1\'')[0][0]
+        all_Count = selectall('SELECT count(1) FROM uisitues a where '+name+' = "'+value+'" and activity = \'1\'')[0][0]
         all_Page = math.ceil(all_Count/page_Count)
         uisitues_list = selectall('select name from uisitues where activity = \'1\'')
         if request.method == 'POST':
@@ -621,7 +621,7 @@ def uisitue_edit(id):
             if request.form['steps'].strip == '':
                 error = '必输项不能为空'
             else:
-                addUpdateDel('update uisitues set steps=%s, description=%s where id=%s',[request.form['steps'], request.form['description'],id])
+                addUpdateDel('update uisitues set exec_mode=%s, steps=%s, description=%s where id=%s',[request.form['exec-mode'], request.form['steps'], request.form['description'],id])
 
                 cur_edit= selectone("SELECT steps,description FROM uisitues WHERE id = %s",[id])
                 uisitues_edit = [dict(steps=row[0],description=row[1]) for row in cur_edit]
@@ -680,15 +680,18 @@ def uisitue_exec(id):
         return redirect(url_for('uisitues',name=1,value=1,num=1))
 
 # UI测试集报告
-@app.route('/ui_report_list/1', methods=['GET', 'POST'])
-def ui_report_list():
+@app.route('/ui_report_list/<int:num>', methods=['GET', 'POST'])
+def ui_report_list(num):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     elif get_auths_control(session['username'],'ui_report_list','1','1','1','1') == False:
         return render_template('invalid.html')
     else:
-        report_lists = get_file_list(path_ui)[0:18]
-        return render_template('report_list.html', pagename = '测试报告列表',report_lists=report_lists,path = path_ui,current='ui_report_list',type = 'ui')
+        report_lists = get_file_list(path_ui)
+        all_Count = len(report_lists)
+        all_Page = math.ceil(all_Count/page_Count)
+        report_lists = report_lists[(num-1)*page_Count:num*page_Count]
+        return render_template('report_list.html', pagename = '测试报告列表',report_lists=report_lists,path = path_ui,all_Page=all_Page,num=num,page_Count=page_Count,current='ui_report_list',type = 'ui')
 
 # UI执行失败的案例
 @app.route('/exec_failed/<type>/0', methods=['GET', 'POST'])
@@ -866,15 +869,18 @@ def apisitue_exec(id):
         return redirect(url_for('apisitues',name=1,value=1,num=1))
 
 # API测试集报告
-@app.route('/api_report_list/1', methods=['GET', 'POST'])
-def api_report_list():
+@app.route('/api_report_list/<int:num>', methods=['GET', 'POST'])
+def api_report_list(num):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     elif get_auths_control(session['username'],'api_report_list','1','1','1','1') == False:
         return render_template('invalid.html')
     else:
-        report_lists = get_file_list(path_api)[0:18]
-        return render_template('report_list.html', pagename = '测试报告列表',report_lists=report_lists,path = path_api,current='api_report_list',type='api')
+        report_lists = get_file_list(path_api)
+        all_Count = len(report_lists)
+        all_Page = math.ceil(all_Count/page_Count)
+        report_lists = report_lists[(num-1)*page_Count:num*page_Count]
+        return render_template('report_list.html', pagename = '测试报告列表',report_lists=report_lists,path = path_api,all_Page=all_Page,num=num,page_Count=page_Count,current='api_report_list',type='api')
 
 ###############################
 #              API
@@ -915,11 +921,11 @@ def apicases(category,value,status,num):
             elif request.form['select-model'].strip() == '按用户' and request.form['query-username'].strip() != '':
                 category = 'b.zh_name'
                 value = request.form['query-username']
-            return redirect(url_for('apicases',category=category,value=value,status=status,num='1'))
+            return redirect(url_for('apicases',category=category,value=changeWord(value),status=status,num='1'))
         if category == 'a.name':
-            cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description,a.exec_result, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="'+str(status)+'" and '+category+' like "%'+value+'%" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
+            cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description,a.exec_result, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="'+str(status)+'" and '+category+' like "%'+wordChange(value)+'%" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         else:
-            cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description,a.exec_result, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="'+str(status)+'" and '+category+'="'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
+            cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description,a.exec_result, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="'+str(status)+'" and '+category+'="'+wordChange(value)+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], exec_result=row[10], zh_name=row[11], create_date=row[12]) for row in cur]
         return render_template('api/apicases.html',cases=cases, all_Page=all_Page,category=category,value=value,status=status,num=num,usernames=usernames,versions=versions,models=models,current='apicases'+str(status),error=error,pagename = '接口测试用例')
 
@@ -981,14 +987,15 @@ def apidate_query(case_name,name):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     error = None
-    apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s',[case_name,name])
+    apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s',[wordChange(case_name),name])
+    print('apidate_cur',apidate_cur)
 
     if apidate_cur != ():
         cur = apidate_cur
     else:
         cur = selectone('select name,path,method,request,checks,parameter,description from apiset where name=%s',[new_name])
     cases = [dict(name=name, path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5], description=row[6]) for row in cur]
-    return render_template('api/apidate_query.html',case=cases[0],case_name=case_name, name=name,pagename = '编辑接口数据')
+    return render_template('api/apidate_query.html',case=cases[0],case_name=wordChange(case_name), name=name,pagename = '编辑接口数据')
 
 # API用例查询后保存
 @app.route('/apidate_save', methods=['GET', 'POST'])
@@ -1048,9 +1055,9 @@ def apidate_apiquery(case_name,name):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     error = None
-    apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s and username=%s',[case_name,name,session['username']])
+    apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s and username=%s',[wordChange(case_name),name,session['username']])
     cases = [dict(name=name, path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5], description=row[6]) for row in apidate_cur]
-    return render_template('api/apidate_apiquery.html',case=cases[0],case_name=case_name, name=name,pagename = '编辑接口数据')
+    return render_template('api/apidate_apiquery.html',case=cases[0],case_name=wordChange(case_name), name=name,pagename = '编辑接口数据')
 
 # API用例删除
 @app.route('/apicase_delete/<int:status>/<int:id>', methods=['GET', 'POST'])
@@ -1283,15 +1290,18 @@ def apicase_submit(status,id):
 # API接口数据生成
 @app.route('/apicase_makedate/<int:status>/<int:id>', methods=['GET', 'POST'])
 def apicase_makedate(status,id):
+    print('1')
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    #elif get_auths_control(session['username'],'apicases','status',status,'operation','数据生成-makedate') == False:
-    #    return render_template('invalid.html')
-    #elif activity('submit','apicases',id) not in activity_dict['submit']:
-    #    flash('用例状态不允许执行该操作...')
+    elif get_auths_control(session['username'],'apicases','status',status,'operation','数据生成-makedate') == False:
+        return render_template('invalid.html')
+    elif activity('makedate','apicases',id) not in activity_dict['makedate']:
+        flash('用例状态不允许执行该操作...')
+        return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
     else:
         error = None
         cur = selectone('SELECT type, version, name, product, model, pre_steps, steps, next_steps,description FROM apicases where id=%s',[id])
+        print(cur)
         case = [dict(type=row[0], version=row[1], name=row[2], product=row[3], model=row[4], pre_steps=row[5], steps=row[6], next_steps=row[7], description=row[8]) for row in cur]
 
         steps = selectone('SELECT steps FROM apicases WHERE id = %s',[id])[0][0].split('\r\n')

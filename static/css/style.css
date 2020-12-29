@@ -530,8 +530,24 @@ a.addElement {
     cursor:pointer;
 }
 
-#content .page a {
-    color: #fc5531;
+#content .pages {
+    float: left;
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+    color: #fff;
+    border-radius: 17px;
+    font-weight: bold;
+    background: #02a8a8;
+    margin-left: 10px;
+}
+
+#content .pages a {
+    color: #fff;
+}
+
+#content .page {
+    background: #42e6a4;
 }
 
 /* 主页统计 */

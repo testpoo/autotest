@@ -29,6 +29,13 @@
 			</td>
 		</tr>
 		{% endfor %}
+		<tr>
+			<td colspan="3">
+			  {% for page in range(all_Page) %}
+			  <span class="pages {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/{{ type }}_report_list/{{ page+1 }}">{{ page+1 }}</a></span>
+			  {% endfor %}
+			</td>
+		  </tr>
 	</tbody>
 </table>
 {% endblock %}

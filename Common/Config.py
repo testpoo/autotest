@@ -7,8 +7,8 @@ import os
 SITEURL = "http://127.0.0.1:5000"
 #SITEURL = "http://192.168.213.110:8000"
 
-dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
-#dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
+#dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
+dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
 #==============================================================================================================
 product = ['SiCAP','OMA']
 
@@ -48,7 +48,7 @@ para_headers = {
 
 # 案例状态
 # 0：待提交 1：待审核 2：已删除 3：已审核
-activity_dict = {'delete':'["0","1","3"]','submit':'["0"]','restore':'["2"]','redelete':'["0","1","2","3"]','review':'["1"]','reject':'["1","3"]'}
+activity_dict = {'delete':'["0","1","3"]','submit':'["0"]','restore':'["2"]','redelete':'["0","1","2","3"]','review':'["1"]','reject':'["1","3"]','makedate':'["0"]'}
 #==============================================================================================================
 #change time to str
 def getCurrentTime():
@@ -191,3 +191,12 @@ def tupleToList(tuple):
     for tup in tuple:
         list.append(tup[0])
     return list
+
+# 特殊字符转义
+def changeWord(str):
+    str = str.replace('/','%2F')
+    return str
+
+def wordChange(str):
+    str = str.replace('%2F','/')
+    return str

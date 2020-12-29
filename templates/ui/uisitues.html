@@ -63,7 +63,7 @@
       <td>{{ uisitue['username'] }}</td>
       <td>{{ uisitue['create_date'] }}</td>
       <td>
-        {% for opera,links in operation('测试集') %}
+        {% for opera,links in operation('测试集','UI自动化') %}
         <span class="opration"><a href="{{ SITEURL }}/uisitue_{{ links }}/{{ uisitue['id'] }}"
             onclick="loading()">{{ opera }}</a></span>
         {% endfor %}
@@ -73,7 +73,7 @@
     <tr>
       <td colspan="11">
         {% for page in range(all_Page) %}
-        <span class="opration {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/uisitues/{{ name }}/{{ value }}/{{ page+1 }}">{{ page+1 }}</a></span>
+        <span class="pages {{ 'page' if num == page+1 else '' }}"><a href="{{ SITEURL }}/uisitues/{{ name }}/{{ value }}/{{ page+1 }}">{{ page+1 }}</a></span>
         {% endfor %}
       </td>
     </tr>
