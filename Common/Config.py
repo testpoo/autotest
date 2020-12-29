@@ -7,8 +7,8 @@ import os
 SITEURL = "http://127.0.0.1:5000"
 #SITEURL = "http://192.168.213.110:8000"
 
-#dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
-dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
+dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
+#dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
 #==============================================================================================================
 product = ['SiCAP','OMA']
 
@@ -199,4 +199,12 @@ def changeWord(str):
 
 def wordChange(str):
     str = str.replace('%2F','/')
+    return str
+
+# json格式化
+def jsonFormat(str):
+    if ',\n' not in str and '{\n' not in str and '\n}' not in str:
+        str = str.replace(',',',\n    ').replace('{','{\n    ').replace('}','\n}')
+    else:
+        str = str
     return str

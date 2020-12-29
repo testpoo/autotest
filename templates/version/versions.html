@@ -40,7 +40,7 @@
   <tbody>
     {% for version in versions %}
     <tr>
-      <td>{{ loop.index }}</td>
+      <td>{{ loop.index+(num-1)*page_Count }}</td>
       <td>{{ version['version'] }}</td>
       <td>{{ version['username'] }}</td>
       <td>{{ version['create_date'] }}</td>

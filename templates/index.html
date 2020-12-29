@@ -13,15 +13,15 @@
             </tr>
         </thead>
         <tbody>
-            {% for version in versions %}
+            {% for oma_version in oma_versions %}
             <tr>
-                <td>{{ version[0] }}</td>
-                <td><a href="{{ SITEURL }}/caseManage/uicases/a.version/{{ version[0] }}/1">{{ version[1] }}</a></td>
+                <td>{{ oma_version[0] }}</td>
+                <td>{{ oma_version[1] }}</td>
             </tr>
             {% endfor %}
             <tr>
                 <td>总计</td>
-                <td><a href="{{ SITEURL }}/caseManage/uicases/1/1/1">{{ counts }}</a></td>
+                <td>{{ oma_counts }}</td>
             </tr>
         </tbody>
     </table>
@@ -36,15 +36,61 @@
             </tr>
         </thead>
         <tbody>
-            {% for model in models %}
+            {% for oma_model in oma_models %}
             <tr>
-                <td>{{ model[0] }}</td>
-                <td><a href="{{ SITEURL }}/caseManage/uicases/a.model/{{ model[0] }}/1">{{ model[1] }}</a></td>
+                <td>{{ oma_model[0] }}</td>
+                <td>{{ oma_model[1] }}</td>
             </tr>
             {% endfor %}
             <tr>
                 <td>总计</td>
-                <td><a href="{{ SITEURL }}/caseManage/uicases/1/1/1">{{ counts }}</a></td>
+                <td>{{ oma_counts }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="statistics">
+    <h2>SiCAP按版本统计</h2>
+    <table class="count">
+        <thead>
+            <tr>
+                <th>版本</th>
+                <th>数量</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sicap_version in sicap_versions %}
+            <tr>
+                <td>{{ sicap_version[0] }}</td>
+                <td>{{ sicap_version[1] }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>总计</td>
+                <td>{{ sicap_counts }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="statistics">
+    <h2>SiCAP按模块统计</h2>
+    <table class="count">
+        <thead>
+            <tr>
+                <th>模块</th>
+                <th>数量</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sicap_model in sicap_models %}
+            <tr>
+                <td>{{ sicap_model[0] }}</td>
+                <td>{{ sicap_model[1] }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>总计</td>
+                <td>{{ sicap_counts }}</td>
             </tr>
         </tbody>
     </table>

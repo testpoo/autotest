@@ -22,7 +22,7 @@
 	<tbody>
 		{% for report_list in report_lists %}
 		<tr>
-			<td>{{ loop.index }}</td>
+			<td>{{ loop.index+(num-1)*page_Count }}</td>
 			<td>{{ report_list }}</td>
 			<td>
 				<span class="opration"><a href="{{ SITEURL }}/{{ path }}/{{ report_list }}" target="_blank">查看</a></span>

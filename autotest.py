@@ -172,10 +172,14 @@ def login():
 @app.route('/<current_user>/')
 def index(current_user):
     if session.get('logged_in'):
-        counts = selectall('select count(1) from uicases where activity !="2"')[0][0]
-        versions = selectall('SELECT VERSION,COUNT(1) AS COUNT FROM uicases where activity !="2" GROUP BY VERSION ORDER BY COUNT DESC')
-        models = selectall('SELECT MODEl,COUNT(1) AS COUNT FROM uicases where activity !="2"  GROUP BY MODEl ORDER BY COUNT DESC')
-        return render_template('index.html', current_user = session['username'],counts=counts,versions=versions,models=models,pagename = '主页')
+        oma_counts = selectall('select count(1) from uicases where activity !="2"')[0][0]
+        oma_versions = selectall('SELECT VERSION,COUNT(1) AS COUNT FROM uicases where activity !="2" GROUP BY VERSION ORDER BY COUNT DESC')
+        oma_models = selectall('SELECT MODEl,COUNT(1) AS COUNT FROM uicases where activity !="2"  GROUP BY MODEl ORDER BY COUNT DESC')
+
+        sicap_counts = selectall('select count(1) from apicases where activity !="2"')[0][0]
+        sicap_versions = selectall('SELECT VERSION,COUNT(1) AS COUNT FROM apicases where activity !="2" GROUP BY VERSION ORDER BY COUNT DESC')
+        sicap_models = selectall('SELECT MODEl,COUNT(1) AS COUNT FROM apicases where activity !="2"  GROUP BY MODEl ORDER BY COUNT DESC')
+        return render_template('index.html', current_user = session['username'],oma_counts=oma_counts,oma_versions=oma_versions,oma_models=oma_models,sicap_counts=sicap_counts,sicap_versions=sicap_versions,sicap_models=sicap_models,pagename = '主页')
     else:
         return redirect(url_for('login'))
 
@@ -256,7 +260,7 @@ def uicases(category,value,status,num):
         else:
             cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description,a.exec_result, b.zh_name, a.create_date FROM uicases a inner join user b on a.username=b.username where activity="'+str(status)+'" and '+category+'="'+wordChange(value)+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], exec_result=row[10], zh_name=row[11], create_date=row[12]) for row in cur]
-        return render_template('ui/uicases.html',cases=cases,all_Page=all_Page,category=category,value=value,status=status,num=num,usernames=usernames,versions=versions,models=models,current='uicases'+str(status),error=error,pagename = 'UI测试用例')
+        return render_template('ui/uicases.html',cases=cases,all_Page=all_Page,category=category,value=value,status=status,num=num,page_Count=page_Count,usernames=usernames,versions=versions,models=models,current='uicases'+str(status),error=error,pagename = 'UI测试用例')
 
 # 新建UI案例
 @app.route('/new_uicase/<int:status>', methods=['GET', 'POST'])
@@ -552,7 +556,7 @@ def uisitues(name,value,num):
             return redirect(url_for('uisitues',name=name,value=value,num=num))
         cur = selectall('SELECT a.id,a.name,a.exec_mode,a.steps,a.description,b.zh_name,a.create_date FROM uisitues a inner join user b on a.username=b.username where '+name+' = "'+value+'" and activity = \'1\' order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         uisitues = [dict(id=row[0], name=row[1], exec_mode=row[2], steps=row[3], description=row[4], username=row[5], create_date=row[6]) for row in cur]
-        return render_template('ui/uisitues.html',uisitues=uisitues,name=name,value=value, num=num, uisitues_list=uisitues_list,all_Page=all_Page,current="uisitues", pagename = '测试集')
+        return render_template('ui/uisitues.html',uisitues=uisitues,name=name,value=value, num=num,page_Count=page_Count, uisitues_list=uisitues_list,all_Page=all_Page,current="uisitues", pagename = '测试集')
 
 # 新建UI测试集
 @app.route('/new_uisitue', methods=['GET', 'POST'])
@@ -738,7 +742,7 @@ def apisitues(name,value,num):
             return redirect(url_for('apisitues',name=name,value=value,num=num))
         cur = selectall('SELECT a.id,a.name,a.exec_mode, a.steps,a.description,b.zh_name,a.create_date FROM apisitues a inner join user b on a.username=b.username where '+name+' = "'+value+'" and activity = \'1\' order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         apisitues = [dict(id=row[0], name=row[1], exec_mode=row[2], steps=row[3], description=row[4], username=row[5], create_date=row[6]) for row in cur]
-        return render_template('api/apisitues.html',apisitues=apisitues, all_Page=all_Page, name=name,value=value, num=num,apisitues_list=apisitues_list,pagename = '测试集',current='apisitues')
+        return render_template('api/apisitues.html',apisitues=apisitues, all_Page=all_Page, name=name,value=value, num=num,page_Count=page_Count,apisitues_list=apisitues_list,pagename = '测试集',current='apisitues')
 
 # 新建API测试集
 @app.route('/new_apisitue', methods=['GET', 'POST'])
@@ -927,7 +931,7 @@ def apicases(category,value,status,num):
         else:
             cur = selectall('SELECT a.id,a.type,a.version, a.model, a.product, a.name,a.pre_steps, a.steps, a.next_steps,a.description,a.exec_result, b.zh_name, a.create_date FROM apicases a inner join user b on a.username=b.username where activity="'+str(status)+'" and '+category+'="'+wordChange(value)+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         cases = [dict(id=row[0], type=row[1], version=row[2], model=row[3], product=row[4], name=row[5], pre_steps=row[6], steps=row[7], next_steps=row[8], description=row[9], exec_result=row[10], zh_name=row[11], create_date=row[12]) for row in cur]
-        return render_template('api/apicases.html',cases=cases, all_Page=all_Page,category=category,value=value,status=status,num=num,usernames=usernames,versions=versions,models=models,current='apicases'+str(status),error=error,pagename = '接口测试用例')
+        return render_template('api/apicases.html',cases=cases, all_Page=all_Page,category=category,value=value,status=status,num=num,page_Count=page_Count,usernames=usernames,versions=versions,models=models,current='apicases'+str(status),error=error,pagename = '接口测试用例')
 
 # 新建API用例
 @app.route('/new_apicase/<int:status>', methods=['GET', 'POST'])
@@ -994,7 +998,7 @@ def apidate_query(case_name,name):
         cur = apidate_cur
     else:
         cur = selectone('select name,path,method,request,checks,parameter,description from apiset where name=%s',[new_name])
-    cases = [dict(name=name, path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5], description=row[6]) for row in cur]
+    cases = [dict(name=name, path=row[1], method=row[2], request=jsonFormat(row[3]), checks=jsonFormat(row[4]), parameter=row[5], description=row[6]) for row in cur]
     return render_template('api/apidate_query.html',case=cases[0],case_name=wordChange(case_name), name=name,pagename = '编辑接口数据')
 
 # API用例查询后保存
@@ -1016,7 +1020,7 @@ def apidate_save():
             addUpdateDel('update apidates set request = %s,checks = %s,parameter=%s,description=%s where case_name=%s and name=%s',[cn_to_uk(request.form['request']), cn_to_uk(request.form['checks']),cn_to_uk(request.form['parameter']), cn_to_uk(request.form['description']),request.form['case_name'],request.form['name']])
 
             cur_edit= selectone("SELECT request,checks,parameter FROM apidates where case_name=%s and name=%s and username=%s",[request.form['case_name'],request.form['name'],session['username']])
-            apidates_edit = [dict(request=row[0],checks=row[1],parameter=row[2]) for row in cur_edit]
+            apidates_edit = [dict(request=jsonFormat(row[0]),checks=jsonFormat(row[1]),parameter=row[2]) for row in cur_edit]
             apidates_request = apidates_edit[0]['request']
             apidates_checks = apidates_edit[0]['checks']
             apidates_parameter = apidates_edit[0]['parameter']
@@ -1056,7 +1060,7 @@ def apidate_apiquery(case_name,name):
         return redirect(url_for('login'))
     error = None
     apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s and username=%s',[wordChange(case_name),name,session['username']])
-    cases = [dict(name=name, path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5], description=row[6]) for row in apidate_cur]
+    cases = [dict(name=name, path=row[1], method=row[2], request=jsonFormat(row[3]), checks=jsonFormat(row[4]), parameter=row[5], description=row[6]) for row in apidate_cur]
     return render_template('api/apidate_apiquery.html',case=cases[0],case_name=wordChange(case_name), name=name,pagename = '编辑接口数据')
 
 # API用例删除
@@ -1340,7 +1344,7 @@ def uiset(keyword,value,num):
             return redirect(url_for('uiset',keyword=keyword,value=value,num=num))
         cur = selectall('SELECT a.id,a.keyword,a.description,a.template,a.example,b.zh_name,a.create_date FROM uiset a inner join user b on a.username=b.username where '+keyword+' = "'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         uisets = [dict(id=row[0], keyword=row[1], description=row[2], template=row[3], example=row[4], username=row[5], create_date=row[6]) for row in cur]
-        return render_template('set/uiset.html',uisets=uisets,all_Page=all_Page,keyword=keyword,value=value,num=num, current='uiset',uiset_list=uiset_list,pagename = 'UI封装')
+        return render_template('set/uiset.html',uisets=uisets,all_Page=all_Page,keyword=keyword,value=value,num=num,page_Count=page_Count, current='uiset',uiset_list=uiset_list,pagename = 'UI封装')
 
 # 新建UI封装
 @app.route('/new_uiset', methods=['GET', 'POST'])
@@ -1455,7 +1459,7 @@ def apiset(name,value,num):
             return redirect(url_for('apiset',name=name,value=value,num=num))
         cur = selectall('SELECT a.id,a.name,a.path,a.method,a.request,a.checks,a.description,b.zh_name,a.create_date FROM apiset a inner join user b on a.username=b.username where '+name+' = "'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         apisets = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=row[4], checks=row[5], description=row[6], username=row[7], create_date=row[8]) for row in cur]
-        return render_template('set/apiset.html',apisets=apisets,all_Page=all_Page,name=name,value=value, num=num, current='apiset',apiset_list=apiset_list,pagename = '全部接口')
+        return render_template('set/apiset.html',apisets=apisets,all_Page=all_Page,name=name,value=value, num=num,page_Count=page_Count, current='apiset',apiset_list=apiset_list,pagename = '全部接口')
 
 # 新建接口
 @app.route('/new_apiset', methods=['GET', 'POST'])
@@ -1503,7 +1507,7 @@ def apiset_edit(id):
     else:
         error=None
         cur = selectone('SELECT id,name,path,method,request,checks,description FROM apiset where id=%s',[id])
-        cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=row[4], checks=row[5], description=row[6]) for row in cur]
+        cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=jsonFormat(row[4]), checks=jsonFormat(row[5]), description=row[6]) for row in cur]
 
         if request.method == 'POST':
             if request.form['path'].strip() == '' or request.form['request'].strip() == '':
@@ -1539,7 +1543,7 @@ def apiset_query(id):
         return render_template('invalid.html')
     else:
         cur = selectone('SELECT id,name,path,method,request,checks,description FROM apiset where id=%s',[id])
-        cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=row[4], checks=row[5], description=row[6]) for row in cur]
+        cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=jsonFormat(row[4]), checks=jsonFormat(row[5]), description=row[6]) for row in cur]
         return render_template('set/apiset_query.html',case=cases[0],current='apiset', pagename = '接口查看')
 
 # 接口删除
@@ -1598,7 +1602,7 @@ def versions(version,value,num):
             return redirect(url_for('versions',version=version,value=value,num=num))
         cur = selectall('SELECT a.id,a.version,b.zh_name,a.create_date FROM versions a inner join user b on a.username=b.username where '+version+' = "'+value+'" order by a.id desc LIMIT '+str((num-1)*page_Count)+','+str(page_Count))
         versions = [dict(id=row[0], version=row[1], username=row[2], create_date=row[3]) for row in cur]
-        return render_template('version/versions.html',versions=versions,version=version,value=value,num=num,version_list=version_list,all_Page=all_Page,current='versions', pagename = '版本号')
+        return render_template('version/versions.html',versions=versions,version=version,value=value,num=num,page_Count=page_Count,version_list=version_list,all_Page=all_Page,current='versions', pagename = '版本号')
 
 # 新建版本
 @app.route('/new_version', methods=['GET', 'POST'])

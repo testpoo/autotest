@@ -564,8 +564,9 @@ a.addElement {
     width: 150px;
 }
 
-.statistics .count td a {
+.statistics .count td:nth-child(2) {
     color: #199FED;
+    font-weight: bold;
 }
 
 /* 无效页面 */
