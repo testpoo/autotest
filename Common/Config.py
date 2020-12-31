@@ -202,9 +202,27 @@ def wordChange(str):
     return str
 
 # json格式化
-def jsonFormat(str):
-    if ',\n' not in str and '{\n' not in str and '\n}' not in str:
-        str = str.replace(',',',\n    ').replace('{','{\n    ').replace('}','\n}')
-    else:
-        str = str
+def jsonFormat(str,num):
+    str = str.replace('\n', '').replace(' ', '').replace('\r', '')
+    sb = []
+    indent = 0
+    blank = ' '
+    for s in str:
+        if s == '{' or s == '[':
+            sb.append(s)
+            sb.append('\n')
+            indent+=1
+            sb.append(indent*blank*num)
+        if s == '}' or s == ']':
+            sb.append('\n')
+            indent-=1
+            sb.append(indent*blank*num)
+            sb.append(s)
+        if s == ',':
+            sb.append(s)
+            sb.append('\n')
+            sb.append(indent*blank*num)
+        if s not in ('{','}','[',']',','):
+            sb.append(s)
+    str = ''.join(sb)
     return str

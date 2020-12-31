@@ -998,7 +998,7 @@ def apidate_query(case_name,name):
         cur = apidate_cur
     else:
         cur = selectone('select name,path,method,request,checks,parameter,description from apiset where name=%s',[new_name])
-    cases = [dict(name=name, path=row[1], method=row[2], request=jsonFormat(row[3]), checks=jsonFormat(row[4]), parameter=row[5], description=row[6]) for row in cur]
+    cases = [dict(name=name, path=row[1], method=row[2], request=jsonFormat(row[3],4), checks=jsonFormat(row[4],4), parameter=row[5], description=row[6]) for row in cur]
     return render_template('api/apidate_query.html',case=cases[0],case_name=wordChange(case_name), name=name,pagename = '编辑接口数据')
 
 # API用例查询后保存
@@ -1020,7 +1020,7 @@ def apidate_save():
             addUpdateDel('update apidates set request = %s,checks = %s,parameter=%s,description=%s where case_name=%s and name=%s',[cn_to_uk(request.form['request']), cn_to_uk(request.form['checks']),cn_to_uk(request.form['parameter']), cn_to_uk(request.form['description']),request.form['case_name'],request.form['name']])
 
             cur_edit= selectone("SELECT request,checks,parameter FROM apidates where case_name=%s and name=%s and username=%s",[request.form['case_name'],request.form['name'],session['username']])
-            apidates_edit = [dict(request=jsonFormat(row[0]),checks=jsonFormat(row[1]),parameter=row[2]) for row in cur_edit]
+            apidates_edit = [dict(request=jsonFormat(row[0],4),checks=jsonFormat(row[1],4),parameter=row[2]) for row in cur_edit]
             apidates_request = apidates_edit[0]['request']
             apidates_checks = apidates_edit[0]['checks']
             apidates_parameter = apidates_edit[0]['parameter']
@@ -1060,7 +1060,7 @@ def apidate_apiquery(case_name,name):
         return redirect(url_for('login'))
     error = None
     apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s and username=%s',[wordChange(case_name),name,session['username']])
-    cases = [dict(name=name, path=row[1], method=row[2], request=jsonFormat(row[3]), checks=jsonFormat(row[4]), parameter=row[5], description=row[6]) for row in apidate_cur]
+    cases = [dict(name=name, path=row[1], method=row[2], request=jsonFormat(row[3],4), checks=jsonFormat(row[4],4), parameter=row[5], description=row[6]) for row in apidate_cur]
     return render_template('api/apidate_apiquery.html',case=cases[0],case_name=wordChange(case_name), name=name,pagename = '编辑接口数据')
 
 # API用例删除
@@ -1507,7 +1507,7 @@ def apiset_edit(id):
     else:
         error=None
         cur = selectone('SELECT id,name,path,method,request,checks,description FROM apiset where id=%s',[id])
-        cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=jsonFormat(row[4]), checks=jsonFormat(row[5]), description=row[6]) for row in cur]
+        cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=jsonFormat(row[4],4), checks=jsonFormat(row[5],4), description=row[6]) for row in cur]
 
         if request.method == 'POST':
             if request.form['path'].strip() == '' or request.form['request'].strip() == '':
@@ -1543,7 +1543,8 @@ def apiset_query(id):
         return render_template('invalid.html')
     else:
         cur = selectone('SELECT id,name,path,method,request,checks,description FROM apiset where id=%s',[id])
-        cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=jsonFormat(row[4]), checks=jsonFormat(row[5]), description=row[6]) for row in cur]
+        cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=jsonFormat(row[4],4), checks=jsonFormat(row[5],4), description=row[6]) for row in cur]
+        print(cases)
         return render_template('set/apiset_query.html',case=cases[0],current='apiset', pagename = '接口查看')
 
 # 接口删除

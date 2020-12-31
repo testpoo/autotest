@@ -210,7 +210,14 @@ class Extend(object):
         element = self.findElement(type, value)
         element.clear()
         time.sleep(1)
-        element.send_keys(text)   
+        element.send_keys(text)  
+
+    def typeRandom(self,type,value,text):
+        element = self.findElement(type, value)
+        element.clear()
+        time.sleep(1)
+        random = time.strftime("%Y%m%d%H%M%S")
+        element.send_keys(text+random)   
 
     def clearTypetime(self,value,clock):
        
@@ -414,10 +421,13 @@ class Extend(object):
         描述：验证当前页中title是否在给定得字符串中
         用法：self.assert_title()
         """
-
-        title = str(self.driver.title)
-        LogUtility.logger.debug('text:%s\ntitle:%s'%(text,title))
-        TestCase().assertEqual(text, title)
+        try:
+            WebDriverWait(self.driver,20).until(EC.title_is(text))
+        except:
+            pass
+        realtitle= self.driver.title
+        LogUtility.logger.debug('text:%s\ntitle:%s'%(text,realtitle))
+        TestCase().assertEqual(text, realtitle)
 		
     def assertTextExist(self,type,value,exist = 'True'):
         element = self.findElement(type, value)

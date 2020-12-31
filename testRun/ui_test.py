@@ -90,7 +90,7 @@ class RunUiTests(object):
                 if next_steps != []:
                     for next_step in next_steps:
                         action = cover(next_step)
-                        time.sleep(0.3)
+                        time.sleep(0.5)
                         LogUtility.logger.debug("执行步骤: {}".format(action))
                         eval('TestCase.'+action)
             except Exception as next_err:
@@ -129,21 +129,21 @@ class RunUiTests(object):
             elif exec_mode == '按用户':
                 steps_case = []
                 for case_step in cases_step:
-                    cur_name= selectone("SELECT name FROM uicases WHERE username = %s and activity='1'",[cases_step])
+                    cur_name= selectone("SELECT name FROM uicases WHERE username = %s and activity='3'",[cases_step])
                     cases_dict = [dict(name=row[0]) for row in cur_name]
                     case_step_list = [case['name'] for case in cases_dict]
                     steps_case.extend(case_step_list)
             elif exec_mode == '按模块':
                 steps_case = []
                 for case_step in cases_step:
-                    cur_model= selectone("SELECT name FROM uicases WHERE model = %s and activity='1'",[cases_step])
+                    cur_model= selectone("SELECT name FROM uicases WHERE model = %s and activity='3'",[cases_step])
                     cases_dict = [dict(name=row[0]) for row in cur_model]
                     case_step_list = [case['name'] for case in cases_dict]
                     steps_case.extend(case_step_list)
             elif exec_mode == '按版本':
                 steps_case = []
                 for case_step in cases_step:
-                    cur_version= selectone("SELECT name FROM uicases WHERE version = %s and activity='1'",[cases_step])
+                    cur_version= selectone("SELECT name FROM uicases WHERE version = %s and activity='3'",[cases_step])
                     cases_dict = [dict(name=row[0]) for row in cur_version]
                     case_step_list = [case['name'] for case in cases_dict]
                     steps_case.extend(case_step_list)
