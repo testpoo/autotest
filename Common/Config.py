@@ -7,8 +7,8 @@ import os
 SITEURL = "http://127.0.0.1:5000"
 #SITEURL = "http://192.168.213.110:8000"
 
-dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
-#dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
+#dblink = {"url":"127.0.0.1","username":"test","password":"123456","database":"autotest"}
+dblink = {"url":"192.168.213.110","username":"test","password":"123456","database":"autotest"}
 #==============================================================================================================
 product = ['SiCAP','OMA']
 
@@ -49,6 +49,9 @@ para_headers = {
 # 案例状态
 # 0：待提交 1：待审核 2：已删除 3：已审核
 activity_dict = {'delete':'["0","1","3"]','submit':'["0"]','restore':'["2"]','redelete':'["0","1","2","3"]','review':'["1"]','reject':'["1","3"]','makedate':'["0"]'}
+#==============================================================================================================
+sicap_url = 'https://192.168.212.211'
+
 #==============================================================================================================
 #change time to str
 def getCurrentTime():
@@ -226,3 +229,25 @@ def jsonFormat(str,num):
             sb.append(s)
     str = ''.join(sb)
     return str
+
+# 比较需要验证的值是否和响应中返回的值一致
+def compare_two_dict(dict1, dict2):
+    flag = True
+    keys1 = dict1.keys()
+    keys2 = dict2.keys()
+    if len(keys2) != 0:
+        for key in keys2:
+            if key in keys1 and key in keys2:
+                if dict1[key] == dict2[key]:
+                    flag = flag & True
+                else:
+                    flag = flag & False
+            else:
+                raise Exception('检查项的key不正确')
+    else:
+        raise Exception('检查项为空')
+    if flag:
+        result = 'PASS'
+    else:
+        result = 'FAILED'
+    return result

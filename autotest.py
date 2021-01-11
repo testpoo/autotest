@@ -1060,8 +1060,12 @@ def apidate_apiquery(case_name,name):
         return redirect(url_for('login'))
     error = None
     apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s and username=%s',[wordChange(case_name),name,session['username']])
-    cases = [dict(name=name, path=row[1], method=row[2], request=jsonFormat(row[3],4), checks=jsonFormat(row[4],4), parameter=row[5], description=row[6]) for row in apidate_cur]
-    return render_template('api/apidate_apiquery.html',case=cases[0],case_name=wordChange(case_name), name=name,pagename = '编辑接口数据')
+    if apidate_cur == ():
+        error = "未生成数据，无法查看~！"
+        cases = [{"name":"","path":"","method":"","request":"","checks":"","parameter":"","description":"",}]
+    else:
+        cases = [dict(name=name, path=row[1], method=row[2], request=jsonFormat(row[3],4), checks=jsonFormat(row[4],4), parameter=row[5], description=row[6]) for row in apidate_cur]
+    return render_template('api/apidate_apiquery.html',case=cases[0],case_name=wordChange(case_name), error=error,name=name,pagename = '编辑接口数据')
 
 # API用例删除
 @app.route('/apicase_delete/<int:status>/<int:id>', methods=['GET', 'POST'])
@@ -1201,8 +1205,7 @@ def apicase_edit(status,id):
 
             return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
         else:
-            addUpdateDel('update apicases set name = %s, pre_steps = %s, steps = %s, next_steps = %s, description = %s', [request.form['name'].strip(), request.form['pre-steps'], request.form['steps'], request.form['next-steps'], request.form['description']])
-
+            addUpdateDel('update apicases set name = %s, pre_steps = %s, steps = %s, next_steps = %s, description = %s where name = %s', [request.form['name'].strip(), request.form['pre-steps'], request.form['steps'], request.form['next-steps'], request.form['description'],request.form['name'].strip()])
             cur_edit= selectone("SELECT name,pre_steps,steps,next_steps,description FROM apicases WHERE id = %s",[id])
             apicases_edit = [dict(name=row[0],pre_steps=row[1],steps=row[2],next_steps=row[3],description=row[4]) for row in cur_edit]
             apicase_name = apicases_edit[0]['name']
@@ -1215,7 +1218,7 @@ def apicase_edit(status,id):
             else:
                 flash('编辑失败...')
             return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
-    return render_template('api/apicase_edit.html',case=cases[0],current='apicases'+str(status),status=status,issuetypes=issuetypes, nexttypes=nexttypes,error=error,pagename = '接口编辑', id=id)
+    return render_template('api/apicase_edit.html',case=cases[0],current='apicases'+str(status),status=status,apisets=apisets,issuetypes=issuetypes, nexttypes=nexttypes,error=error,pagename = '接口编辑', id=id)
 
 # API用例删除后恢复
 @app.route('/apicase_restore/<int:status>/<int:id>', methods=['GET', 'POST'])
@@ -1297,7 +1300,7 @@ def apicase_makedate(status,id):
     print('1')
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    elif get_auths_control(session['username'],'apicases','status',status,'operation','数据生成-makedate') == False:
+    elif get_auths_control(session['username'],'apicases','status',status,'operation','数据编辑-makedate') == False:
         return render_template('invalid.html')
     elif activity('makedate','apicases',id) not in activity_dict['makedate']:
         flash('用例状态不允许执行该操作...')
@@ -1313,11 +1316,11 @@ def apicase_makedate(status,id):
         if steps_in_dates == 0:
             for step in steps:
                 new_step = step.split('-')[1]
-                cur = selectone('select name,path,method,request,checks from apiset where name = %s',[new_step])
-                api_cases = [dict(name=step, path=row[1], method=row[2], request=row[3], checks=row[4]) for row in cur]
-                addUpdateDel('insert into apidates (case_name,name,path,method,request,checks,username,create_date) values (%s,%s,%s,%s,%s,%s,%s,%s)',[case[0]['name'], step, cn_to_uk(api_cases[0]['path']), api_cases[0]['method'], cn_to_uk(api_cases[0]['request']), cn_to_uk(api_cases[0]['checks']), session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+                cur = selectone('select name,path,method,request from apiset where name = %s',[new_step])
+                api_cases = [dict(name=step, path=row[1], method=row[2], request=row[3]) for row in cur]
+                addUpdateDel('insert into apidates (case_name,name,path,method,request,username,create_date) values (%s,%s,%s,%s,%s,%s,%s)',[case[0]['name'], step, cn_to_uk(api_cases[0]['path']), api_cases[0]['method'], cn_to_uk(api_cases[0]['request']), session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
                 
-    return render_template('api/apicase_makedate.html',case=case[0],current='apicases'+str(status),status=status,error=error,pagename = '数据生成', id=id)
+    return render_template('api/apicase_makedate.html',case=case[0],current='apicases'+str(status),status=status,error=error,pagename = '数据编辑', id=id)
 
 ###############################
 #             UI封装
@@ -1478,8 +1481,6 @@ def new_apiset():
             error = '必输项不能为空'
         elif request.form['name'].strip() in apisets:
             error = "该API已经存在"
-        elif request.form['path'][0:7] not in ('http://','https:/'):
-            error = '路径格式不对'
         elif is_dict(request.form['request'].strip()) == False:
             error = '请求项格式不对'
         elif request.form['checks'].strip() != '' and is_dict(request.form['checks'].strip()) == False:
@@ -1512,8 +1513,6 @@ def apiset_edit(id):
         if request.method == 'POST':
             if request.form['path'].strip() == '' or request.form['request'].strip() == '':
                 error = '必输项不能为空'
-            elif request.form['path'][0:7] not in ('http://','https:/'):
-                error = '路径格式不对'
             elif is_dict(request.form['request'].strip()) == False:
                 error = '请求项格式不对'
             elif request.form['checks'].strip() != '' and is_dict(request.form['checks'].strip()) == False:

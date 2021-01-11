@@ -80,7 +80,7 @@ class RunUiTests(object):
 
         except Exception as err:
             LogUtility.logger.debug(
-                "测试集运行失败, 错误信息是: {}".format(str(err)))
+                "测试用例运行失败, 错误信息是: {}".format(str(err)))
             result['status'] = '失败'
             result['error'].append("用例错误："+str(err))
             TestCase.getScreenshot(Config.Screenshot+'/'+case_name+'_'+Screenshottime+'.png')

@@ -29,7 +29,7 @@ class RunTests(object):
                           request=row[3], checks=row[4]) for row in cur][0]
 
             name = cases['name']
-            url = cases['path']
+            url = sicap_url + cases['path']
             method = cases['method']
             data = json.dumps(json.loads(cases['request']))
 
@@ -37,7 +37,7 @@ class RunTests(object):
 
             r = eval('requests.'+method +
                      '(url=url, headers=headers, data=data, verify=False)')
-            result = [name, url, method, data, r.text]
+            result = [name, url, method, jsonFormat(data,4), jsonFormat(r.text,4)]
 
         except Exception as err:
             LogUtility.logger.debug(
@@ -73,7 +73,7 @@ class RunTests(object):
             cases_cur = selectone('SELECT name, path, method, request, checks, parameter from apidates WHERE case_name=%s and name=%s', [list_apis[i][0], list_apis[i][1]])
             cases_list = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5]) for row in cases_cur][0]
             name = cases_list['name']
-            url = cases_list['path']
+            url = sicap_url + cases_list['path']
             method = cases_list['method']
             parameter = cases_list['parameter']
             data = json.loads(cases_list['request'])
@@ -102,7 +102,7 @@ class RunTests(object):
                     result['new_param']=''
                     LogUtility.logger.debug("测试集运行失败,错误信息: {}".format('参数不是列表'))
                 
-                if r.text == checks:
+                if compare_two_dict(r.text,checks) == 'PASS':
                     result['status'] = "成功"
                 else:
                     result['status'] = "失败"
