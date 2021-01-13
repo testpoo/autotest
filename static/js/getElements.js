@@ -290,7 +290,7 @@ function getSteps() {
     //words = steps[i].split('|');
     word_x = steps[i].slice(0, words);
     //word_y = steps[i].slice(words+1).replace(/^\"|\'|\"$/g, '').replace(/^\(/gi, '').replace(/\)$/gi, '').split(',');
-    word_y = eval(steps[i].slice(words + 1).replace(/^\(/gi, '[').replace(/\)$/gi, ']'))
+    word_y = eval(steps[i].slice(words + 1).replace(/^\(/gi, '[').replace(/\)$/gi, ']').replace(/\\/g,"\\\\"));
     //word_y = words[1].replace(/^\"|\'|\(|\)|\"$/g, '').split(',');
     setpUiSet.push(word_x);
     stepText.push(word_y);

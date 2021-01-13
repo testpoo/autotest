@@ -3,6 +3,7 @@
 from datetime import datetime
 import base64
 import os
+import json
 
 SITEURL = "http://127.0.0.1:5000"
 #SITEURL = "http://192.168.213.110:8000"
@@ -29,18 +30,18 @@ path_ui = 'static/TestReport/ui'
 Screenshot = 'static/Screenshot'
 
 para_headers = {
-	"Host": "192.168.213.113",
+	"Host": "192.168.212.211",
 	"Connection": "keep-alive",
 	"Content-Length": "170",
 	"Accept": "application/json, text/plain, */*",
 	"axios-header": "axios",
 	"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36 Edg/86.0.622.38",
 	"Content-Type": "application/json;charset=UTF-8",
-	"Origin": "https://192.168.213.113",
+	"Origin": "https://192.168.212.211",
 	"Sec-Fetch-Site": "same-origin",
 	"Sec-Fetch-Mode": "cors",
 	"Sec-Fetch-Dest": "empty",
-	"Referer": "https://192.168.213.113/",
+	"Referer": "https://192.168.212.211/",
 	"Accept-Encoding": "gzip, deflate, br",
 	"Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
 	"Cookie": "SICAP_SESSIONID=1745f260-bf03-4720-b180-8aa48e309fca"
@@ -158,6 +159,13 @@ def is_list(str):
         return False
     return True
 
+# 是字典或者列表
+def is_list_or_dict(str):
+    if is_list(str) or is_dict(str):
+        return True
+    else:
+        return False
+
 # 图片转base64
 def img_to_base64(imgurl):
     with open(Screenshot+'/'+imgurl,'rb') as f:
@@ -233,6 +241,10 @@ def jsonFormat(str,num):
 # 比较需要验证的值是否和响应中返回的值一致
 def compare_two_dict(dict1, dict2):
     flag = True
+    true = True
+    false = False
+    dict1 = eval(dict1)
+    dict2 = eval(dict2)
     keys1 = dict1.keys()
     keys2 = dict2.keys()
     if len(keys2) != 0:
@@ -251,3 +263,11 @@ def compare_two_dict(dict1, dict2):
     else:
         result = 'FAILED'
     return result
+
+# str转json
+def str_to_json(str):
+    false = False
+    true = True
+    str = str.replace('null','\"\"')
+    data = json.dumps(json.loads(str))
+    return data

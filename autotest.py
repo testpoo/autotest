@@ -992,7 +992,6 @@ def apidate_query(case_name,name):
         return redirect(url_for('login'))
     error = None
     apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s',[wordChange(case_name),name])
-    print('apidate_cur',apidate_cur)
 
     if apidate_cur != ():
         cur = apidate_cur
@@ -1010,7 +1009,7 @@ def apidate_save():
     if request.method == 'POST':
         if request.form['request'].strip() == '' or request.form['checks'].strip() == '':
             error = '必输项不能为空'
-        elif is_dict(request.form['request'].strip()) == False:
+        elif is_list_or_dict(request.form['request'].strip()) == False:
             error = '请求格式不对'
         elif is_dict(request.form['checks'].strip()) == False:
             error = '检查项格式不对'
@@ -1024,7 +1023,7 @@ def apidate_save():
             apidates_request = apidates_edit[0]['request']
             apidates_checks = apidates_edit[0]['checks']
             apidates_parameter = apidates_edit[0]['parameter']
-            if request.form['request'] == apidates_request and request.form['checks'] == apidates_checks and request.form['parameter'] == apidates_parameter:
+            if eval(request.form['request']) == eval(apidates_request) and eval(request.form['checks']) == eval(apidates_checks) and list(request.form['parameter']) == list(apidates_parameter):
                 flash('编辑成功...')
             else:
                 flash('编辑失败...')
@@ -1297,7 +1296,6 @@ def apicase_submit(status,id):
 # API接口数据生成
 @app.route('/apicase_makedate/<int:status>/<int:id>', methods=['GET', 'POST'])
 def apicase_makedate(status,id):
-    print('1')
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     elif get_auths_control(session['username'],'apicases','status',status,'operation','数据编辑-makedate') == False:
@@ -1308,7 +1306,6 @@ def apicase_makedate(status,id):
     else:
         error = None
         cur = selectone('SELECT type, version, name, product, model, pre_steps, steps, next_steps,description FROM apicases where id=%s',[id])
-        print(cur)
         case = [dict(type=row[0], version=row[1], name=row[2], product=row[3], model=row[4], pre_steps=row[5], steps=row[6], next_steps=row[7], description=row[8]) for row in cur]
 
         steps = selectone('SELECT steps FROM apicases WHERE id = %s',[id])[0][0].split('\r\n')
@@ -1481,7 +1478,7 @@ def new_apiset():
             error = '必输项不能为空'
         elif request.form['name'].strip() in apisets:
             error = "该API已经存在"
-        elif is_dict(request.form['request'].strip()) == False:
+        elif is_list_or_dict(request.form['request'].strip()) == False:
             error = '请求项格式不对'
         elif request.form['checks'].strip() != '' and is_dict(request.form['checks'].strip()) == False:
             error = '检查项格式不对'
@@ -1513,7 +1510,7 @@ def apiset_edit(id):
         if request.method == 'POST':
             if request.form['path'].strip() == '' or request.form['request'].strip() == '':
                 error = '必输项不能为空'
-            elif is_dict(request.form['request'].strip()) == False:
+            elif is_list_or_dict(request.form['request'].strip()) == False:
                 error = '请求项格式不对'
             elif request.form['checks'].strip() != '' and is_dict(request.form['checks'].strip()) == False:
                 error = '检查项格式不对'
@@ -1543,7 +1540,6 @@ def apiset_query(id):
     else:
         cur = selectone('SELECT id,name,path,method,request,checks,description FROM apiset where id=%s',[id])
         cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=jsonFormat(row[4],4), checks=jsonFormat(row[5],4), description=row[6]) for row in cur]
-        print(cases)
         return render_template('set/apiset_query.html',case=cases[0],current='apiset', pagename = '接口查看')
 
 # 接口删除

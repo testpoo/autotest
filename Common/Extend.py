@@ -728,6 +728,13 @@ class Extend(object):
                                 LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.text.strip(),str(text)))   
                                 i.click()
                                 break
+                            elements = i.find_elements_by_xpath('./img')
+                            for j in elements: 
+                                if j.get_attribute('title').strip() == str(text):
+                                    titlelist.append(j.get_attribute('title'))
+                                    LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
+                                    j.click()
+                                    break
                     else:
                         element = tdlist[int(descolumn)-1]
                         elements = element.find_elements_by_xpath('./a')
@@ -762,6 +769,13 @@ class Extend(object):
                                 LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.text.strip(),str(text)))   
                                 i.click()
                                 break
+                            elements = i.find_elements_by_xpath('./img')
+                            for j in elements: 
+                                if j.get_attribute('title').strip() == str(text):
+                                    titlelist.append(j.get_attribute('title'))
+                                    LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
+                                    j.click()
+                                    break
                     else:
                         element = tdlist[int(descolumn)-1]
                         print('element',element)
