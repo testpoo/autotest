@@ -124,12 +124,12 @@ def get_list(values):
         get_targe_value(rustle)
 
 # 去掉前置后置事件中“-”
-def deline(temp):
-    list=[]
-    for te in temp:
-        te = te.split("_")[1]
-        list.append(te)
-    return list
+#def deline(temp):
+#    list=[]
+#    for te in temp:
+#        te = te.split("_")[1]
+#        list.append(te)
+#    return list
 
 # 中文标点符号转英文
 def cn_to_uk(words):
@@ -182,13 +182,12 @@ def delete_pre_next(cases,pre_next):
             return False
 
 # 计算UiSet长度
-def getParaLen():
-    length=len(x.split('|')[1].split(','))
-    return length
+#def getParaLen():
+#    length=len(x.split('|')[1].split(','))
+#    return length
 
 # 按照报表创建时间排序
 def get_file_list(file_path):
-
     dir_list = os.listdir(file_path)
     if not dir_list:
         return []
@@ -214,7 +213,7 @@ def wordChange(str):
 
 # json格式化
 def jsonFormat(str,num):
-    str = str.replace('\n', '').replace(' ', '').replace('\r', '')
+    str = str.replace('\n', '').replace('\r', '').strip()
     sb = []
     indent = 0
     blank = ' '
@@ -255,6 +254,26 @@ def compare_two_dict(dict1, dict2):
                     raise Exception('检查项的key不正确')
         else:
             raise Exception('检查项为空')
+    elif type(dict1) == list and type(dict2) == list:
+        for di1 in dict1:
+            for di2 in dict2:
+                flag = True
+                if type(di1) == dict and type(di2) == dict:
+                    keys1 = di1.keys()
+                    keys2 = di2.keys()
+                    if len(keys2) != 0:
+                        for key in keys2:
+                            if key in keys1 and key in keys2:
+                                if di1[key] == di2[key]:
+                                    flag = flag & True
+                                else:
+                                    flag = flag & False
+                            else:
+                                raise Exception('检查项的key不正确')
+                    else:
+                        raise Exception('检查项为空')
+            if flag:
+                break
     else:
         if dict1 == dict2:
             flag = flag & True
@@ -270,11 +289,6 @@ def compare_two_dict(dict1, dict2):
 def str_to_json(str):
     data = json.dumps(json.loads(str))
     return data
-
-# fix false/true/null
-#def fix_ftn(str):
-#    str = str.replace('null','\"\"').replace('true','True').replace('false','False')
-#    return str
 
 # 清除字符串格式，用来比较
 def clear_str_format(str):

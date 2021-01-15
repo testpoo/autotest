@@ -53,6 +53,8 @@ class RunTests(object):
     # 获取测试案例
     def getTestCases(self):
         starttime = Config.getCurrentTime()
+
+        # 获取测试用例步骤
         cur = selectone('SELECT name,product,pre_steps,next_steps FROM apicases WHERE id=%s', [self.id])
         cases = [dict(name=row[0], product=row[1], pre_steps=row[2],next_steps=row[3]) for row in cur]
         pre_steps = cases[0]['pre_steps'].split('\r\n')
@@ -60,17 +62,22 @@ class RunTests(object):
         case_name = cases[0]['name']
         pre_steps.append(case_name)
         all_steps = pre_steps + next_steps
-        list_apis = ()
 
+        # 获取测试用例接口明细
+        list_apis = ()
         for all_step in all_steps:
             if all_step == '':
                 continue
             apis_cur = selectone('SELECT case_name,name FROM apidates WHERE case_name = %s', [all_step])
             list_apis += apis_cur
+
+        # 创建结果存储
         results = []
         finally_results = {'case_name': case_name, 'results': '','status': '', 'starttime': starttime, 'spenttime': '', 'error': []}
         status = '成功'
         headers = para_headers
+
+        # 执行接口
         for i in range(len(list_apis)):
             cases_cur = selectone('SELECT name, path, method, request, checks, parameter from apidates WHERE case_name=%s and name=%s', [list_apis[i][0], list_apis[i][1]])
             cases_list = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5]) for row in cases_cur][0]
@@ -84,6 +91,8 @@ class RunTests(object):
                 cases_list['request'] = cases_list['request']
             data = str_to_json(cases_list['request'])
             data = json.loads(data)
+
+            # 获取上一个接口的参数覆盖到新接口的请求中
             if  method == 'post':
                 if i>0 and type(data) == dict:
                     replace_param=results[-1]['new_param']
@@ -120,8 +129,8 @@ class RunTests(object):
                         status = '失败'
                         break
                 else:
-                    print(content)
-                    print(checks)
+                    #print(content)
+                    #print(json.loads(checks))
                     if compare_two_dict(content,json.loads(checks)) == 'PASS':
                         result['status'] = "成功"
                     else:
