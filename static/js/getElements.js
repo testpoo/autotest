@@ -465,7 +465,7 @@ function editDate() {
   }
   case_name = document.getElementById('name').value.replace('/','%252F');
   var table = document.getElementById("add_api"); //获取第一个表格   
-  api_name = table.rows[rowIndex].cells[0].innerHTML + '-' + table.rows[rowIndex].cells[1].innerHTML;
+  api_name = table.rows[rowIndex].cells[0].innerHTML + '-' + table.rows[rowIndex].cells[1].innerHTML.replace('/','%252F');
 
   var ifr = document.getElementById("save-date")
   ifr.setAttribute('src', '/apidate_query/'+case_name+'/'+api_name);
@@ -489,7 +489,7 @@ function getEditDateToTable() {
   var parent = document.getElementById('add_api_tbody');
   step_list = steps.replace(/(\s*$)/g, "").split('\n');
   for (var i = 0; i < step_list.length; i++) {
-    step_list[i] = step_list[i].split('-')[1]
+    step_list[i] = step_list[i].substring(step_list[i].indexOf("-")+1,step_list[i].length)
     parent.innerHTML += '<tr class="add_api_tr"><td>1</td><td>' + step_list[i] + '</td><td><span class="minusApiElementTd" onclick="minusApiElementTd()">删除</span></td></tr>'
   }
   var table = document.getElementById("add_api");
@@ -504,7 +504,7 @@ function getMakeDateElements() {
   var parent = document.getElementById('add_api_tbody');
   step_list = steps.replace(/(\s*$)/g, "").split('\n');
   for (var i = 0; i < step_list.length; i++) {
-    step_list[i] = step_list[i].split('-')[1]
+    step_list[i] = step_list[i].substring(step_list[i].indexOf("-")+1,step_list[i].length)
     parent.innerHTML += '<tr class="add_api_tr"><td>1</td><td>' + step_list[i] + '</td><td><span class="minusApiElementTd" onclick="editDate()">编辑数据</span></td></tr>'
   }
   var table = document.getElementById("add_api");
@@ -523,7 +523,7 @@ function queryDate() {
   }
   case_name = document.getElementById('name').value.replace('/','%252F');
   var table = document.getElementById("add_api"); //获取第一个表格   
-  api_name = table.rows[rowIndex].cells[0].innerHTML + '-' + table.rows[rowIndex].cells[1].innerHTML;
+  api_name = table.rows[rowIndex].cells[0].innerHTML + '-' + table.rows[rowIndex].cells[1].innerHTML.replace('/','%252F');
 
   var ifr = document.getElementById("save-date")
   ifr.setAttribute('src', '/apidate_apiquery/'+case_name+'/'+api_name);
@@ -540,7 +540,7 @@ function getQueryDateElements() {
   var parent = document.getElementById('add_api_tbody');
   step_list = steps.replace(/(\s*$)/g, "").split('\n');
   for (var i = 0; i < step_list.length; i++) {
-    step_list[i] = step_list[i].split('-')[1]
+    step_list[i] = step_list[i].substring(step_list[i].indexOf("-")+1,step_list[i].length)
     parent.innerHTML += '<tr class="add_api_tr"><td>1</td><td>' + step_list[i] + '</td><td><span class="minusApiElementTd" onclick="queryDate()">查看</span></td></tr>'
   }
   var table = document.getElementById("add_api");

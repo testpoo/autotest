@@ -31,6 +31,10 @@ class RunTests(object):
             name = cases['name']
             url = sicap_url + cases['path']
             method = cases['method']
+            if cases['request'] == '':
+                cases['request'] = '{}'
+            else:
+                cases['request'] = cases['request']
             data = str_to_json(cases['request'])
 
             headers = para_headers
@@ -74,12 +78,22 @@ class RunTests(object):
             url = sicap_url + cases_list['path']
             method = cases_list['method']
             parameter = cases_list['parameter']
+            if cases_list['request'] == '':
+                cases_list['request'] = '{}'
+            else:
+                cases_list['request'] = cases_list['request']
             data = str_to_json(cases_list['request'])
-
-            if i>0 and type(eval(data)) == 'dict':
-                replace_param=results[-1]['new_param']
-                get_targe_value(data,replace_param)
-
+            data = json.loads(data)
+            if  method == 'post':
+                if i>0 and type(data) == dict:
+                    replace_param=results[-1]['new_param']
+                    if replace_param != '':
+                        get_targe_value(data,replace_param)
+            elif method == 'get':
+                if i>0:
+                    replace_param=results[-1]['new_param']
+                    url = get_value(url,replace_param)
+            data = json.dumps(data)
             checks = cases_list['checks']
             err = ''
             result = {'case_name': case_name, 'name': name, 'url': url,'method': method, 'error': [], 'status': '失败','new_param':''}
@@ -91,20 +105,30 @@ class RunTests(object):
                     parameter = eval(parameter)
                 else:
                     parameter=parameter
-
-                content = str_to_json(r.text)
-                if parameter.strip() != '' and isinstance(parameter,list):
+                content = json.loads(r.text)
+                if parameter != '' and isinstance(parameter,list):
                     result['new_param']=traverse_take_field(content,parameter)
                 else:
                     result['new_param']=''
                     LogUtility.logger.debug("测试用例运行提示信息: {}".format('参数不是列表或为空'))
-                if compare_two_dict(content,checks) == 'PASS':
-                    result['status'] = "成功"
+                if checks == '':
+                    if r.status_code == 200:
+                        result['status'] = "成功"
+                    else:
+                        result['status'] = "失败"
+                        result['error'].append("断言失败：状态码不正确")
+                        status = '失败'
+                        break
                 else:
-                    result['status'] = "失败"
-                    result['error'].append("断言失败")
-                    status = '失败'
-                    break
+                    print(content)
+                    print(checks)
+                    if compare_two_dict(content,json.loads(checks)) == 'PASS':
+                        result['status'] = "成功"
+                    else:
+                        result['status'] = "失败"
+                        result['error'].append("断言失败：检查项不正确")
+                        status = '失败'
+                        break
             except Exception as api_err:
                 LogUtility.logger.debug("测试用例运行失败,错误信息: {}".format(str(api_err)))
                 result['status'] = "失败"

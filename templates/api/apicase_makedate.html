@@ -34,7 +34,7 @@
 {% if case['type'] == '普通用例' %}
 <div class="form-group">
     <label for="pre-steps">前置事务</label>
-    <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入前置事务"></div>
+    <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入前置事务">{{ case['pre_steps'] }}</div>
 </div>
 {% endif %}
 <div class="form-group" style="display: none;">
@@ -58,7 +58,7 @@
 {% if case['type'] == '普通用例' %}
 <div class="form-group">
     <label for="pre-steps">后置事务</label>
-    <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入后置事务"></div>
+    <div class="form-control required textarea" id="pre-steps" name="pre-steps" placeholder="请输入后置事务">{{ case['next_steps'] }}</div>
 </div>
 {% endif %}
 <div id=save-dates>

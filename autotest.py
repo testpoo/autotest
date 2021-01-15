@@ -991,13 +991,12 @@ def apidate_query(case_name,name):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     error = None
-    apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s',[wordChange(case_name),name])
-
-    if apidate_cur != ():
-        cur = apidate_cur
-    else:
-        cur = selectone('select name,path,method,request,checks,parameter,description from apiset where name=%s',[new_name])
-    cases = [dict(name=name, path=row[1], method=row[2], request=jsonFormat(row[3],4), checks=jsonFormat(row[4],4), parameter=row[5], description=row[6]) for row in cur]
+    apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s',[wordChange(case_name),wordChange(name)])
+    #if apidate_cur != ():
+    #    cur = apidate_cur
+    #else:
+    #    cur = selectone('select name,path,method,request,checks,parameter,description from apiset where name=%s',[new_name])
+    cases = [dict(name=wordChange(name), path=row[1], method=row[2], request=jsonFormat(row[3],4), checks=jsonFormat(row[4],4), parameter=row[5], description=row[6]) for row in apidate_cur]
     return render_template('api/apidate_query.html',case=cases[0],case_name=wordChange(case_name), name=name,pagename = '编辑接口数据')
 
 # API用例查询后保存
@@ -1007,27 +1006,25 @@ def apidate_save():
         return redirect(url_for('login'))
     error = None
     if request.method == 'POST':
-        if request.form['request'].strip() == '' or request.form['checks'].strip() == '':
-            error = '必输项不能为空'
-        elif is_list_or_dict(request.form['request'].strip()) == False:
+        if request.form['request'].strip() != '' and is_list_or_dict(request.form['request'].strip()) == False:
             error = '请求格式不对'
-        elif is_dict(request.form['checks'].strip()) == False:
-            error = '检查项格式不对'
+        #elif request.form['checks'].strip() != '' and is_dict(fix_ftn(request.form['checks'].strip())) == False:
+        #    error = '检查项格式不对'
         elif request.form['parameter'].strip() != '' and is_list(request.form['parameter'].strip()) == False:
                 error = '参数格式不对'
         else:
-            addUpdateDel('update apidates set request = %s,checks = %s,parameter=%s,description=%s where case_name=%s and name=%s',[cn_to_uk(request.form['request']), cn_to_uk(request.form['checks']),cn_to_uk(request.form['parameter']), cn_to_uk(request.form['description']),request.form['case_name'],request.form['name']])
-
+            addUpdateDel('update apidates set request = %s,checks = %s,parameter=%s,description=%s where case_name=%s and name=%s',[cn_to_uk(request.form['request']), request.form['checks'],cn_to_uk(request.form['parameter']), request.form['description'],request.form['case_name'],request.form['name']])
+            print(request.form['case_name'],request.form['name'],session['username'])
             cur_edit= selectone("SELECT request,checks,parameter FROM apidates where case_name=%s and name=%s and username=%s",[request.form['case_name'],request.form['name'],session['username']])
             apidates_edit = [dict(request=jsonFormat(row[0],4),checks=jsonFormat(row[1],4),parameter=row[2]) for row in cur_edit]
             apidates_request = apidates_edit[0]['request']
             apidates_checks = apidates_edit[0]['checks']
             apidates_parameter = apidates_edit[0]['parameter']
-            if eval(request.form['request']) == eval(apidates_request) and eval(request.form['checks']) == eval(apidates_checks) and list(request.form['parameter']) == list(apidates_parameter):
+            if clear_str_format(request.form['request']) == clear_str_format(apidates_request) and clear_str_format(request.form['checks']) == clear_str_format(apidates_checks) and list(request.form['parameter']) == list(apidates_parameter):
                 flash('编辑成功...')
             else:
                 flash('编辑失败...')
-            return redirect(url_for('apidate_query',case_name=request.form['case_name'],name=request.form['name']))
+            return redirect(url_for('apidate_query',case_name=changeWord(request.form['case_name']),name=changeWord(request.form['name'])))
 
     return render_template('api/apidate_query.html',error=error,current='apicases', pagename = '编辑接口数据')
 
@@ -1312,7 +1309,7 @@ def apicase_makedate(status,id):
         steps_in_dates = selectone('SELECT count(1) FROM apidates a INNER JOIN apicases b ON a.case_name = b.name WHERE b.id = %s',[id])[0][0]
         if steps_in_dates == 0:
             for step in steps:
-                new_step = step.split('-')[1]
+                new_step = step.split('-',1)[1]
                 cur = selectone('select name,path,method,request from apiset where name = %s',[new_step])
                 api_cases = [dict(name=step, path=row[1], method=row[2], request=row[3]) for row in cur]
                 addUpdateDel('insert into apidates (case_name,name,path,method,request,username,create_date) values (%s,%s,%s,%s,%s,%s,%s)',[case[0]['name'], step, cn_to_uk(api_cases[0]['path']), api_cases[0]['method'], cn_to_uk(api_cases[0]['request']), session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
@@ -1474,14 +1471,14 @@ def new_apiset():
         apisets = [dict(name=row[0]) for row in apiset]
         apisets = [apiset['name'] for apiset in apisets]
 
-        if request.form['name'].strip() == '' or request.form['path'].strip == '' or request.form['method'].strip == '' or request.form['request'].strip == '':
+        if request.form['name'].strip() == '' or request.form['path'].strip == '' or request.form['method'].strip == '':
             error = '必输项不能为空'
         elif request.form['name'].strip() in apisets:
             error = "该API已经存在"
-        elif is_list_or_dict(request.form['request'].strip()) == False:
-            error = '请求项格式不对'
-        elif request.form['checks'].strip() != '' and is_dict(request.form['checks'].strip()) == False:
-            error = '检查项格式不对'
+        #elif is_list_or_dict(request.form['request'].strip()) == False:
+        #    error = '请求项格式不对'
+        #elif request.form['checks'].strip() != '' and is_dict(request.form['checks'].strip()) == False:
+        #    error = '检查项格式不对'
         else:
             addUpdateDel('insert into apiset (name, description, path, method, request, checks, username, create_date) values (%s, %s, %s, %s, %s, %s, %s, %s)',
                          [request.form['name'], request.form['description'], cn_to_uk(request.form['path']), request.form['method'], cn_to_uk(request.form['request']), cn_to_uk(request.form['checks']), session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
@@ -1508,9 +1505,9 @@ def apiset_edit(id):
         cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=jsonFormat(row[4],4), checks=jsonFormat(row[5],4), description=row[6]) for row in cur]
 
         if request.method == 'POST':
-            if request.form['path'].strip() == '' or request.form['request'].strip() == '':
+            if request.form['path'].strip() == '':
                 error = '必输项不能为空'
-            elif is_list_or_dict(request.form['request'].strip()) == False:
+            elif request.form['request'].strip() != '' and is_list_or_dict(request.form['request'].strip()) == False:
                 error = '请求项格式不对'
             elif request.form['checks'].strip() != '' and is_dict(request.form['checks'].strip()) == False:
                 error = '检查项格式不对'

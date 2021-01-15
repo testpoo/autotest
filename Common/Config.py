@@ -4,6 +4,7 @@ from datetime import datetime
 import base64
 import os
 import json
+import re
 
 SITEURL = "http://127.0.0.1:5000"
 #SITEURL = "http://192.168.213.110:8000"
@@ -108,7 +109,7 @@ def get_targe_value(request_body,goods):
             get_list(values)
         # 如果是字典，调用自身
         elif type(values) == dict:
-            get_targe_value(values)
+            get_targe_value(values,goods)
         # 如果值不是list且是需要被替换的，就替换掉
         elif type(values) != list and values == "需要被替换的值":
             request_body[key] = goods[key]
@@ -132,7 +133,6 @@ def deline(temp):
 
 # 中文标点符号转英文
 def cn_to_uk(words):
-
     table = str.maketrans('‘’“”|（）【】{}，','\'\'\"\"|()[]{},') # 转换表，单个字符的替换
     new_file = words.translate(table)
     return new_file
@@ -140,7 +140,7 @@ def cn_to_uk(words):
 # 能否转成字典
 def is_dict(str):
     try:
-        if type(eval(str)) == dict:
+        if type(json.loads(str)) == dict:
             return True
         else:
             return False
@@ -151,7 +151,7 @@ def is_dict(str):
 # 能否转成列表
 def is_list(str):
     try:
-        if type(eval(str)) == list:
+        if type(json.loads(str)) == list:
             return True
         else:
             return False
@@ -161,7 +161,7 @@ def is_list(str):
 
 # 是字典或者列表
 def is_list_or_dict(str):
-    if is_list(str) or is_dict(str):
+    if is_list(str) or is_dict(str) or str == '':
         return True
     else:
         return False
@@ -241,23 +241,25 @@ def jsonFormat(str,num):
 # 比较需要验证的值是否和响应中返回的值一致
 def compare_two_dict(dict1, dict2):
     flag = True
-    true = True
-    false = False
-    dict1 = eval(dict1)
-    dict2 = eval(dict2)
-    keys1 = dict1.keys()
-    keys2 = dict2.keys()
-    if len(keys2) != 0:
-        for key in keys2:
-            if key in keys1 and key in keys2:
-                if dict1[key] == dict2[key]:
-                    flag = flag & True
+    if type(dict1) == dict and type(dict2) == dict:
+        keys1 = dict1.keys()
+        keys2 = dict2.keys()
+        if len(keys2) != 0:
+            for key in keys2:
+                if key in keys1 and key in keys2:
+                    if dict1[key] == dict2[key]:
+                        flag = flag & True
+                    else:
+                        flag = flag & False
                 else:
-                    flag = flag & False
-            else:
-                raise Exception('检查项的key不正确')
+                    raise Exception('检查项的key不正确')
+        else:
+            raise Exception('检查项为空')
     else:
-        raise Exception('检查项为空')
+        if dict1 == dict2:
+            flag = flag & True
+        else:
+            flag = flag & False
     if flag:
         result = 'PASS'
     else:
@@ -266,8 +268,25 @@ def compare_two_dict(dict1, dict2):
 
 # str转json
 def str_to_json(str):
-    false = False
-    true = True
-    str = str.replace('null','\"\"')
     data = json.dumps(json.loads(str))
     return data
+
+# fix false/true/null
+#def fix_ftn(str):
+#    str = str.replace('null','\"\"').replace('true','True').replace('false','False')
+#    return str
+
+# 清除字符串格式，用来比较
+def clear_str_format(str):
+    str = str.replace(' ','').replace('\n','').replace('\r','')
+    return str
+
+# 获取get链接的参数
+def get_value(url,dict):
+    list = re.split('{(.*?)}', url)
+    for li in list:
+        for di in dict:
+            if di == li:
+                list[list.index(li)] = dict[di]
+    url = ''.join(list)
+    return url
