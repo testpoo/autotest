@@ -151,7 +151,7 @@ def is_dict(str):
 # 能否转成列表
 def is_list(str):
     try:
-        if type(json.loads(str)) == list:
+        if type(list(str)) == list:
             return True
         else:
             return False

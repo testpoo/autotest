@@ -18,7 +18,7 @@
   <div class="form-group">
     <label for="exec-mode">执行模式</label>
     <input list="exec-modes" class="form-control required" id="exec-mode" name="exec-mode" maxlength="200"
-      placeholder="请选择执行模式" onchange="getExecMode()">
+      placeholder="请选择执行模式" onchange="getExecMode()" value={{ case['exec_mode'] }}>
     <datalist id="exec-modes">
       <option value="按用例">
       <option value="按用户">
@@ -65,7 +65,7 @@
   <div class="form-group">
     <label for="steps">操作步骤</label>
     <textarea class="form-control required" id="steps" name="steps" placeholder="请输入步骤" cols="30"
-      rows="1">{{ case['steps'] }}</textarea>
+      rows="20">{{ case['steps'] }}</textarea>
   </div>
   <div class="form-group">
     <input type=submit value="更新" class="button">

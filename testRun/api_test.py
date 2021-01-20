@@ -89,8 +89,9 @@ class RunTests(object):
                 cases_list['request'] = '{}'
             else:
                 cases_list['request'] = cases_list['request']
-            data = str_to_json(cases_list['request'])
-            data = json.loads(data)
+            #data = str_to_json(cases_list['request'])
+            # strict=False用于处理\"无法正常转换的问题
+            data = json.loads(cases_list['request'],strict=False)
 
             # 获取上一个接口的参数覆盖到新接口的请求中
             if  method == 'post':
@@ -107,14 +108,23 @@ class RunTests(object):
             err = ''
             result = {'case_name': case_name, 'name': name, 'url': url,'method': method, 'error': [], 'status': '失败','new_param':''}
             try:
+                print('测试3')
+                #print('requests.'+method + '(url, headers=headers, data=data, verify=False)')
                 r = eval('requests.'+method + '(url, headers=headers, data=data, verify=False)')
+                print('测试4')
                 if 'Set-Cookie' in r.headers.keys():
                     headers['Cookie'] = r.headers['Set-Cookie'].split(';')[0]
                 if parameter!='':
                     parameter = eval(parameter)
                 else:
                     parameter=parameter
-                content = json.loads(r.text)
+                    print('测试5')
+                print(r.text)
+                if r.text == '':
+                    content = {}
+                else:
+                    content = json.loads(r.text)
+                print('测试5.1')
                 if parameter != '' and isinstance(parameter,list):
                     result['new_param']=traverse_take_field(content,parameter)
                 else:
@@ -129,8 +139,8 @@ class RunTests(object):
                         status = '失败'
                         break
                 else:
-                    #print(content)
-                    #print(json.loads(checks))
+                    print('content',content)
+                    print('checks',json.loads(checks))
                     if compare_two_dict(content,json.loads(checks)) == 'PASS':
                         result['status'] = "成功"
                     else:

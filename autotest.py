@@ -1013,14 +1013,14 @@ def apidate_save():
         elif request.form['parameter'].strip() != '' and is_list(request.form['parameter'].strip()) == False:
                 error = '参数格式不对'
         else:
-            addUpdateDel('update apidates set request = %s,checks = %s,parameter=%s,description=%s where case_name=%s and name=%s',[cn_to_uk(request.form['request']), request.form['checks'],cn_to_uk(request.form['parameter']), request.form['description'],request.form['case_name'],request.form['name']])
-            print(request.form['case_name'],request.form['name'],session['username'])
-            cur_edit= selectone("SELECT request,checks,parameter FROM apidates where case_name=%s and name=%s and username=%s",[request.form['case_name'],request.form['name'],session['username']])
-            apidates_edit = [dict(request=jsonFormat(row[0],4),checks=jsonFormat(row[1],4),parameter=row[2]) for row in cur_edit]
+            addUpdateDel('update apidates set path = %s,request = %s,checks = %s,parameter=%s,description=%s where case_name=%s and name=%s',[request.form['path'],cn_to_uk(request.form['request']), request.form['checks'],cn_to_uk(request.form['parameter']), request.form['description'],request.form['case_name'],request.form['name']])
+            cur_edit= selectone("SELECT path,request,checks,parameter FROM apidates where case_name=%s and name=%s",[request.form['case_name'],request.form['name']])
+            apidates_edit = [dict(path=row[0],request=jsonFormat(row[1],4),checks=jsonFormat(row[2],4),parameter=row[3]) for row in cur_edit]
+            apidate_path = apidates_edit[0]['path']
             apidates_request = apidates_edit[0]['request']
             apidates_checks = apidates_edit[0]['checks']
             apidates_parameter = apidates_edit[0]['parameter']
-            if clear_str_format(request.form['request']) == clear_str_format(apidates_request) and clear_str_format(request.form['checks']) == clear_str_format(apidates_checks) and list(request.form['parameter']) == list(apidates_parameter):
+            if request.form['path'] == apidate_path and clear_str_format(request.form['request']) == clear_str_format(apidates_request) and clear_str_format(request.form['checks']) == clear_str_format(apidates_checks) and list(request.form['parameter']) == list(apidates_parameter):
                 flash('编辑成功...')
             else:
                 flash('编辑失败...')
