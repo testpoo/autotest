@@ -18,7 +18,7 @@
   <div class="form-group">
     <label for="exec-mode">执行模式</label>
     <input list="exec-modes" class="form-control required" id="exec-mode" name="exec-mode" maxlength="200"
-      placeholder="请选择执行模式" onchange="getExecMode()">
+      placeholder="请选择执行模式" onchange="getExecMode()" value={{ case['exec_mode'] }}>
     <datalist id="exec-modes">
       <option value="按用例">
       <option value="按用户">

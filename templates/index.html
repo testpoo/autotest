@@ -95,4 +95,50 @@
         </tbody>
     </table>
 </div>
+<div class="statistics">
+    <h2>OMA按版本统计-二期</h2>
+    <table class="count">
+        <thead>
+            <tr>
+                <th>版本</th>
+                <th>数量</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for oma_version in oma_versions_sec %}
+            <tr>
+                <td>{{ oma_version[0] }}</td>
+                <td>{{ oma_version[1] }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>总计</td>
+                <td>{{ oma_counts_sec }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="statistics">
+    <h2>OMA按模块统计-二期</h2>
+    <table class="count">
+        <thead>
+            <tr>
+                <th>模块</th>
+                <th>数量</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for oma_model in oma_models_sec %}
+            <tr>
+                <td>{{ oma_model[0] }}</td>
+                <td>{{ oma_model[1] }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>总计</td>
+                <td>{{ oma_counts_sec }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 {% endblock %}

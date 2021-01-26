@@ -124,22 +124,22 @@
       <td>
         {% if status == 0 %}
         {% for opera,links in operation('用例编写','接口自动化') %}
-        <span class="opration"><a href="{{ SITEURL }}/apicase_{{ links }}/{{ status }}/{{ case['id'] }}" onclick="loading()">{{ opera
+        <span class="opration"><a href="{{ SITEURL }}/apicase_{{ links }}/{{ status }}/{{ case['id'] }}/{{ num }}" onclick="loading()">{{ opera
             }}</a></span>
         {% endfor %}
         {% elif status == 1 %}
         {% for opera,links in operation('用例审核','接口自动化') %}
-        <span class="opration"><a href="{{ SITEURL }}/apicase_{{ links }}/{{ status }}/{{ case['id'] }}" onclick="loading()">{{ opera
+        <span class="opration"><a href="{{ SITEURL }}/apicase_{{ links }}/{{ status }}/{{ case['id'] }}/{{ num }}" onclick="loading()">{{ opera
             }}</a></span>
         {% endfor %}
         {% elif status == 3 %}
         {% for opera,links in operation('用例执行','接口自动化') %}
-        <span class="opration"><a href="{{ SITEURL }}/apicase_{{ links }}/{{ status }}/{{ case['id'] }}" onclick="loading()">{{ opera
+        <span class="opration"><a href="{{ SITEURL }}/apicase_{{ links }}/{{ status }}/{{ case['id'] }}/{{ num }}" onclick="loading()">{{ opera
             }}</a></span>
         {% endfor %}
         {% elif status == 2 %}
         {% for opera,links in operation('回收站','接口自动化') %}
-        <span class="opration"><a href="{{ SITEURL }}/apicase_{{ links }}/{{ status }}/{{ case['id'] }}" onclick="loading()">{{ opera
+        <span class="opration"><a href="{{ SITEURL }}/apicase_{{ links }}/{{ status }}/{{ case['id'] }}/{{ num }}" onclick="loading()">{{ opera
             }}</a></span>
         {% endfor %}
         {% endif %}

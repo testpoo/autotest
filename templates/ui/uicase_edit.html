@@ -4,7 +4,7 @@
 <div class="alert">{{ message }}</div>
 {% endfor %}
 {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
-<form class="form-horizontal" id="uicase_edit" action="{{ url_for('uicase_edit',status=status,id=id) }}"
+<form class="form-horizontal" id="uicase_edit" action="{{ url_for('uicase_edit',status=status,id=id,num=num) }}"
   method="post">
   <div class="form-group">
     <label for="type">用例类型</label>

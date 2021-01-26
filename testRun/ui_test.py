@@ -13,9 +13,9 @@ def cover(keyword):
     cases = [dict(keyword=row[0], template=row[1]) for row in cur]
     keywords = [[case['keyword'],case['template']] for case in cases]
     for key in keywords:
-        if keyword.split('|')[0] == key[0].split('|')[0]:
+        if keyword.split('|',1)[0] == key[0].split('|',1)[0]:
             func = key[1]
-            paras = keyword.split('|')[1]
+            paras = keyword.split('|',1)[1]
             comend = func + paras
             return comend
 

@@ -79,6 +79,7 @@ class RunTests(object):
 
         # 执行接口
         for i in range(len(list_apis)):
+            LogUtility.logger.debug("测试用例运行提示信息: {}".format('执行第'+str(i+1)+'次'))
             cases_cur = selectone('SELECT name, path, method, request, checks, parameter from apidates WHERE case_name=%s and name=%s', [list_apis[i][0], list_apis[i][1]])
             cases_list = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5]) for row in cases_cur][0]
             name = cases_list['name']
@@ -89,13 +90,14 @@ class RunTests(object):
                 cases_list['request'] = '{}'
             else:
                 cases_list['request'] = cases_list['request']
-            #data = str_to_json(cases_list['request'])
             # strict=False用于处理\"无法正常转换的问题
+            LogUtility.logger.debug("测试用例运行提示信息: {}".format('请求数据是'+cases_list["request"]))
             data = json.loads(cases_list['request'],strict=False)
-
+            
+            LogUtility.logger.debug("测试用例运行提示信息: {}".format('临时存储的数据'+str(results)))
             # 获取上一个接口的参数覆盖到新接口的请求中
             if  method == 'post':
-                if i>0 and type(data) == dict:
+                if i>0:
                     replace_param=results[-1]['new_param']
                     if replace_param != '':
                         get_targe_value(data,replace_param)
@@ -103,30 +105,30 @@ class RunTests(object):
                 if i>0:
                     replace_param=results[-1]['new_param']
                     url = get_value(url,replace_param)
+            LogUtility.logger.debug("测试用例运行提示信息: {}".format('替换后的请求数据是'+str(data)))
+            LogUtility.logger.debug("测试用例运行提示信息: {}".format('替换后的URL是'+url))
             data = json.dumps(data)
             checks = cases_list['checks']
             err = ''
             result = {'case_name': case_name, 'name': name, 'url': url,'method': method, 'error': [], 'status': '失败','new_param':''}
             try:
-                print('测试3')
-                #print('requests.'+method + '(url, headers=headers, data=data, verify=False)')
+                LogUtility.logger.debug("测试用例运行提示信息: {}".format('发起新的请求'+url+data))
                 r = eval('requests.'+method + '(url, headers=headers, data=data, verify=False)')
-                print('测试4')
                 if 'Set-Cookie' in r.headers.keys():
                     headers['Cookie'] = r.headers['Set-Cookie'].split(';')[0]
                 if parameter!='':
                     parameter = eval(parameter)
                 else:
                     parameter=parameter
-                    print('测试5')
-                print(r.text)
                 if r.text == '':
                     content = {}
                 else:
                     content = json.loads(r.text)
-                print('测试5.1')
+                LogUtility.logger.debug("测试用例运行提示信息: {}".format('响应报文'+str(content)))
+                LogUtility.logger.debug("测试用例运行提示信息: {}".format('参数'+str(parameter)))
                 if parameter != '' and isinstance(parameter,list):
-                    result['new_param']=traverse_take_field(content,parameter)
+                    result['new_param']=traverse_take_field(content,parameter,{},None)
+                    LogUtility.logger.debug("测试用例运行提示信息: {}".format('获取的需要转换的参数是'+str(result['new_param'])))
                 else:
                     result['new_param']=''
                     LogUtility.logger.debug("测试用例运行提示信息: {}".format('参数不是列表或为空'))
@@ -139,8 +141,9 @@ class RunTests(object):
                         status = '失败'
                         break
                 else:
-                    print('content',content)
-                    print('checks',json.loads(checks))
+                    LogUtility.logger.debug("测试用例运行提示信息: {}".format('处理过用于对比的content '+str(content)))
+                    LogUtility.logger.debug("测试用例运行提示信息: {}".format('原始checks '+checks))
+                    LogUtility.logger.debug("测试用例运行提示信息: {}".format('处理过用于对比的checks '+str(json.loads(checks))))
                     if compare_two_dict(content,json.loads(checks)) == 'PASS':
                         result['status'] = "成功"
                     else:

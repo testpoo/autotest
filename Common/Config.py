@@ -89,7 +89,7 @@ def traverse_take_field(data, fields, values={}, currentKey=None):
     :param currentKey: 当前的键值
     :return: 列表
     """
-    if isinstance(data, list):
+    if isinstance(data, list) and type(data[0]) != str:
         for i in data:
             traverse_take_field(i, fields, values, currentKey)
     elif isinstance(data, dict):
@@ -102,34 +102,32 @@ def traverse_take_field(data, fields, values={}, currentKey=None):
 
 # 获取响应中的值替换下一个请求接口的数据
 def get_targe_value(request_body,goods):
-    # 循环字典，获取键、值
-    for key, values in request_body.items():
-        # 判断值的type类型，如果是list,调用get_list() 函数，
-        if type(values) == list:
-            get_list(values)
-        # 如果是字典，调用自身
-        elif type(values) == dict:
-            get_targe_value(values,goods)
-        # 如果值不是list且是需要被替换的，就替换掉
-        elif type(values) != list and values == "需要被替换的值":
-            request_body[key] = goods[key]
-        else:
-            pass
+    if type(request_body) == list and len(request_body) == 1 and len(goods) == 1:
+        for key,values in goods.items():
+            request_body[0] = values
+    elif type(request_body) == dict:
+        # 循环字典，获取键、值
+        for key, values in request_body.items():
+            # 判断值的type类型，如果是list,且子项不是str,调用get_list() 函数
+            if type(values) == list:
+                get_list(values,goods)
+            # 如果是字典，调用自身
+            elif type(values) == dict:
+                get_targe_value(values,goods)
+            # 如果值不是list且是需要被替换的，就替换掉
+            elif type(values) != list and values == "需要被替换的值":
+                request_body[key] = goods[key]
+            else:
+                pass
+    else:
+        print("真的无能为力了~！")
 
-def get_list(values):
+def get_list(values,goods):
     rustle = values[0]
     if type(rustle) == list:
         get_list(values)
     else:
-        get_targe_value(rustle)
-
-# 去掉前置后置事件中“-”
-#def deline(temp):
-#    list=[]
-#    for te in temp:
-#        te = te.split("_")[1]
-#        list.append(te)
-#    return list
+        get_targe_value(rustle,goods)
 
 # 中文标点符号转英文
 def cn_to_uk(words):
@@ -181,11 +179,6 @@ def delete_pre_next(cases,pre_next):
         else:
             return False
 
-# 计算UiSet长度
-#def getParaLen():
-#    length=len(x.split('|')[1].split(','))
-#    return length
-
 # 按照报表创建时间排序
 def get_file_list(file_path):
     dir_list = os.listdir(file_path)
@@ -213,7 +206,7 @@ def wordChange(str):
 
 # json格式化
 def jsonFormat(str,num):
-    str = str.replace('\n', '').replace('\r', '').strip()
+    str = str.replace('\n', '').replace('\r', '').replace(num*' ','').strip()
     sb = []
     indent = 0
     blank = ' '

@@ -188,9 +188,25 @@ class Extend(object):
         '''
         if url != "":
             self.driver.get(url)
+            self.driver.window_handles
         else:
             raise ValueError("please provide a base url")
 
+    def openNew(self,url):
+        '''
+        描述：打开新窗口url
+        用法：self.openNew(url)
+        '''
+        js = 'window.open("{}");'.format(url)
+        self.driver.execute_script(js)
+        self.driver.window_handles
+
+    def closeWindow(self):
+        '''
+        描述：关闭当前窗口
+        用法：self.closeWindow()
+        '''
+        self.driver.close()
 
     def type(self,type,value,text):
         '''
@@ -398,9 +414,7 @@ class Extend(object):
         描述：切换到窗口
         用法：self.switchToWindow(windowindex)
         '''
-        currenthandle = self.driver.current_window_handle
-        handleslist = self.driver.window_handles
-        self.driver.switch_to_window(handleslist[int(windowindex)-1])
+        self.driver.switch_to.window(self.driver.window_handles[int(windowindex)-1])
 
     def currentWindowHandle(self):
         '''
@@ -492,7 +506,25 @@ class Extend(object):
         
         LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(textslist),s))
         TestCase().assertSetEqual(set(textslist), s)
-        
+    
+    def assertAttributeExist(self,type,value,attribute,exist = 'False'):  
+        '''
+        验证元素对象的属性值是否存在
+        '''
+        element = self.findElement(type, value)
+        if exist == 'False':
+            if element.get_attribute(attribute)== "":
+                LogUtility.logger.debug('元素的{}属性值为空'.format(attribute))
+            else:
+                raise NameError('元素的%s属性值:%s,不为空'%(attribute,element.get_attribute(attribute)))
+        elif exist == 'True':
+            if element.get_attribute(attribute) != "":
+                LogUtility.logger.debug('元素的%s属性值:%s,不为空'%(element.text))
+            else:
+                raise NameError('元素的{}属性值为空'.format(attribute))
+        else:
+            raise TypeError('输入的参数exist:%s格式不正确'%(exist))
+
     def switchToAlert(self):
         '''
         切换到弹窗
