@@ -201,7 +201,7 @@ def changeWord(str):
     return str
 
 def wordChange(str):
-    str = str.replace('%2F','/')
+    str = str.replace('%2F','/').replace('&gt;','>')
     return str
 
 # json格式化
@@ -247,7 +247,7 @@ def compare_two_dict(dict1, dict2):
                     raise Exception('检查项的key不正确')
         else:
             raise Exception('检查项为空')
-    elif type(dict1) == list and type(dict2) == list:
+    elif type(dict1) == list and type(dict2) == list and type(dict1[0]) == dict:
         for di1 in dict1:
             for di2 in dict2:
                 flag = True
@@ -291,9 +291,13 @@ def clear_str_format(str):
 # 获取get链接的参数
 def get_value(url,dict):
     list = re.split('{(.*?)}', url)
-    for li in list:
+    if len(dict) == 1:
         for di in dict:
-            if di == li:
-                list[list.index(li)] = dict[di]
+            list[1] = dict[di]
+    else:
+        for li in list:
+            for di in dict:
+                if di == li:
+                    list[list.index(li)] = dict[di]
     url = ''.join(list)
     return url

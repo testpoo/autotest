@@ -996,10 +996,6 @@ def apidate_query(case_name,name):
         return redirect(url_for('login'))
     error = None
     apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s',[wordChange(case_name),wordChange(name)])
-    #if apidate_cur != ():
-    #    cur = apidate_cur
-    #else:
-    #    cur = selectone('select name,path,method,request,checks,parameter,description from apiset where name=%s',[new_name])
     cases = [dict(name=wordChange(name), path=row[1], method=row[2], request=jsonFormat(row[3],4), checks=jsonFormat(row[4],4), parameter=row[5], description=row[6]) for row in apidate_cur]
     return render_template('api/apidate_query.html',case=cases[0],case_name=wordChange(case_name), name=name,pagename = '编辑接口数据')
 
