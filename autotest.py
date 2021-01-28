@@ -1157,7 +1157,6 @@ def apicase_reject(status,id,num):
 # API用例编辑
 @app.route('/apicase_edit/<int:status>/<int:id>/<int:num>', methods=['GET', 'POST'])
 def apicase_edit(status,id,num):
-    #count_dates = selectone('SELECT COUNT(1) FROM apicases a INNER JOIN apidates b ON a.name = b.case_name WHERE a.id = %s',[id])[0][0]
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     elif get_auths_control(session['username'],'apicases','status',status,'operation','编辑-edit') == False:
@@ -1165,18 +1164,18 @@ def apicase_edit(status,id,num):
     #elif count_dates != 0:
     #    flash('已生成接口数据，不允许编辑！')
     #    return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=1))
-
     issuetype = selectall('select name from apicases where type="前置用例"')
     issuetypes = [dict(name=row[0]) for row in issuetype]
 
     nexttype = selectall('select name from apicases where type="后置用例"')
     nexttypes = [dict(name=row[0]) for row in nexttype]
-        
+
     error = None
     cur = selectall('SELECT name,request FROM apiset')
     apisets = [dict(name=row[0],request=row[1]) for row in cur]
     cur = selectone('SELECT type, version, name, product, model, pre_steps, steps, next_steps,description FROM apicases where id=%s',[id])
     cases = [dict(type=row[0], version=row[1], name=row[2], product=row[3], model=row[4], pre_steps=row[5], steps=row[6], next_steps=row[7], description=row[8]) for row in cur]
+
     if request.method == 'POST':
         apiname = selectone('select name from apicases where name !=%s',[cases[0]['name']])
         apinames = [dict(name=row[0]) for row in apiname]
@@ -1191,7 +1190,6 @@ def apicase_edit(status,id,num):
         elif request.form['name'].strip() in apinames:
             error = "该用例已经存在！"
         elif request.form['type'].strip() in ('前置用例','后置用例'):
-
             addUpdateDel('update apicases set name=%s, steps=%s, description=%s where id=%s',[request.form['name'], request.form['steps'], request.form['description'],id])
             if apisteps != request.form['steps']:
                 addUpdateDel('delete from apidates where case_name =%s',[request.form['name']])
@@ -1207,7 +1205,7 @@ def apicase_edit(status,id,num):
 
             return redirect(url_for('apicases',category='a.username',value=session['username'],status=status,num=num))
         else:
-            addUpdateDel('update apicases set name = %s, pre_steps = %s, steps = %s, next_steps = %s, description = %s where name = %s', [request.form['name'].strip(), request.form['pre-steps'], request.form['steps'], request.form['next-steps'], request.form['description'],request.form['name'].strip()])
+            addUpdateDel('update apicases set name = %s, pre_steps = %s, steps = %s, next_steps = %s, description = %s where id=%s', [request.form['name'].strip(), request.form['pre-steps'], request.form['steps'], request.form['next-steps'], request.form['description'],id])
             if apisteps != request.form['steps']:
                 addUpdateDel('delete from apidates where case_name =%s',[request.form['name']])
             cur_edit= selectone("SELECT name,pre_steps,steps,next_steps,description FROM apicases WHERE id = %s",[id])

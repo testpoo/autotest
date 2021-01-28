@@ -76,7 +76,6 @@ class RunTests(object):
         finally_results = {'case_name': case_name, 'results': '','status': '', 'starttime': starttime, 'spenttime': '', 'error': []}
         status = '成功'
         headers = para_headers
-
         # 执行接口
         for i in range(len(list_apis)):
             LogUtility.logger.debug("测试用例运行提示信息: {}".format('执行第'+str(i+1)+'次'))
@@ -94,6 +93,9 @@ class RunTests(object):
             LogUtility.logger.debug("测试用例运行提示信息: {}".format('请求数据是'+cases_list["request"]))
             data = json.loads(cases_list['request'],strict=False)
             
+            # 获取随机名称
+            make_random_name(data)
+
             LogUtility.logger.debug("测试用例运行提示信息: {}".format('临时存储的数据'+str(results)))
             # 获取上一个接口的参数覆盖到新接口的请求中
             if  method == 'post':
@@ -112,7 +114,7 @@ class RunTests(object):
             err = ''
             result = {'case_name': case_name, 'name': name, 'url': url,'method': method, 'error': [], 'status': '失败','new_param':''}
             try:
-                LogUtility.logger.debug("测试用例运行提示信息: {}".format('发起新的请求'+url+data))
+                LogUtility.logger.debug("测试用例运行提示信息: {}".format('发起新的请求'+url))
                 r = eval('requests.'+method + '(url, headers=headers, data=data, verify=False)')
                 if 'Set-Cookie' in r.headers.keys():
                     headers['Cookie'] = r.headers['Set-Cookie'].split(';')[0]
@@ -126,8 +128,12 @@ class RunTests(object):
                     content = json.loads(r.text)
                 LogUtility.logger.debug("测试用例运行提示信息: {}".format('响应报文'+str(content)))
                 LogUtility.logger.debug("测试用例运行提示信息: {}".format('参数'+str(parameter)))
+                
                 if parameter != '' and isinstance(parameter,list):
-                    result['new_param']=traverse_take_field(content,parameter,{},None)
+                    if results[-1]['new_param'] == '':
+                        result['new_param']=traverse_take_field(content,parameter,{},None)
+                    else:
+                        result['new_param']=Merge(results[-1]['new_param'],traverse_take_field(content,parameter,{},None))
                     LogUtility.logger.debug("测试用例运行提示信息: {}".format('获取的需要转换的参数是'+str(result['new_param'])))
                 else:
                     result['new_param']=''

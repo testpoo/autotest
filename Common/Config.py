@@ -1,10 +1,12 @@
 # coding=UTF-8 
 
 from datetime import datetime
+from collections import defaultdict
 import base64
 import os
 import json
 import re
+import time
 
 SITEURL = "http://127.0.0.1:5000"
 #SITEURL = "http://192.168.213.110:8000"
@@ -84,11 +86,14 @@ def traverse_take_field(data, fields, values={}, currentKey=None):
     """遍历嵌套字典列表，取出某些字段的值
     
     :param data: 嵌套字典列表
-    :param fields: 列表，某些字段
+    :param fields: 列表，某些字段，某些替换字段
     :param values: 返回的值
     :param currentKey: 当前的键值
     :return: 列表
     """
+    dicts = defaultdict(list)
+    for i, v in enumerate(fields[0]):
+        dicts[v].append(i)
     if isinstance(data, list) and type(data[0]) != str:
         for i in data:
             traverse_take_field(i, fields, values, currentKey)
@@ -96,8 +101,9 @@ def traverse_take_field(data, fields, values={}, currentKey=None):
         for key, value in data.items():
             traverse_take_field(value, fields, values, key)
     else:
-        if currentKey in fields:
-            values[currentKey] = data
+        if currentKey in fields[0]:
+            for num in dicts[currentKey]:
+                values[fields[1][num]] = data
     return values
 
 # 获取响应中的值替换下一个请求接口的数据
@@ -120,7 +126,7 @@ def get_targe_value(request_body,goods):
             else:
                 pass
     else:
-        print("真的无能为力了~！")
+        raise Exception('替换参数失败，请检查后重试~！')
 
 def get_list(values,goods):
     rustle = values[0]
@@ -230,6 +236,13 @@ def jsonFormat(str,num):
     str = ''.join(sb)
     return str
 
+# 判断列表不为空，且子元素是字典
+def not_none_is_dict(temp):
+    if type(temp) == list and temp != [] and type(temp[0]) == dict:
+        return True
+    else:
+        return False
+
 # 比较需要验证的值是否和响应中返回的值一致
 def compare_two_dict(dict1, dict2):
     flag = True
@@ -247,26 +260,24 @@ def compare_two_dict(dict1, dict2):
                     raise Exception('检查项的key不正确')
         else:
             raise Exception('检查项为空')
-    elif type(dict1) == list and type(dict2) == list and type(dict1[0]) == dict:
-        for di1 in dict1:
-            for di2 in dict2:
-                flag = True
-                if type(di1) == dict and type(di2) == dict:
-                    keys1 = di1.keys()
-                    keys2 = di2.keys()
-                    if len(keys2) != 0:
-                        for key in keys2:
-                            if key in keys1 and key in keys2:
-                                if di1[key] == di2[key]:
-                                    flag = flag & True
-                                else:
-                                    flag = flag & False
-                            else:
-                                raise Exception('检查项的key不正确')
+    elif not_none_is_dict(dict1) == True and not_none_is_dict(dict2) == True:
+        di1 = dict1[0]
+        di2 = dict2[0]
+        flag = True
+        if type(di1) == dict and type(di2) == dict:
+            keys1 = di1.keys()
+            keys2 = di2.keys()
+            if len(keys2) != 0:
+                for key in keys2:
+                    if key in keys1 and key in keys2:
+                        if di1[key] == di2[key]:
+                            flag = flag & True
+                        else:
+                            flag = flag & False
                     else:
-                        raise Exception('检查项为空')
-            if flag:
-                break
+                        raise Exception('检查项的key不正确')
+            else:
+                raise Exception('检查项为空')
     else:
         if dict1 == dict2:
             flag = flag & True
@@ -291,13 +302,48 @@ def clear_str_format(str):
 # 获取get链接的参数
 def get_value(url,dict):
     list = re.split('{(.*?)}', url)
-    if len(dict) == 1:
+    #if len(dict) == 1:
+    #    for di in dict:
+    #        list[1] = dict[di]
+    #else:
+    for li in list:
         for di in dict:
-            list[1] = dict[di]
-    else:
-        for li in list:
-            for di in dict:
-                if di == li:
-                    list[list.index(li)] = dict[di]
+            if di == li:
+                list[list.index(li)] = dict[di]
     url = ''.join(list)
     return url
+
+# 获取响应中的值替换下一个请求接口的数据
+def make_random_name(request_body):
+    goods = '随机名称'+str(time.time())
+    if type(request_body) == list:
+        if '随机名称' in request_body:
+            request_body[request_body.index('随机名称')] = goods
+    elif type(request_body) == dict:
+        # 循环字典，获取键、值
+        for key, values in request_body.items():
+            # 判断值的type类型，如果是list,且子项不是str,调用get_list() 函数
+            if type(values) == list:
+                get_name_list(values)
+            # 如果是字典，调用自身
+            elif type(values) == dict:
+                get_targe_value(values)
+            # 如果值不是list且是需要被替换的，就替换掉
+            elif type(values) != list and values == "随机名称":
+                request_body[key] = goods
+            else:
+                pass
+    else:
+        raise Exception('随机名称生成失败，请检查后重试~！')
+
+def get_name_list(values):
+    rustle = values[0]
+    if type(rustle) == list:
+        get_name_list(values)
+    else:
+        make_random_name(rustle)
+
+# 字典合并
+def Merge(dict1, dict2): 
+    res = {**dict1, **dict2} 
+    return res

@@ -243,7 +243,15 @@ class Extend(object):
         self.driver.execute_script(js)
         element = self.driver.find_element_by_id(value)
         element.clear()
-        element.send_keys(clock)    
+        element.send_keys(clock) 
+
+    def clearTypetime1(self,type,value,clock):
+
+        element = self.findElement(type, value)
+        time.sleep(1.5)
+        self.driver.execute_script("arguments[0].removeAttribute('readonly')",element)
+        element.clear()
+        element.send_keys(clock)   
 
     def enter(self,type,value):
         '''
