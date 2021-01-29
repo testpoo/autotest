@@ -486,22 +486,22 @@ class Extend(object):
         描述：验证当前页中既定得元素是否在给定得字符串中
         用法：self.assertTexts(type,value,texts,order='False')
         '''
+        textslist = texts.split(',')
+        elements = self.findElements(type, value)
         if order == 'True':
-            s = []
-            textslist = texts.split(',')
-            elements = self.findElements(type, value)
+            deslist = []
             for element in elements:
-                s.append(element.text.strip())
-            LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(textslist,s))
-            TestCase().assertListEqual(textslist, s)
+                deslist.append(element.text.strip())
+            LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(textslist,deslist))
+            TestCase().assertListEqual(textslist, deslist)
         elif order == 'False':
-            s= set()
-            textslist = texts.split(',')
-            elements = self.findElements(type, value)
+            desset= set()
             for element in elements:
-                s.add(element.text.strip())
-            LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(textslist),s))
-            TestCase().assertSetEqual(set(textslist), s)
+                desset.add(element.text.strip())
+            LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(textslist),desset))
+            TestCase().assertSetEqual(set(textslist), desset)
+        else:
+            raise NameError('输入排序参数不在{"True","False"}中')
 
     def assertAttribute(self,type,value,attribute,texts):
         s =set()
@@ -786,9 +786,53 @@ class Extend(object):
                                 i.click()
                                 break
                     break
-            else:               
+            elif len(columns) == 2:               
                 if tdlist[int(columns[0])-1].text.strip() == columntexts[0] and tdlist[int(columns[1])-1].text.strip() == columntexts[1]:
+                    matchlist.append(tdlist[int(columns[0])-1].text.strip())
                     matchlist.append(tdlist[int(columns[1])-1].text.strip())
+                    LogUtility.logger.debug('texts:%s,%s\n页面文本：%s,%s'%(columntexts[0],columntexts[1],tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip()))
+                    if int(descolumn) == 1:
+                        checkelement = tdlist[int(descolumn)-1].find_element_by_xpath('./input')
+                        checkelement.click()                                              
+                        break
+                    
+                    elif int(descolumn) == len(tdlist):
+                        element = tdlist[-1]
+                        elements = element.find_elements_by_xpath('./a')
+                        for i in elements: 
+                            if i.get_attribute('title').strip() == str(text):
+                                titlelist.append(i.get_attribute('title'))
+                                LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))   
+                                i.click()
+                                break
+                            if i.text.strip() == str(text): 
+                                textlist.append(i.text.strip())
+                                LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.text.strip(),str(text)))   
+                                i.click()
+                                break
+                            elements = i.find_elements_by_xpath('./img')
+                            for j in elements: 
+                                if j.get_attribute('title').strip() == str(text):
+                                    titlelist.append(j.get_attribute('title'))
+                                    LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
+                                    j.click()
+                                    break
+                    else:
+                        element = tdlist[int(descolumn)-1]
+                        print('element',element)
+                        elements = element.find_elements_by_xpath('./a')
+                        for i in elements:
+                            if i.text.strip() == str(text):
+                                textlist.append(i.text.strip())
+                                LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.text.strip(),str(text)))
+                                i.click()
+                                break
+                    break
+            else:              
+                if tdlist[int(columns[0])-1].text.strip() == columntexts[0] and tdlist[int(columns[1])-1].text.strip() == columntexts[1] and tdlist[int(columns[2])-1].text.strip() == columntexts[2]:
+                    matchlist.append(tdlist[int(columns[0])-1].text.strip())
+                    matchlist.append(tdlist[int(columns[1])-1].text.strip())
+                    matchlist.append(tdlist[int(columns[2])-1].text.strip())
                     LogUtility.logger.debug('texts:%s,%s\n页面文本：%s,%s'%(columntexts[0],columntexts[1],tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip()))
                     if int(descolumn) == 1:
                         checkelement = tdlist[int(descolumn)-1].find_element_by_xpath('./input')
@@ -838,7 +882,7 @@ class Extend(object):
         else:    
             if textlist == [] and titlelist == []:
                 raise NameError('操作列没有找到文本或属性%s'%(text))
-	
+
     def assertTableOp(self,type,value,column,columntext,texts):
         table = self.findElement(type, value )
         trlist = table.find_elements_by_tag_name('tr')
@@ -854,22 +898,31 @@ class Extend(object):
                 element = tdlist[-1]
                 elements = element.find_elements_by_xpath('./a')
                 for i in elements:
-                    s.add(i.get_attribute('title'))
+                    if i.get_attribute('title'):
+                        s.add(i.get_attribute('title'))
+                    else:
+                        img_elements = i.find_elements_by_xpath('./img')
+                        for j in img_elements:
+                            s.add(j.get_attribute('title'))
+                break 
         LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(textslist),s))
         if matchlist == []:
             raise NameError('没有找到匹配项,输入文本%s'%(tdlist[int(column)-1].text,columntext))
         TestCase().assertSetEqual(s, set(textslist))
         
     def assertTableAttribute(self,type,value,matchparas,descolumn,values):
+        time.sleep(1)
         table = self.findElement(type, value)
         trlist = table.find_elements_by_tag_name('tr')
         if len(trlist)==0:
             raise NameError('表格行数为0，%s:%s,没有定位到正确的表格'%(type,value))
+        s = set()
         matchparaslist = matchparas.split(',')
         columns = []
         columntexts = []
         matchlist = []
-        j=50    
+        
+        j=100    
         #控制row循环次数
         for i in range(len(matchparaslist)):
             if i%2 == 0: 
@@ -884,25 +937,76 @@ class Extend(object):
                 if len(columns) == 1:
                     LogUtility.logger.debug('页面文本:%s'%(tdlist[int(columns[0])-1].text.strip()))
                     if tdlist[int(columns[0])-1].text.strip() == columntexts[0]:
+                        #添加到匹配列表里
                         matchlist.append(tdlist[int(columns[0])-1].text.strip())
                         LogUtility.logger.debug('texts:%s\n页面文本:%s'%(columntexts[0],tdlist[int(columns[0])-1].text.strip()))
-                        element = tdlist[int(descolumn)-1]
-                        break
-                else:
+                        if int(descolumn) == len(tdlist):
+                            element = tdlist[-1]
+                            elements = element.find_elements_by_xpath('./a')
+                            for i in elements:
+                                if i.get_attribute('title'):
+                                    s.add(i.get_attribute('title'))
+                                else:
+                                    img_elements = i.find_elements_by_xpath('./img')
+                                    for j in img_elements:
+                                        s.add(j.get_attribute('title'))
+                            break
+                        else: 
+                            element = tdlist[int(descolumn)-1]
+                            break                                 
+                elif len(columns) == 2:
                     LogUtility.logger.debug('页面文本：%s,%s'%(tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip()))
                     if tdlist[int(columns[0])-1].text.strip() == columntexts[0] and tdlist[int(columns[1])-1].text.strip() == columntexts[1]:
+                        matchlist.append(tdlist[int(columns[0])-1].text.strip())
                         matchlist.append(tdlist[int(columns[1])-1].text.strip())
                         LogUtility.logger.debug('texts:%s,%s\n页面文本：%s,%s'%(columntexts[0],columntexts[1],tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip()))
-                        element = tdlist[int(descolumn)-1]
-                        break
+                        if int(descolumn) == len(tdlist):
+                            element = tdlist[-1]
+                            elements = element.find_elements_by_xpath('./a')
+                            for i in elements:
+                                if i.get_attribute('title'):
+                                    s.add(i.get_attribute('title'))
+                                else:
+                                    img_elements = i.find_elements_by_xpath('./img')
+                                    for j in img_elements:
+                                        s.add(j.get_attribute('title'))
+                            break
+                        else: 
+                            element = tdlist[int(descolumn)-1]
+                            break 
+                else:
+                    LogUtility.logger.debug('页面文本：%s,%s,%s'%(tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip(),tdlist[int(columns[2])-1].text.strip()))
+                    if tdlist[int(columns[0])-1].text.strip() == columntexts[0] and tdlist[int(columns[1])-1].text.strip() == columntexts[1] and tdlist[int(columns[2])-1].text.strip() == columntexts[2]:
+                        matchlist.append(tdlist[int(columns[0])-1].text.strip())
+                        matchlist.append(tdlist[int(columns[1])-1].text.strip())    
+                        LogUtility.logger.debug('texts:%s,%s,%s\n页面文本：%s,%s,%s'%(columntexts[0],columntexts[1],columntexts[2],tdlist[int(columns[0])-1].text.strip(),tdlist[int(columns[1])-1].text.strip(),tdlist[int(columns[2])-1].text.strip()))                     
+                        if int(descolumn) == len(tdlist):
+                            element = tdlist[-1]
+                            elements = element.find_elements_by_xpath('./a')
+                            for i in elements:
+                                if i.get_attribute('title'):
+                                    s.add(i.get_attribute('title'))
+                                else:
+                                    img_elements = i.find_elements_by_xpath('./img')
+                                    for j in img_elements:
+                                        s.add(j.get_attribute('title'))
+                            break
+                        else: 
+                            element = tdlist[int(descolumn)-1]
+                            break 
         if matchlist == []:
             if len(columns) == 1:
                 raise NameError('没有找到匹配项，输入文本%s'%(columntexts[0]))
+            elif len(columns) == 2:
+                raise NameError('没有找到匹配项，输入文本%s,%s'%(columntexts[0],columntexts[1]))   
             else:
-                raise NameError('没有找到匹配项，输入文本%s,%s'%(columntexts[0],columntexts[1]))
-                
-        LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(values,element.get_attribute('title').strip()))
-        TestCase().assertEqual(values, element.get_attribute('title').strip())
+                raise NameError('没有找到匹配项，输入文本%s,%s,%s'%(columntexts[0],columntexts[1],columntexts[2]))    
+        if int(descolumn) == len(tdlist):  
+            valueslist = values.split(',')      
+            LogUtility.logger.debug('texts:%s\n页面操作列：%s'%(valueslist,s))
+            TestCase().assertSetEqual(s, set(valueslist))                        
+        else:
+            TestCase().assertEqual(values, element.get_attribute('title').strip())
         
     def assertTableText(self,type,value,matchparas,descolumn,text):
         table = self.findElement(type, value)
@@ -1038,6 +1142,25 @@ class Extend(object):
                 raise NameError('没有找到匹配项，输入文本%s,%s'%(columntexts[0],columntexts[1]))
         LogUtility.logger.debug('texts:%s\n页面文本集：%s'%(set(textslist),s))
         TestCase().assertSetEqual(set(textslist),s)
+
+    def assertDynamicTexts(self,type,value,texts):
+        '''
+        描述：验证动态文本
+        '''
+        elements = self.findElements(type, value)
+        textslist = texts.split(',')
+        print('textslist::::',textslist)
+        lable = True
+        desset = set()
+        unmatchset = set()
+        for element in elements:
+            desset.add(element.text.strip())
+        for text in textslist:
+            if text not in desset:
+                lable = False
+                unmatchset.add(text)
+        LogUtility.logger.debug('text:%s不在页面文本集里\n页面文本集：%s'%(text,desset))
+        TestCase().assertTrue(lable, 'texts：%s不在也页面文本集中'%(unmatchset))
 
     # 数据库删除，无奈之举，擅用
     def delDevice(self,device_name,device_ip):
