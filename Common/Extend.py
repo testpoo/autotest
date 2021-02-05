@@ -775,6 +775,7 @@ class Extend(object):
                                     LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
                                     j.click()
                                     break
+                            break
                     else:
                         element = tdlist[int(descolumn)-1]
                         elements = element.find_elements_by_xpath('./a')
@@ -817,6 +818,7 @@ class Extend(object):
                                     LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
                                     j.click()
                                     break
+                            break
                     else:
                         element = tdlist[int(descolumn)-1]
                         print('element',element)
@@ -828,7 +830,7 @@ class Extend(object):
                                 i.click()
                                 break
                     break
-            else:              
+            else:
                 if tdlist[int(columns[0])-1].text.strip() == columntexts[0] and tdlist[int(columns[1])-1].text.strip() == columntexts[1] and tdlist[int(columns[2])-1].text.strip() == columntexts[2]:
                     matchlist.append(tdlist[int(columns[0])-1].text.strip())
                     matchlist.append(tdlist[int(columns[1])-1].text.strip())
@@ -860,6 +862,7 @@ class Extend(object):
                                     LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
                                     j.click()
                                     break
+                            break
                     else:
                         element = tdlist[int(descolumn)-1]
                         print('element',element)
@@ -1161,6 +1164,44 @@ class Extend(object):
                 unmatchset.add(text)
         LogUtility.logger.debug('text:%s不在页面文本集里\n页面文本集：%s'%(text,desset))
         TestCase().assertTrue(lable, 'texts：%s不在也页面文本集中'%(unmatchset))
+
+    def checkDynamic(self, type,value,texts):
+        elements = self.findElements(type, value)
+        if not elements:
+            raise NameError('勾选项元素集合为空')
+        textslist = texts.split(',')
+        deselements = []
+        for element in elements:
+            if element.text in textslist:
+                deselements.append(element)
+        for deselement in deselements:
+            checkelement = deselement.find_element_by_xpath('./input')
+            if checkelement.is_selected() == False:
+                checkelement.click()
+                LogUtility.logger.debug('{%s}勾选成功'%(deselement.text))
+            elif checkelement.is_selected() == True:
+                LogUtility.logger.debug('{%s}已勾选'%(deselement.text))
+            else:
+                raise NameError('勾选项不能被勾选')
+                
+    def decheckDynamic(self, type,value,texts):
+        elements = self.findElements(type, value)
+        if not elements:
+            raise NameError('去勾选项元素集合为空')
+        textslist = texts.split(',')
+        deselements = []
+        for element in elements:
+            if element.text in textslist:
+                deselements.append(element)
+        for deselement in deselements:
+            checkelement = deselement.find_element_by_xpath('./input')
+            if checkelement.is_selected() == True:
+                checkelement.click()
+                LogUtility.logger.debug('{%s}去勾选成功'%(deselement.text))
+            elif checkelement.is_selected() == False:
+                LogUtility.logger.debug('{%s}已去勾选'%(deselement.text))
+            else:
+                raise NameError('去勾选项不能被勾选')
 
     # 数据库删除，无奈之举，擅用
     def delDevice(self,device_name,device_ip):

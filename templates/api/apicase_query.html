@@ -6,17 +6,17 @@
 <div class="form-group">
     <label for="type">用例类型</label>
     <input id="type" class="form-control required" name="type" maxlength="200" placeholder="请输入用例类型" readonly
-        unselectable="on" value={{ case['type'] }}>
+        unselectable="on" value="{{ case['type'] }}">
 </div>
 <div class="form-group">
     <label for="version">用例版本</label>
     <input id="version" class="form-control required" name="version" maxlength="20" placeholder="请输入版本号" readonly
-        unselectable="on" value={{ case['version'] }}>
+        unselectable="on" value="{{ case['version'] }}">
 </div>
 <div class="form-group">
     <label for="name">名称</label>
     <input type="text" class="form-control required" id="name" name="name" maxlength="20" placeholder="请输入用例名称" readonly
-        unselectable="on" value={{ case['name'] }}>
+        unselectable="on" value="{{ case['name'] }}">
 </div>
 <div class="form-group">
     <label for="description">描述</label>
@@ -25,12 +25,12 @@
 <div class="form-group">
     <label for="product">所属产品</label>
     <input type="text" class="form-control required" id="product" name="product" maxlength="20" placeholder="请输入用例所属产品"
-        readonly unselectable="on" value={{ case['product'] }}>
+        readonly unselectable="on" value="{{ case['product'] }}">
 </div>
 <div class="form-group">
     <label for="model">模块</label>
     <input type="text" class="form-control required" id="model" name="model" maxlength="20" placeholder="请输入用例模块"
-        readonly unselectable="on" value={{ case['model'] }}>
+        readonly unselectable="on" value="{{ case['model'] }}">
 </div>
 {% if case['type'] == '普通用例' %}
 <div class="form-group">

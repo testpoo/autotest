@@ -79,12 +79,15 @@ class RunTests(object):
         # 执行接口
         for i in range(len(list_apis)):
             LogUtility.logger.debug("测试用例运行提示信息: {}".format('执行第'+str(i+1)+'次'))
-            cases_cur = selectone('SELECT name, path, method, request, checks, parameter from apidates WHERE case_name=%s and name=%s', [list_apis[i][0], list_apis[i][1]])
-            cases_list = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5]) for row in cases_cur][0]
+            LogUtility.logger.debug("测试用例运行提示信息: {}".format('执行的用例是：'+list_apis[i][0]+'-'+list_apis[i][1]))
+            cases_cur = selectone('SELECT name, path, method, request, checks, parameter,description from apidates WHERE case_name=%s and name=%s', [list_apis[i][0], list_apis[i][1]])
+            cases_list = [dict(name=row[0], path=row[1], method=row[2], request=row[3], checks=row[4], parameter=row[5],description=row[6]) for row in cases_cur][0]
             name = cases_list['name']
             url = sicap_url + cases_list['path']
             method = cases_list['method']
             parameter = cases_list['parameter']
+            description = cases_list['description']
+            
             if cases_list['request'] == '':
                 cases_list['request'] = '{}'
             else:
@@ -97,15 +100,22 @@ class RunTests(object):
             make_random_name(data)
 
             LogUtility.logger.debug("测试用例运行提示信息: {}".format('临时存储的数据'+str(results)))
+            LogUtility.logger.debug("测试用例运行提示信息: {}".format('临时转换的数据'+str(description)))
             # 获取上一个接口的参数覆盖到新接口的请求中
             if  method == 'post':
                 if i>0:
-                    replace_param=results[-1]['new_param']
-                    if replace_param != '':
+                    if description != '':
+                        replace_param = change_dict_key(results[-1]['new_param'],eval(description)[0],eval(description)[1])
+                    else:
+                        replace_param = results[-1]['new_param']
+                    if replace_param != {}:
                         get_targe_value(data,replace_param)
             elif method == 'get':
                 if i>0:
-                    replace_param=results[-1]['new_param']
+                    if description != '':
+                        replace_param = change_dict_key(results[-1]['new_param'],eval(description)[0],eval(description)[1])
+                    else:
+                        replace_param = results[-1]['new_param']
                     url = get_value(url,replace_param)
             LogUtility.logger.debug("测试用例运行提示信息: {}".format('替换后的请求数据是'+str(data)))
             LogUtility.logger.debug("测试用例运行提示信息: {}".format('替换后的URL是'+url))
@@ -122,21 +132,19 @@ class RunTests(object):
                     parameter = eval(parameter)
                 else:
                     parameter=parameter
-                if r.text == '':
+                if r.status_code == 201:
+                    content = {'format':"file"}
+                elif r.text == '':
                     content = {}
                 else:
                     content = json.loads(r.text)
                 LogUtility.logger.debug("测试用例运行提示信息: {}".format('响应报文'+str(content)))
                 LogUtility.logger.debug("测试用例运行提示信息: {}".format('参数'+str(parameter)))
-                
                 if parameter != '' and isinstance(parameter,list):
-                    if results[-1]['new_param'] == '':
-                        result['new_param']=traverse_take_field(content,parameter,{},None)
-                    else:
-                        result['new_param']=Merge(results[-1]['new_param'],traverse_take_field(content,parameter,{},None))
+                    result['new_param']=traverse_take_field(content,parameter,{},None)
                     LogUtility.logger.debug("测试用例运行提示信息: {}".format('获取的需要转换的参数是'+str(result['new_param'])))
                 else:
-                    result['new_param']=''
+                    result['new_param']={}
                     LogUtility.logger.debug("测试用例运行提示信息: {}".format('参数不是列表或为空'))
                 if checks == '':
                     if r.status_code == 200:
@@ -149,8 +157,7 @@ class RunTests(object):
                 else:
                     LogUtility.logger.debug("测试用例运行提示信息: {}".format('处理过用于对比的content '+str(content)))
                     LogUtility.logger.debug("测试用例运行提示信息: {}".format('原始checks '+checks))
-                    LogUtility.logger.debug("测试用例运行提示信息: {}".format('处理过用于对比的checks '+str(json.loads(checks))))
-                    if compare_two_dict(content,json.loads(checks)) == 'PASS':
+                    if check_response_result(content,eval(checks)) == 'PASS':
                         result['status'] = "成功"
                     else:
                         result['status'] = "失败"
@@ -166,6 +173,7 @@ class RunTests(object):
             finally:
                 addUpdateDel('update apicases set exec_result=%s where id=%s',[status,self.id])
                 results.append(result)
+                add_dict_last(results,'new_param')
 
         endtime = Config.getCurrentTime()
         spenttime = Config.timeDiff(starttime, endtime)
@@ -184,6 +192,7 @@ class RunTests(object):
             if cases == []:
                 exec_mode = '按失败'
                 cases_name = '失败'
+                cases_step = tupleToList(selectone('SELECT case_name FROM report WHERE error!="[]" and type = "api" and username = %s', [self.username]))
             else:
                 cases_name = cases[0]['name']
                 exec_mode = cases[0]['exec_mode']
@@ -214,7 +223,7 @@ class RunTests(object):
             count = len(steps_case)
 
             all_id = []
-            for step in cases_step:
+            for step in steps_case:
                 if step.startswith('#'):
                     continue
                 cur_step = selectone('select id,product from apicases where name =%s', [step])

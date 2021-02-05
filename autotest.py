@@ -715,12 +715,12 @@ def exec_failed(type):
             newrun = RunUiTests('0',username)
             newrun.getTestSiutes()
             flash('执行成功...')
-            return redirect(url_for('ui_report_list'))
+            return redirect(url_for('ui_report_list',num=1))
         elif type == 'api':
             newrun = RunTests('0',username)
             newrun.getTestSiutes()
             flash('执行成功...')
-            return redirect(url_for('api_report_list'))
+            return redirect(url_for('api_report_list',num=1))
 
 ###############################
 #          API测试集
@@ -995,8 +995,9 @@ def apidate_query(case_name,name):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     error = None
+
     apidate_cur = selectone('select name,path,method,request,checks,parameter,description from apidates where case_name = %s and name=%s',[wordChange(case_name),wordChange(name)])
-    cases = [dict(name=wordChange(name), path=row[1], method=row[2], request=jsonFormat(row[3],4), checks=jsonFormat(row[4],4), parameter=row[5], description=row[6]) for row in apidate_cur]
+    cases = [dict(name=wordChange(name), path=row[1], method=row[2], request=jsonFormat(row[3],4), checks=row[4], parameter=row[5], description=row[6]) for row in apidate_cur]
     return render_template('api/apidate_query.html',case=cases[0],case_name=wordChange(case_name), name=name,pagename = '编辑接口数据')
 
 # API用例查询后保存
@@ -1014,8 +1015,9 @@ def apidate_save():
                 error = '参数格式不对'
         else:
             addUpdateDel('update apidates set path = %s,request = %s,checks = %s,parameter=%s,description=%s where case_name=%s and name=%s',[request.form['path'],cn_to_uk(request.form['request']), request.form['checks'],cn_to_uk(request.form['parameter']), request.form['description'],request.form['case_name'],request.form['name']])
+            addUpdateDel('update apiset set request = %s,checks = %s where name=%s',[cn_to_uk(request.form['request']), request.form['checks'],request.form['name'].split('-')[1]])
             cur_edit= selectone("SELECT path,request,checks,parameter FROM apidates where case_name=%s and name=%s",[request.form['case_name'],request.form['name']])
-            apidates_edit = [dict(path=row[0],request=jsonFormat(row[1],4),checks=jsonFormat(row[2],4),parameter=row[3]) for row in cur_edit]
+            apidates_edit = [dict(path=row[0],request=jsonFormat(row[1],4),checks=row[2],parameter=row[3]) for row in cur_edit]
             apidate_path = apidates_edit[0]['path']
             apidates_request = apidates_edit[0]['request']
             apidates_checks = apidates_edit[0]['checks']
@@ -1060,7 +1062,7 @@ def apidate_apiquery(case_name,name):
         error = "未生成数据，无法查看~！"
         cases = [{"name":"","path":"","method":"","request":"","checks":"","parameter":"","description":"",}]
     else:
-        cases = [dict(name=name, path=row[1], method=row[2], request=jsonFormat(row[3],4), checks=jsonFormat(row[4],4), parameter=row[5], description=row[6]) for row in apidate_cur]
+        cases = [dict(name=name, path=row[1], method=row[2], request=jsonFormat(row[3],4), checks=row[4], parameter=row[5], description=row[6]) for row in apidate_cur]
     return render_template('api/apidate_apiquery.html',case=cases[0],case_name=wordChange(case_name), error=error,name=name,pagename = '编辑接口数据')
 
 # API用例删除
@@ -1315,9 +1317,9 @@ def apicase_makedate(status,id,num):
         if steps_in_dates == 0:
             for step in steps:
                 new_step = step.split('-',1)[1]
-                cur = selectone('select name,path,method,request from apiset where name = %s',[new_step])
-                api_cases = [dict(name=step, path=row[1], method=row[2], request=row[3]) for row in cur]
-                addUpdateDel('insert into apidates (case_name,name,path,method,request,username,create_date) values (%s,%s,%s,%s,%s,%s,%s)',[case[0]['name'], step, cn_to_uk(api_cases[0]['path']), api_cases[0]['method'], cn_to_uk(api_cases[0]['request']), session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
+                cur = selectone('select name,path,method,request,checks from apiset where name = %s',[new_step])
+                api_cases = [dict(name=step, path=row[1], method=row[2], request=row[3], checks=row[4]) for row in cur]
+                addUpdateDel('insert into apidates (case_name,name,path,method,request,checks,username,create_date) values (%s,%s,%s,%s,%s,%s,%s,%s)',[case[0]['name'], step, cn_to_uk(api_cases[0]['path']), api_cases[0]['method'], cn_to_uk(api_cases[0]['request']), api_cases[0]['checks'],session['username'], time.strftime('%Y-%m-%d %X', time.localtime(time.time()))])
                 
     return render_template('api/apicase_makedate.html',case=case[0],current='apicases'+str(status),status=status,error=error,pagename = '数据编辑', id=id)
 
@@ -1507,7 +1509,7 @@ def apiset_edit(id):
     else:
         error=None
         cur = selectone('SELECT id,name,path,method,request,checks,description FROM apiset where id=%s',[id])
-        cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=jsonFormat(row[4],4), checks=jsonFormat(row[5],4), description=row[6]) for row in cur]
+        cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=jsonFormat(row[4],4), checks=row[5], description=row[6]) for row in cur]
 
         if request.method == 'POST':
             if request.form['path'].strip() == '':
@@ -1541,7 +1543,7 @@ def apiset_query(id):
         return render_template('invalid.html')
     else:
         cur = selectone('SELECT id,name,path,method,request,checks,description FROM apiset where id=%s',[id])
-        cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=jsonFormat(row[4],4), checks=jsonFormat(row[5],4), description=row[6]) for row in cur]
+        cases = [dict(id=row[0], name=row[1], path=row[2], method=row[3], request=jsonFormat(row[4],4), checks=row[5], description=row[6]) for row in cur]
         return render_template('set/apiset_query.html',case=cases[0],current='apiset', pagename = '接口查看')
 
 # 接口删除

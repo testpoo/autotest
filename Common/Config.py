@@ -132,6 +132,8 @@ def get_list(values,goods):
     rustle = values[0]
     if type(rustle) == list:
         get_list(values)
+    elif type(rustle)  ==str:
+        pass
     else:
         get_targe_value(rustle,goods)
 
@@ -242,7 +244,7 @@ def not_none_is_dict(temp):
         return True
     else:
         return False
-
+'''
 # 比较需要验证的值是否和响应中返回的值一致
 def compare_two_dict(dict1, dict2):
     flag = True
@@ -288,7 +290,7 @@ def compare_two_dict(dict1, dict2):
     else:
         result = 'FAILED'
     return result
-
+'''
 # str转json
 def str_to_json(str):
     data = json.dumps(json.loads(str))
@@ -323,11 +325,11 @@ def make_random_name(request_body):
         # 循环字典，获取键、值
         for key, values in request_body.items():
             # 判断值的type类型，如果是list,且子项不是str,调用get_list() 函数
-            if type(values) == list:
+            if type(values) == list and values != []:
                 get_name_list(values)
             # 如果是字典，调用自身
             elif type(values) == dict:
-                get_targe_value(values)
+                make_random_name(values)
             # 如果值不是list且是需要被替换的，就替换掉
             elif type(values) != list and values == "随机名称":
                 request_body[key] = goods
@@ -340,10 +342,47 @@ def get_name_list(values):
     rustle = values[0]
     if type(rustle) == list:
         get_name_list(values)
-    else:
+    elif type(rustle) == dict:
         make_random_name(rustle)
+    else:
+        pass
 
 # 字典合并
 def Merge(dict1, dict2): 
-    res = {**dict1, **dict2} 
+    res = {**dict1, **dict2}
     return res
+
+# 检查响应结果
+def check_response_result(dict1,list1):
+    if list1 != [] and type(list1) == list and type(list1[0]) == list:
+        for temp in list1[0]:
+            if eval(temp) == list1[1][list1[0].index(temp)]:
+                return 'PASS'
+            else:
+                return 'FAILED'
+    else:
+        if type(dict1) == list or type(dict1) == str:
+            dict1 == list1
+            return 'PASS'
+        elif type(dict1) == int:
+            dict1 == int(list1)
+            return 'PASS'
+        elif type(dict1) == bool:
+            dict1 == bool(list1)
+            return 'PASS'
+        else:
+            return 'FAILED'
+
+# 使列表中最后一个字典的最后一项始终是所有字典最后一项的全集
+def add_dict_last(list1,key):
+    if len(list1) >= 2:
+        list1[-1][key] = Merge(list1[-2][key],list1[-1][key])
+    else:
+        pass
+
+# 替换字典中key
+def change_dict_key(dict1,key1,key2):
+    str = dict1[key1]
+    dict1[key1] = dict1[key2]
+    dict1[key2] = str
+    return dict1

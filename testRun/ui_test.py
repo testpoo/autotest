@@ -119,6 +119,7 @@ class RunUiTests(object):
             if cases == []:
                 exec_mode = '按失败'
                 cases_name = '失败'
+                cases_step = tupleToList(selectone('SELECT case_name FROM report WHERE error!="[]" and type = "ui" and username = %s', [self.username]))
             else:
                 cases_step = cases[0]['steps'].split('\r\n')
                 exec_mode = cases[0]['exec_mode']
