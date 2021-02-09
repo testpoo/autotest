@@ -753,7 +753,6 @@ class Extend(object):
                         checkelement.click()                                              
                         break
 
-                    
                     elif int(descolumn) == len(tdlist):
                         element = tdlist[-1]
                         elements = element.find_elements_by_xpath('./a')
@@ -763,19 +762,20 @@ class Extend(object):
                                 LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
                                 i.click()
                                 break
-                            if i.text.strip() == str(text):
+                            elif i.text.strip() == str(text):
                                 textlist.append(i.text.strip())
                                 LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.text.strip(),str(text)))   
                                 i.click()
                                 break
-                            elements = i.find_elements_by_xpath('./img')
-                            for j in elements: 
-                                if j.get_attribute('title').strip() == str(text):
-                                    titlelist.append(j.get_attribute('title'))
-                                    LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
-                                    j.click()
-                                    break
-                            break
+                            else:
+                                elements = i.find_elements_by_xpath('./img')
+                                for j in elements: 
+                                    if j.get_attribute('title').strip() == str(text):
+                                        titlelist.append(j.get_attribute('title'))
+                                        LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
+                                        j.click()
+                                        break
+                        break
                     else:
                         element = tdlist[int(descolumn)-1]
                         elements = element.find_elements_by_xpath('./a')
@@ -803,22 +803,23 @@ class Extend(object):
                         for i in elements: 
                             if i.get_attribute('title').strip() == str(text):
                                 titlelist.append(i.get_attribute('title'))
-                                LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))   
+                                LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
                                 i.click()
                                 break
-                            if i.text.strip() == str(text): 
+                            elif i.text.strip() == str(text):
                                 textlist.append(i.text.strip())
                                 LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.text.strip(),str(text)))   
                                 i.click()
                                 break
-                            elements = i.find_elements_by_xpath('./img')
-                            for j in elements: 
-                                if j.get_attribute('title').strip() == str(text):
-                                    titlelist.append(j.get_attribute('title'))
-                                    LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
-                                    j.click()
-                                    break
-                            break
+                            else:
+                                elements = i.find_elements_by_xpath('./img')
+                                for j in elements: 
+                                    if j.get_attribute('title').strip() == str(text):
+                                        titlelist.append(j.get_attribute('title'))
+                                        LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
+                                        j.click()
+                                        break
+                        break
                     else:
                         element = tdlist[int(descolumn)-1]
                         print('element',element)
@@ -847,22 +848,23 @@ class Extend(object):
                         for i in elements: 
                             if i.get_attribute('title').strip() == str(text):
                                 titlelist.append(i.get_attribute('title'))
-                                LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))   
+                                LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
                                 i.click()
                                 break
-                            if i.text.strip() == str(text): 
+                            elif i.text.strip() == str(text):
                                 textlist.append(i.text.strip())
                                 LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.text.strip(),str(text)))   
                                 i.click()
                                 break
-                            elements = i.find_elements_by_xpath('./img')
-                            for j in elements: 
-                                if j.get_attribute('title').strip() == str(text):
-                                    titlelist.append(j.get_attribute('title'))
-                                    LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
-                                    j.click()
-                                    break
-                            break
+                            else:
+                                elements = i.find_elements_by_xpath('./img')
+                                for j in elements: 
+                                    if j.get_attribute('title').strip() == str(text):
+                                        titlelist.append(j.get_attribute('title'))
+                                        LogUtility.logger.debug('texts:%s\n页面文本：%s'%(i.get_attribute('title'),str(text)))
+                                        j.click()
+                                        break
+                        break
                     else:
                         element = tdlist[int(descolumn)-1]
                         print('element',element)
